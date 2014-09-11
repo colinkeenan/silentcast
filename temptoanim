@@ -1,0 +1,22 @@
+#!/bin/bash
+guake -t
+cd ~/silentcast
+xdg-open ~/silentcast
+if [ -f anim.gif ]
+then
+	rm anim.gif
+fi
+ffmpeg -i temp.mkv -r 8 -an ew-%03d.png | zenity --progress --text="Creating images from temp.mkv" --pulsate --auto-close
+while ! [ -f anim.gif ]
+do
+    zenity  --info --text="DON'T PRESS OK until you've deleted unecessary images etc."
+    convert -adjoin -layers optimize *png anim.gif | \
+	    zenity --progress --text="Replacing images with anim.gif..." --pulsate --auto-close
+    if [ -f anim.gif ]
+    then 
+    	  zenity --error --text="Too many images - convert crashed"
+    else
+    	  rm *png
+    fi
+done
+

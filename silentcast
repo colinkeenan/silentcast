@@ -1,0 +1,7 @@
+#!/bin/bash
+mkdir -p ~/silentcast
+cd ~/silentcast
+genffcom
+./ffcom
+rm ffcom
+temptoanim
