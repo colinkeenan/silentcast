@@ -1,7 +1,7 @@
 #!/bin/bash
 guake -t
-cd ~/silentcast
-xdg-open ~/silentcast
+cd $1
+xdg-open $1
 if [ -f anim.gif ]
 then
 	rm anim.gif

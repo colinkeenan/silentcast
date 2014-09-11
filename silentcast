@@ -1,7 +1,23 @@
 #!/bin/bash
-mkdir -p ~/silentcast
-cd ~/silentcast
+cd
+ffcoms_running=`pgrep -x ffcom | wc -l`
+if [ $ffcoms_running > 0 ]
+then
+	if [ $ffcoms_running > 1 ]
+	then
+		print "You are already doing a silentcast of a silentcast. Further nesting of silentcasts is not supported."
+		exit -1
+	else
+		mkdir -p silentcast/silentcast
+		castdir="silentcast/silentcast"
+	fi
+else
+	mkdir -p silentcast
+	castdir="silentcast"
+fi
+
+cd "$castdir"
 genffcom $1
 ./ffcom
 rm ffcom
-temptoanim
+temptoanim $castdir
