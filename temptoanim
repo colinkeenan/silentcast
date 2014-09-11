@@ -1,7 +1,14 @@
 #!/bin/bash
 guake -t
-cd $1
-xdg-open $1
+cd
+if [ $1 -eq 1 ]
+then 
+	cd ~/silentcast
+	xdg-open ./
+else
+	cd ~/silentcast/silentcast
+	xdg-open ./
+fi
 if [ -f anim.gif ]
 then
 	rm anim.gif
@@ -10,15 +17,15 @@ if ls *png &> /dev/null
 then
 	rm *png
 fi
-ffmpeg -i temp.mkv -r 8 -an ew-%03d.png | zenity --progress --text="Creating images from temp.mkv" --pulsate --auto-close
+ffmpeg -i temp.mkv -r 8 -an ew-%03d.png | zenity --progress --text="silentcast "$1": Creating images from temp.mkv" --pulsate --auto-close
 while ! [ -f anim.gif ]
 do
-    zenity  --info --text="DON'T PRESS OK until you've deleted unecessary images etc."
+    zenity  --info --text="silentcast "$1": DON'T PRESS OK until you've deleted unecessary images etc."
     convert -adjoin -layers optimize *png anim.gif | \
-	    zenity --progress --text="Replacing images with anim.gif..." --pulsate --auto-close
+	    zenity --progress --text="silentcast "$1": Replacing images with anim.gif..." --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 
-    	  zenity --error --text="Too many images - convert crashed"
+    	  zenity --error --text="silentcast "$1": Too many images - convert crashed"
     else
     	  rm *png
     fi
