@@ -2,20 +2,28 @@
 # Get the coordinates of the active window's
 #    top-left corner, and the window's size.
 #    This excludes the window decoration.
+# --full means get current screen resolution
+#    instead of active window's size.
 # Put results in a bash file ffcom containing an
 #    ffmpeg command that will record a silent 
 #    mkv video at 8 frames per second
 guake -t
-zenity --info --text="OK when ready to generate ffcom - i.e. when you've got the next active window sized correctly"
-sleep 1
 unset x y w h
-eval $(xwininfo -id $(xdotool getactivewindow) |
-  sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
-         -e "s/^ \+Absolute upper-left Y: \+\([0-9]\+\).*/y=\1/p" \
-         -e "s/^ \+Width: \+\([0-9]\+\).*/w=\1/p" \
-         -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
+if [ $1 == '--full' ]
+then
+	w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
+	h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
+else
+        zenity --info --text="OK when ready to generate ffcom - i.e. when you've got the next active window sized correctly"
+        sleep 1
+        eval $(xwininfo -id $(xdotool getactivewindow) |
+          sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
+                 -e "s/^ \+Absolute upper-left Y: \+\([0-9]\+\).*/y=\1/p" \
+                 -e "s/^ \+Width: \+\([0-9]\+\).*/w=\1/p" \
+                 -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
+fi
 echo '#!/bin/bash
 # Output from genffcom
-zenity --info --text="OK when ready to start recording. Bring back terminal and press z to stop recording."
+zenity --info --text="OK when ready to start recording. Toggle Guake and press z to stop recording."
 ffmpeg -f x11grab -s '$w'x'$h' -r 8 -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom
 chmod +x ffcom
