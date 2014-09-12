@@ -21,11 +21,18 @@ ffmpeg -i temp.mkv -r 8 -an ew-%03d.png | zenity --progress --text="silentcast "
 while ! [ -f anim.gif ]
 do
     zenity  --info --text="silentcast "$1": DON'T PRESS OK until you've deleted unecessary images etc."
+    choice=`zenity --list \
+	    --title="What should be done with the images?" \
+	    --column="Choose One" \
+	    "Try to convert them to anim.gif as is: I've already deleted unecessary images, etc." \
+	    "Remove every other image, then try to convert them to anim.gif" \
+	    "Remove three out of every four images, then try to convert them to anim.gif"`
+# put a case statement here
     convert -adjoin -layers optimize *png anim.gif | \
 	    zenity --progress --text="silentcast "$1": Replacing images with anim.gif..." --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 
-    	  zenity --error --text="silentcast "$1": Too many images - convert crashed"
+    	  zenity --error --text="silentcast "$1": Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images."
     else
     	  rm *png
     fi
