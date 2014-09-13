@@ -1,4 +1,6 @@
 #!/bin/bash
+# $1 is silentcast#
+# $2 is fps
 guake -t
 cd
 if [ $1 -eq 1 ]
@@ -17,7 +19,7 @@ if ls *png &> /dev/null
 then
 	rm *png
 fi
-ffmpeg -i temp.mkv -r 8 -an ew-%03d.png | zenity --progress --text="silentcast "$1": Creating images from temp.mkv" --pulsate --auto-close
+ffmpeg -i temp.mkv -r $2 -an ew-%03d.png | zenity --progress --text="silentcast "$1": Creating images from temp.mkv" --pulsate --auto-close
 while ! [ -f anim.gif ]
 do
     cut=`zenity --entry \
@@ -37,7 +39,7 @@ do
     		    fi
     	done
     fi
-    convert -adjoin -delay "$cut"x8 -layers optimize *png anim.gif | \
+    convert -adjoin -delay "$cut"x"$2" -layers optimize *png anim.gif | \
 	    zenity --progress --text="silentcast "$1": Replacing images with anim.gif..." --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 

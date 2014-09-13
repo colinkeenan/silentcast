@@ -45,11 +45,32 @@ well as a step by step guide and a list of tips.
 EOF
 }
 
-if [ $1 = "-h" ]
-then
-	show_help
-	exit 0
-fi
+unset fps ffcoms_running
+
+OPTIND=1
+while getopts ":hfr:" opt
+do 
+	case $opt in
+		h)
+			show_help
+			exit 0
+			;;
+		r)
+			echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
+			fps=$OPTARG 
+			;;
+		# -f is processed in genffcom, so nothing to do here for -f
+		\?) 
+			echo "Invalid option: -$OPTARG" >&2
+			exit 1
+			;;
+	       	:)
+		       	echo "Option -$OPTARG requires an argument." >&2
+		       	exit 1
+		       	;;
+       	esac
+done
+shift "$((OPTIND-1))" # get rid of everything just processed leaving what's left as $1
 
 cd
 ffcoms_running=`pgrep -x ffcom | wc -l`
@@ -76,4 +97,4 @@ else
 fi
 genffcom "$@" $castnum
 bash ffcom
-temptoanim $castnum
+temptoanim $castnum $fps
