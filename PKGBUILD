@@ -22,6 +22,5 @@ package() {
   install -m755 silentcast "$pkgdir/usr/bin/silentcast"
   install -m755 genffcom "$pkgdir/usr/bin/genffcom"
   install -m755 temptoanim "$pkgdir/usr/bin/temptoanim"
-  install -m755 -D README.md "~/.silentcast/README.md"
-  install -m755 LICENSE "~/.silentcast/LICENSE"
+  install -m755 -D README.md "/usr/share/doc/silentcast/README.md"
 }
