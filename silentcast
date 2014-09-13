@@ -22,6 +22,6 @@ then
 else
 	cd ~/silentcast/silentcast
 fi
-genffcom $1 $castnum
+genffcom $castnum $1 
 ./ffcom
 temptoanim $castnum
