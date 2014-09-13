@@ -1,24 +1,69 @@
 #!/bin/bash
-# Get the coordinates of the active window's
-#    top-left corner, and the window's size.
-#    This excludes the window decoration.
-# --full means get current screen resolution
-#    instead of active window's size.
-# Put results in a bash file ffcom containing an
-#    ffmpeg command that will record a silent 
-#    mkv video at 8 frames per second
-# $2 only matters if it's --full, then the entire
-#    screen is used for the size of recording
-# $1 is which instance of silentcast is running
-#    because it is allowed to do a silentcast
-#    of a silentcast. 
+
+# Usage info
+show_help() {
+cat << EOF
+genffcom generates a bash script in the current directory
+called ffcom containing an ffmpeg command that will record
+a silent mkv video at a default rate of 8 frames per second.
+Execute the generated script with ./ffcom, or double click it
+in a file browser.
+   
+Usage: genffcom [-hfr rate#] silentcast#
+
+    -h          display this help and exit
+    -f          set recording area to full screen
+                (default is active window excluding
+		window decorations)
+    -r rate#    set frames per second to rate#
+                (default is 8 frames per second)
+    silentcast# is a single digit indicating how many
+                instances of silentcast are running.
+		silentcast limits it to 1 or 2, but
+		can be set to anything if genffcom is
+	       	called outside of silentcast
+
+genffcom is normally called from silentcast, but
+   can be called directly or from another script.
+EOF
+}
+
+unset x y w h fullscreen fps
+#defaults
+fullscreen=false
+fps=8
+
+OPTIND=1
+while getopts ":hfr:" opt
+do 
+	case $opt in
+		h)
+			show_help
+			exit 0
+			;;
+		f)
+			w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
+			h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
+			fullscreen=true
+			;;
+		r)
+			fps=$OPTARG 
+			;;
+		\?) 
+			echo "Invalid option: -$OPTARG" >&2
+			exit 1
+			;;
+	       	:)
+		       	echo "Option -$OPTARG requires an argument." >&2
+		       	exit 1
+		       	;;
+       	esac
+done
+shift "$((OPTIND-1))" # get rid of everything just processed leaving what's left as $1
+
 guake -t
-unset x y w h
-if [ "$2" == '--full' ]
+if ! $fullscreen
 then
-	w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
-	h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
-else
         zenity --info --text="SILENTCAST"$1": Click OK when ready to generate ffcom - i.e. when you've got the next active window sized correctly"
         sleep 1
         eval $(xwininfo -id $(xdotool getactivewindow) |
@@ -28,7 +73,9 @@ else
                  -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
 fi
 echo '#!/bin/bash
-# Output from genffcom when castnum='$1'
+# Output from genffcom when screencast#='$1'
 zenity --info --text="SILENTCAST '$1': click OK when ready to start recording. Toggle Guake and press q to stop recording."
-ffmpeg -f x11grab -s '$w'x'$h' -r 8 -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom
+ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom
 chmod +x ffcom
+
+# End of file
