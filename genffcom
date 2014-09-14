@@ -67,11 +67,16 @@ shift "$((OPTIND-1))" # get rid of everything just processed leaving what's left
 guake -t
 if ! $fullscreen
 then
-	size=zenity --list --title="SILENTCAST"$1": Choose one of the window sizes below; then, click on a window. There will be 2 more dialgue popups before recording begins." --column="Window Size for recording" \
+	size=`zenity --list --title="[3] Set Recording Area [3]" --text="\
+SILENTCAST "$1": Choose one of the window sizes below and click OK;\n\
+then, click on a window that is not maximized.\n\
+	\n\
+There will be 2 more dialogue popups before recording begins."\
+	       	--column="Window Size for recording" \
 		560x315 \
 		640x360 \
 		853x480 \
-		1280x720 
+		1280x720` 
 
 	case $size in
 		560x315)
@@ -88,8 +93,13 @@ then
 			;;
 	esac
 
-	zenity --info --text="SILENTCAST"$1": Move window to area to be recorded, and resize manually if desired. Click OK when ready to generate ffcom - i.e. when you've got the next active window sized and positioned correctly. There will be one more dialogue popup before recording begins."
-        sleep 1
+	zenity --info --title="[2] Further Set Recording Area [2]" --text="\
+SILENTCAST "$1": Move window to area to be recorded, and resize manually if desired.\n\
+Click OK when ready to generate ffcom - i.e. when you've got the next active window sized\n\
+and positioned correctly. \n\
+\n\
+There will be one more dialogue popup before recording begins."
+        sleep 0.2 # Just making sure the dialogue window isn't in the way
         eval $(xwininfo -id $(xdotool getactivewindow) |
           sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
                  -e "s/^ \+Absolute upper-left Y: \+\([0-9]\+\).*/y=\1/p" \
@@ -97,8 +107,13 @@ then
                  -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
 fi
 echo '#!/bin/bash
-  Output from genffcom for screencast#='$1'
-zenity --info --text="SILENTCAST '$1': click OK when ready to start recording. Toggle Guake and press q to stop recording."
+# Output from genffcom for screencast#='$1'
+zenity --info --title="[1] Get Ready [1]" --text="\
+SILENTCAST '$1': Click OK when ready to start recording.\n\
+For example, if you wanted to record what is under the window,\n\
+close it now.\n\
+\n\
+Toggle Guake and press q to stop recording."
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom
 
 # End of file

@@ -46,6 +46,8 @@ EOF
 }
 
 unset fps ffcoms_running
+#default
+fps=8
 
 OPTIND=1
 while getopts ":hfr:" opt
