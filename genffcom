@@ -30,7 +30,7 @@ genffcom is normally called from silentcast, but
 EOF
 }
 
-unset x y w h fullscreen fps
+unset x y w h fullscreen fps size
 #defaults
 fullscreen=false
 fps=8
@@ -67,7 +67,28 @@ shift "$((OPTIND-1))" # get rid of everything just processed leaving what's left
 guake -t
 if ! $fullscreen
 then
-        zenity --info --text="SILENTCAST"$1": Click OK when ready to generate ffcom - i.e. when you've got the next active window sized correctly"
+	size=zenity --list --title="SILENTCAST"$1": Choose one of the window sizes below; then, click on a window. There will be 2 more dialgue popups before recording begins." --column="Window Size for recording" \
+		560x315 \
+		640x360 \
+		853x480 \
+		1280x720 
+
+	case $size in
+		560x315)
+			wmctrl -e 1,0,0,560,315 -r :SELECT:
+			;;
+		640x360)
+			wmctrl -e 1,0,0,640,360 -r :SELECT:
+			;;
+		853x480)
+			wmctrl -e 1,0,0,853,480 -r :SELECT:
+			;;
+		1280x720)
+			wmctrl -e 1,0,0,1280,720 -r :SELECT:
+			;;
+	esac
+
+	zenity --info --text="SILENTCAST"$1": Move window to area to be recorded, and resize manually if desired. Click OK when ready to generate ffcom - i.e. when you've got the next active window sized and positioned correctly. There will be one more dialogue popup before recording begins."
         sleep 1
         eval $(xwininfo -id $(xdotool getactivewindow) |
           sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
@@ -76,7 +97,7 @@ then
                  -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
 fi
 echo '#!/bin/bash
-# Output from genffcom when screencast#='$1'
+  Output from genffcom for screencast#='$1'
 zenity --info --text="SILENTCAST '$1': click OK when ready to start recording. Toggle Guake and press q to stop recording."
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom
 

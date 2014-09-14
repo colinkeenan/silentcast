@@ -32,7 +32,7 @@ then
 	exit 0
 fi
 
-unset fps ffcoms_running
+unset cut group count
 guake -t
 cd
 if [ $1 -eq 1 ]
