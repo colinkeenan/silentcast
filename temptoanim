@@ -1,6 +1,38 @@
 #!/bin/bash
 # $1 is silentcast#
 # $2 is fps
+
+# Usage info
+show_help() {
+cat << EOF
+temptoanim converts temp.mkv to anim.gif
+
+Usage: temptoanim silentcast# fps
+
+    silentcast# should be either 1 or 2, but can be anything
+
+                    1: tries to convert ~/silentcast/temp.mkv
+		not 1: tries to convert ~/silentcast/silentcast/temp.mkv
+
+    fps is the frames per second and should match the fps used to
+        create temp.mkv.
+
+    temptoanim doesn't verify the actual fps in temp.mkv, and there
+    is no default for either arg: both are required.
+
+There are some dialogues that come up, and it's important to read
+and understand them. View /usr/share/doc/silentcast/README.md with
+a markdown viewer and get an animated gif demo made with silentcast,
+as well as a step by step guide and a list of tips.
+EOF
+}
+if [ "$#" -ne 2 ]
+then
+	show_help
+	exit 0
+fi
+
+unset fps ffcoms_running
 guake -t
 cd
 if [ $1 -eq 1 ]
