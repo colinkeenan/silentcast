@@ -98,5 +98,7 @@ else
 	cd ~/silentcast/silentcast
 fi
 genffcom "$@" $castnum
-bash ffcom
+bash ffcom$castnum
+yad --notification --image="stop" --text="$castnum"
+pkill ffcom$castnum
 temptoanim $castnum $fps

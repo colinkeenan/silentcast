@@ -62,7 +62,7 @@ do
 		       	;;
        	esac
 done
-shift "$((OPTIND-1))" # get rid of everything just processed leaving what's left as $1
+shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast# as $1
 
 guake -t
 if ! $fullscreen
@@ -111,9 +111,11 @@ echo '#!/bin/bash
 zenity --info --title="[1] Get Ready [1]" --text="\
 SILENTCAST '$1': Click OK when ready to start recording.\n\
 For example, if you wanted to record what is under the window,\n\
-close it now.\n\
+close or hide it now.\n\
 \n\
-Toggle Guake and press q to stop recording."
-ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom
+To Stop Recording: \n\
+Click the stop icon in the Notification Area, or if running\n\
+outside of silentcast in a terminal, type q in that terminal."
+ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom$1
 
 # End of file
