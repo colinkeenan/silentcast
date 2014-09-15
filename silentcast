@@ -10,7 +10,7 @@ area of the screen.
 Usage: silentcast [-hfr rate#]
 
     -h          display this help and exit
-    -f          set recording area to full screen
+    -f          set recording area to fullscreen screen
                 (default is active window excluding
 		window decorations)
     -r rate#    set frames per second to rate#
@@ -28,11 +28,11 @@ at 4 frames per second:
 
     silentcast -r4
 
-Record the full screen at 8 frames per second
+Record the fullscreen screen at 8 frames per second
 
     silentcast -f
 
-Record the full screen at 4 frames per second
+Record the fullscreen screen at 4 frames per second
 
     silentcast -fr4
 
@@ -45,9 +45,13 @@ well as a step by step guide and a list of tips.
 EOF
 }
 
-unset fps ffcoms_running
+unset fps fullscreen ffcoms_running f rate
 #default
 fps=8
+fullscreen=false
+ffcoms_running=0
+f=""
+rate=""
 
 OPTIND=1
 while getopts ":hfr:" opt
@@ -61,7 +65,9 @@ do
 			echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
 			fps=$OPTARG 
 			;;
-		# -f is processed in genffcom, so nothing to do here for -f
+		f)
+			fullscreen=true
+			;;
 		\?) 
 			echo "Invalid option: -$OPTARG" >&2
 			exit 1
@@ -97,6 +103,17 @@ then
 else
 	cd ~/silentcast/silentcast
 fi
-genffcom "$@" $castnum # pass all the args supplied to silentcast along with $castnum
+
+if [ "$fullscreen" = true ]
+then
+       f="-f"
+fi
+
+if [ $fps -ne 8 ]
+then
+	rate="-r"$fps
+fi
+
+genffcom $f $rate $castnum 
 bash ffcom
 temptoanim $castnum $fps

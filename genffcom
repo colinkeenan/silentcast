@@ -30,9 +30,9 @@ genffcom is normally called from silentcast, but
 EOF
 }
 
-unset x y w h fullscreen fps size
+unset x y w h full fps size
 #defaults
-fullscreen=false
+full=false
 fps=8
 
 OPTIND=1
@@ -46,7 +46,7 @@ do
 		f)
 			w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
 			h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
-			fullscreen=true
+			full=true
 			;;
 		r)
 			echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
@@ -64,7 +64,9 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast# as $1
 
-if ! $fullscreen
+zenity --info --text=$full
+
+if [ "$full" = false ]
 then
 	size=`zenity --list --title="[3] Set Recording Area [3]" --text="\
 SILENTCAST "$1": Choose one of the window sizes below and click OK;\n\
