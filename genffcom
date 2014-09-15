@@ -114,8 +114,14 @@ For example, if you wanted to record what is under the window,\n\
 close or hide it now.\n\
 \n\
 To Stop Recording: \n\
-Click the stop icon in the Notification Area, or if running\n\
-outside of silentcast in a terminal, type q in that terminal."
-ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv' > ffcom$1
+Click the stop icon in the Notification Area"
+ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv &
+for PID in `pidof ffmpeg`
+do
+   ffmpegPID=$PID 
+done
+yad --notification --image="stop" --text="'$1'"
+kill $ffmpegPID' > ffcom
+
 
 # End of file

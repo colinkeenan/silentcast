@@ -97,8 +97,6 @@ then
 else
 	cd ~/silentcast/silentcast
 fi
-genffcom "$@" $castnum
-bash ffcom$castnum
-yad --notification --image="stop" --text="$castnum"
-pkill ffcom$castnum
+genffcom "$@" $castnum # pass all the args supplied to silentcast along with $castnum
+bash ffcom
 temptoanim $castnum $fps
