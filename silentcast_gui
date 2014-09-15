@@ -1,0 +1,23 @@
+#!/bin/bash
+
+unset fullscreen,fps,f
+#defaults
+fullscreen=FALSE
+fps=8
+f=""
+
+arg_form=`yad --form \
+	--title="Silentcast" \
+	--separator="," \
+	--field="Fullscreen":CHK \
+	--field="Frames per second" \
+	FALSE 8`
+fullscreen="$(awk -F, '{print $1}' <<<"$arg_form")"
+fps="$(awk -F, '{print $2}' <<<"$arg_form")"
+
+if [ "$fullscreen" = TRUE ]
+then
+       f="f"
+fi
+
+silentcast -"$f""r""$fps"
