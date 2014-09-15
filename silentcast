@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 show_help() {
 cat << EOF
@@ -21,11 +21,11 @@ then
 	exit 0
 fi
 
-unset fps fullscreen ffmpegs_running f rate arg_form
+unset fps fullscreen ffcoms_running f rate arg_form
 #defaults
 fps=8
 fullscreen=FALSE
-ffmpegs_running=0
+ffcoms_running=0
 f=""
 rate=""
 
@@ -49,12 +49,12 @@ then
 fi
 
 cd
-ffmpegs_running=`pgrep -x ffcom | wc -l`
-if [ $ffmpegs_running -gt 0 ]
+ffcoms_running=`pgrep -f ffcom | wc -l`
+if [ $ffcoms_running -gt 0 ]
 then
-	if [ $ffmpegs_running -gt 1 ]
+	if [ $ffcoms_running -gt 1 ]
 	then
-		echo "You are already doing a recording of a recording. Further nesting of silentcasts or ffmpegs is not supported."
+		echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported."
 		exit -1
 	else
 		mkdir -p silentcast/silentcast
