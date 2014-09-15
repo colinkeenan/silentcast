@@ -14,7 +14,7 @@ running in.
 Usage: genffcom [-hfr rate#] {silentcast#}
 
     -h          display this help and exit
-    -f          set recording area to full screen
+    -f          set recording area to fullscreen screen
                 (default is active window excluding
 		window decorations)
     -r rate#    set frames per second to rate#
@@ -30,9 +30,9 @@ genffcom is normally called from silentcast, but
 EOF
 }
 
-unset x y w h full fps size
+unset x y w h fullscreen fps size
 #defaults
-full=false
+fullscreen=false
 fps=8
 
 OPTIND=1
@@ -46,7 +46,7 @@ do
 		f)
 			w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
 			h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
-			full=true
+			fullscreen=true
 			;;
 		r)
 			echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
@@ -64,9 +64,7 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast# as $1
 
-zenity --info --text=$full
-
-if [ "$full" = false ]
+if [ "$fullscreen" = false ]
 then
 	size=`zenity --list --title="[3] Set Recording Area [3]" --text="\
 SILENTCAST "$1": Choose one of the window sizes below and click OK;\n\

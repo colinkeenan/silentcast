@@ -10,7 +10,7 @@ area of the screen.
 Usage: silentcast [-hfr rate#]
 
     -h          display this help and exit
-    -f          set recording area to fullscreen screen
+    -f          set recording area to fullscreen 
                 (default is active window excluding
 		window decorations)
     -r rate#    set frames per second to rate#
@@ -28,11 +28,11 @@ at 4 frames per second:
 
     silentcast -r4
 
-Record the fullscreen screen at 8 frames per second
+Record the fullscreen at 8 frames per second
 
     silentcast -f
 
-Record the fullscreen screen at 4 frames per second
+Record the fullscreen at 4 frames per second
 
     silentcast -fr4
 
