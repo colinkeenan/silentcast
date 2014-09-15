@@ -1,40 +1,10 @@
 #!/bin/bash
 
-# Usage info
 show_help() {
 cat << EOF
 silentcast creates a silent video, silentcast/temp.mkv,
 and an animated gif, silentcast/anim.gif, recording an
 area of the screen.
-
-Usage: silentcast [-hfr rate#]
-
-    -h          display this help and exit
-    -f          set recording area to fullscreen 
-                (default is active window excluding
-		window decorations)
-    -r rate#    set frames per second to rate#
-                (default is 8 frames per second)
-
-Examples:
-
-Record the active window, excluding window decorations,
-at 8 frames per second:
-
-    silentcast
-
-Record the active window, excluding window decorations,
-at 4 frames per second:
-
-    silentcast -r4
-
-Record the fullscreen at 8 frames per second
-
-    silentcast -f
-
-Record the fullscreen at 4 frames per second
-
-    silentcast -fr4
 
 silentcast runs 2 other bash scripts that are part of the 
 same package: genffcom and temptoanim
@@ -45,48 +15,46 @@ well as a step by step guide and a list of tips.
 EOF
 }
 
-unset fps fullscreen ffcoms_running f rate
-#default
+if [ $1 = "-h" ]
+then
+	show_help
+	exit 0
+fi
+
+unset fps fullscreen ffmpegs_running f rate arg_form
+#defaults
 fps=8
-fullscreen=false
-ffcoms_running=0
+fullscreen=FALSE
+ffmpegs_running=0
 f=""
 rate=""
 
-OPTIND=1
-while getopts ":hfr:" opt
-do 
-	case $opt in
-		h)
-			show_help
-			exit 0
-			;;
-		r)
-			echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
-			fps=$OPTARG 
-			;;
-		f)
-			fullscreen=true
-			;;
-		\?) 
-			echo "Invalid option: -$OPTARG" >&2
-			exit 1
-			;;
-	       	:)
-		       	echo "Option -$OPTARG requires an argument." >&2
-		       	exit 1
-		       	;;
-       	esac
-done
-shift "$((OPTIND-1))" # get rid of everything just processed leaving what's left as $1
+arg_form=`yad --form \
+	--title="Silentcast" \
+	--separator="," \
+	--field="Fullscreen":CHK \
+	--field="Frames per second" \
+	FALSE 8`
+fullscreen="$(awk -F, '{print $1}' <<<"$arg_form")"
+fps="$(awk -F, '{print $2}' <<<"$arg_form")"
+
+if [ "$fullscreen" = TRUE ]
+then
+       f="-f"
+fi
+
+if [ $fps -ne 8 ]
+then
+	rate="-r"$fps
+fi
 
 cd
-ffcoms_running=`pgrep -x ffcom | wc -l`
-if [ $ffcoms_running -gt 0 ]
+ffmpegs_running=`pgrep -x ffcom | wc -l`
+if [ $ffmpegs_running -gt 0 ]
 then
-	if [ $ffcoms_running -gt 1 ]
+	if [ $ffmpegs_running -gt 1 ]
 	then
-		echo "You are already doing a silentcast of a silentcast. Further nesting of silentcasts is not supported."
+		echo "You are already doing a recording of a recording. Further nesting of silentcasts or ffmpegs is not supported."
 		exit -1
 	else
 		mkdir -p silentcast/silentcast
@@ -102,16 +70,6 @@ then
 	cd ~/silentcast
 else
 	cd ~/silentcast/silentcast
-fi
-
-if [ "$fullscreen" = true ]
-then
-       f="-f"
-fi
-
-if [ $fps -ne 8 ]
-then
-	rate="-r"$fps
 fi
 
 genffcom $f $rate $castnum 

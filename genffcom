@@ -8,13 +8,16 @@ called ffcom containing an ffmpeg command that will record
 a silent mkv video at a default rate of 8 frames per second.
 Execute the generated script with 
 \$ bash ffcom 
-in a terminal, and exit by typing q in the terminal it's 
-running in. 
+in a terminal, and exit by clicking the stop icon in the
+notification area. Ignore instructions from ffmpeg about
+stopping it with q - it won't work. If you don't have a
+notification area, you can still stop it with ctrl-c in
+the terminal where it is running.
    
 Usage: genffcom [-hfr rate#] {silentcast#}
 
     -h          display this help and exit
-    -f          set recording area to fullscreen screen
+    -f          set recording area to fullscreen 
                 (default is active window excluding
 		window decorations)
     -r rate#    set frames per second to rate#

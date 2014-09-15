@@ -10,7 +10,7 @@ license=('GPL')
 depends=('zenity' 'ffmpeg' 'imagemagick' 'wmctrl' 'yad')
 install=${pkgname}.install
 
-source=('silentcast' 'genffcom' 'temptoanim' 'README.md' 'LICENSE')
+source=('silentcast' 'genffcom' 'temptoanim' 'silentcast.desktop' 'README.md' 'LICENSE')
 md5sums=('d0fe2b3b5721c3ba7af8a4b1a009fdea'
          '731132dfaf66d4a9db94cd890340d612'
          '7215e35b694057d8a7608a3a8c1236fc'
@@ -22,5 +22,6 @@ package() {
   install -m755 silentcast "$pkgdir/usr/bin/silentcast"
   install -m755 genffcom "$pkgdir/usr/bin/genffcom"
   install -m755 temptoanim "$pkgdir/usr/bin/temptoanim"
+  install -m755 silentcast.desktop "$pkgdir/usr/share/applications/silentcast.desktop"
   install -m755 -D README.md "/usr/share/doc/silentcast/README.md"
 }

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Silentcast
+Exec=silentcast
+Type=Application
+StartupNotify=true
+Icon=media-record
+Categories=Graphics;
