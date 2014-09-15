@@ -64,7 +64,6 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast# as $1
 
-guake -t
 if ! $fullscreen
 then
 	size=`zenity --list --title="[3] Set Recording Area [3]" --text="\

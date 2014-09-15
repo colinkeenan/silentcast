@@ -33,7 +33,6 @@ then
 fi
 
 unset cut group count
-guake -t
 cd
 if [ $1 -eq 1 ]
 then 

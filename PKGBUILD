@@ -7,7 +7,7 @@ pkgdesc="Run from Guake. Create silent mkv screencast and animated gif."
 arch=('any')
 url="https://github.com/colinkeenan/silentcast"
 license=('GPL')
-depends=('zenity' 'ffmpeg' 'imagemagick' 'wmctrl' 'guake')
+depends=('zenity' 'ffmpeg' 'imagemagick' 'wmctrl' 'yad')
 install=${pkgname}.install
 
 source=('silentcast' 'genffcom' 'temptoanim' 'README.md' 'LICENSE')
