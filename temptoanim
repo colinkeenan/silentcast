@@ -42,7 +42,7 @@ fi
 if ! [ -f temp.mkv ]
 then
 	echo "temp.mkv not found, so can't convert it to anim.gif" \
-	| yad --text-info --on-top --center --window-icon="media-record" --title="Error" --text="<b>SILENTCAST $1 </b>"
+	| yad --text-info --wrap --on-top --center --window-icon="media-record" --title="Error" --text="<b>SILENTCAST $1 </b>"
 	exit 0
 fi
 
@@ -92,7 +92,7 @@ Replacing images with anim.gif..." --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 
 	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\
-    	  yad --text-info --on-top --center --window-icon="media-record" --title="Error" --text="<b>SILENTCAST $1 </b>"
+    	  yad --text-info --wrap --on-top --center --window-icon="media-record" --title="Error" --text="<b>SILENTCAST $1 </b>"
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
     else
     	  rm *png
