@@ -69,8 +69,8 @@ shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast#
 
 if [ "$fullscreen" = false ]
 then
-	size=`yad --list --on-top --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-' --text="\
-<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
+	size=`yad --list --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-'\
+	       	--text="<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
 Choose one of the window sizes below and click OK; then, click on a window <span color='red'>that is not maximized.</span>\n\
 	\n\
 After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
@@ -102,7 +102,7 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 Click OK when you've got the next active window sized and positioned correctly. 
        	
 The next dialogue will give you a chance to close the next active window or make other adjustments before recording begins." \
-| yad --text-info --on-top --width=440 --height=280 --wrap --title="Further Set \
+| yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Further Set \
 Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1                </b><span font='24' color='green'>2</span>"
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 
@@ -120,7 +120,7 @@ printf "Click OK when ready to start recording.
 
 To Stop Recording: 
 Click the stop icon in the Notification Area" \
-| yad ---text-info --on-top --width=440 --height=280 --wrap --title="Get Ready" --window-icon="media-record" --text="\
+| yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="media-record" --text="\
 <b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 

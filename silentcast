@@ -29,7 +29,7 @@ ffcoms_running=0
 f=""
 rate=""
 
-arg_form=`yad --form --on-top\
+arg_form=`yad --form --on-top --center\
 	--title="Silentcast" \
 	--window-icon="media-record" \
 	--text='<tt>\
