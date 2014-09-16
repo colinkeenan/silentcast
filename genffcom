@@ -69,38 +69,42 @@ shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast#
 
 if [ "$fullscreen" = false ]
 then
-	size=`zenity --list --title="[3] Set Recording Area [3]" --text="\
-SILENTCAST "$1": Choose one of the window sizes below and click OK;\n\
-then, click on a window that is not maximized.\n\
+	size=`yad --list --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-' --text="\
+<span font='24' color='green'>3</span>\n\
+SILENTCAST "$1": Choose one of the window sizes below and click OK; then, click on a window <span color='red'>that is not maximized.</span>\n\
 	\n\
-There will be 2 more dialogue popups before recording begins."\
+After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
 	       	--column="Window Size for recording" \
+		No-auto-sizing \
 		560x315 \
 		640x360 \
 		853x480 \
 		1280x720` 
+[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 
 	case $size in
-		560x315)
+		560x315-)
 			wmctrl -e 1,0,0,560,315 -r :SELECT:
 			;;
-		640x360)
+		640x360-)
 			wmctrl -e 1,0,0,640,360 -r :SELECT:
 			;;
-		853x480)
+		853x480-)
 			wmctrl -e 1,0,0,853,480 -r :SELECT:
 			;;
-		1280x720)
+		1280x720-)
 			wmctrl -e 1,0,0,1280,720 -r :SELECT:
 			;;
 	esac
 
-	zenity --info --title="[2] Further Set Recording Area [2]" --text="\
-SILENTCAST "$1": Move window to area to be recorded, and resize manually if desired.\n\
-Click OK when ready to generate ffcom - i.e. when you've got the next active window sized\n\
+	yad --info-text --title="Further Set Recording Area" --window-icon="media-record" --text="\
+<span font='24' color='green'>2</span>\n\
+SILENTCAST "$1": Move window to area to be recorded, and resize manually if desired. \
+Click OK when ready to generate ffcom - i.e. when you've got the next active window sized \
 and positioned correctly. \n\
 \n\
 There will be one more dialogue popup before recording begins."
+[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
         sleep 0.2 # Just making sure the dialogue window isn't in the way
         eval $(xwininfo -id $(xdotool getactivewindow) |
           sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
@@ -110,11 +114,13 @@ There will be one more dialogue popup before recording begins."
 fi
 echo '#!/bin/bash
 # Output from genffcom for screencast#='$1'
-zenity --info --title="[1] Get Ready [1]" --text="\
+yad --info-text --title="Get Ready" --window-icon="media-record" --text="\
+<span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>\n\
 SILENTCAST '$1': Click OK when ready to start recording.\n\
 \n\
 To Stop Recording: \n\
 Click the stop icon in the Notification Area"
+[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv &
 for PID in `pidof ffmpeg`
 do

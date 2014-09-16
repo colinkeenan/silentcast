@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 show_help() {
 cat << EOF
@@ -15,7 +15,7 @@ well as a step by step guide and a list of tips.
 EOF
 }
 
-if [ $1 = "-h" ]
+if [ "$1" = "-h" ]
 then
 	show_help
 	exit 0
@@ -31,10 +31,19 @@ rate=""
 
 arg_form=`yad --form \
 	--title="Silentcast" \
+	--window-icon="media-record" \
+	--text='<tt>\
+  <span background="white">For a demo, guide, and list of tips,</span>\n\
+  <span background="white">install a markdown viewer extension </span>\n\
+  <span background="white">to your web browser and click:      </span>\n\
+  <span background="white"><a href="file:///usr/share/doc/silentcast/README.md">\
+             README.md              </a></span></tt>\n\n\
+If Fullscreen is not checked, the area defined by an active window chosen later will be recorded. '\
 	--separator="," \
 	--field="Fullscreen":CHK \
 	--field="Frames per second" \
 	FALSE 8`
+[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 fullscreen="$(awk -F, '{print $1}' <<<"$arg_form")"
 fps="$(awk -F, '{print $2}' <<<"$arg_form")"
 
@@ -43,7 +52,7 @@ then
        f="-f"
 fi
 
-if [ $fps -ne 8 ]
+if [ "$fps" -ne 8 ]
 then
 	rate="-r"$fps
 fi
@@ -73,5 +82,7 @@ else
 fi
 
 genffcom $f $rate $castnum 
+[ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
 bash ffcom
+[ "$?" -ne "0" ] && exit 1 #Cancel was clicked in ffcom
 temptoanim $castnum $fps
