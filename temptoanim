@@ -9,16 +9,17 @@ temptoanim converts temp.mkv to anim.gif
 
 Usage: temptoanim silentcast# fps
 
-    silentcast# should be either 1 or 2, but can be anything
+    silentcast# must be 0, 1, or 2
 
-                    1: tries to convert ~/silentcast/temp.mkv
-		not 1: tries to convert ~/silentcast/silentcast/temp.mkv
+	0: tries to convert ./temp.mkv
+	1: tries to convert ~/silentcast/temp.mkv
+	2: tries to convert ~/silentcast/silentcast/temp.mkv
 
-    fps is the frames per second and should match the fps used to
-        create temp.mkv.
-
-    temptoanim doesn't verify the actual fps in temp.mkv, and there
-    is no default for either arg: both are required.
+    fps is an integer and must match the frames per second used to
+        create temp.mkv. temptoanim doesn't verify the actual fps 
+	in temp.mkv.
+	
+    Both args are required.
 
 There are some dialogues that come up, and it's important to read
 and understand them. View /usr/share/doc/silentcast/README.md with
@@ -26,34 +27,29 @@ a markdown viewer and get an animated gif demo made with silentcast,
 as well as a step by step guide and a list of tips.
 EOF
 }
-if [ "$#" -ne 2 ]
+
+if ! [[ "$1" =~ ^[0-2]$ ]] || ! [[ "$2" =~ ^[0-9]+$ ]]
 then
 	show_help
 	exit 0
 fi
 
 unset cut group count
-cd
-if [ "$1" -eq 1 ]
-then 
-	cd ~/silentcast
-	xdg-open ./
-else
-	cd ~/silentcast/silentcast
-	xdg-open ./
+
+if [ "$1" -eq 1 ]; then cd ~/silentcast
+elif [ "$1" -eq 2 ]; then cd ~/silentcast/silentcast
 fi
-if [ -f anim.gif ]
-then
-	rm anim.gif
+xdg-open ./
+if [ -f anim.gif ]; then rm anim.gif
 fi
-if ls *png &> /dev/null
-then
-	rm *png
+if ls *png &> /dev/null; then rm *png
 fi
+
 ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
 	| yad --progress --on-top --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
 Creating images from temp.mkv" --pulsate --auto-close
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+
 while ! [ -f anim.gif ]
 do
     cut=`yad --entry --on-top --window-icon="media-record"\
