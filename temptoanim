@@ -50,15 +50,25 @@ if ls *png &> /dev/null
 then
 	rm *png
 fi
-ffmpeg -i temp.mkv -r $2 -an ew-%03d.png | yad --progress --window-icon="media-record" --text="silentcast "$1": Creating images from temp.mkv" --pulsate --auto-close
+ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
+	| yad --progress --on-top --window-icon="media-record" --text="<b>SILENTCAST $1<b>\n\
+Creating images from temp.mkv" --pulsate --auto-close
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 while ! [ -f anim.gif ]
 do
-    cut=`yad --entry --window-icon="media-record"\
-        --title="SILENTCAST "$1": Prepare images before converting to Anim.gif" \
-        --text="Manually delete or otherwise manipulate the images and click OK,\n   Or \nEnter any positive integer less than the total number of images. It works like this:\n0 do nothing\n1 delete every other\n2 delete 2 out of every 3\n3 delete 3 out of every 4 ..." \
+    cut=`yad --entry --on-top --window-icon="media-record"\
+        --title="Prepare images before converting to Anim.gif" \
+        --text="<b>SILENTCAST $1<b>\n\
+Manually delete or otherwise manipulate the images and click OK,\n\
+Or \n\
+Enter any positive integer less than the total number of images. It works like this:\n\
+0 do nothing\n\
+1 delete every other\n\
+2 delete 2 out of every 3\n\
+3 delete 3 out of every 4 ..."\
         --entry-text="0"`
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+
     group=$((cut + 1))
     if [ "$group" -gt 1 ]
     then
@@ -73,14 +83,17 @@ do
     	done
     fi
     convert -adjoin -delay "$cut"x"$2" -layers optimize *png anim.gif | \
-	    yad --progress --window-icon="media-record" --text="silentcast "$1": Replacing images with anim.gif..." --pulsate --auto-close
+	    yad --progress --on-top --title="convert" --window-icon="media-record" --text="SILENTCAST $1<b>\n\
+Replacing images with anim.gif..." --pulsate --auto-close
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
     if ! [ -f anim.gif ]
     then 
-    	  yad --error --window-icon="media-record" --text="silentcast "$1": Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images."
+    	  yad --error --on-top --window-icon="media-record" --title="error" --text="SILENTCAST $1<b>\n\
+Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images."
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
     else
     	  rm *png
     fi
 done
 
+# End of file

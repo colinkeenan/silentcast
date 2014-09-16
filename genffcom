@@ -69,9 +69,9 @@ shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast#
 
 if [ "$fullscreen" = false ]
 then
-	size=`yad --list --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-' --text="\
-<span font='24' color='green'>3</span>\n\
-SILENTCAST "$1": Choose one of the window sizes below and click OK; then, click on a window <span color='red'>that is not maximized.</span>\n\
+	size=`yad --list --on-top --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-' --text="\
+<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
+Choose one of the window sizes below and click OK; then, click on a window <span color='red'>that is not maximized.</span>\n\
 	\n\
 After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
 	       	--column="Window Size for recording" \
@@ -97,14 +97,15 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 			;;
 	esac
 
-	yad --info-text --title="Further Set Recording Area" --window-icon="media-record" --text="\
-<span font='24' color='green'>2</span>\n\
-SILENTCAST "$1": Move window to area to be recorded, and resize manually if desired. \
-Click OK when ready to generate ffcom - i.e. when you've got the next active window sized \
-and positioned correctly. \n\
-\n\
-There will be one more dialogue popup before recording begins."
+	printf "Move the next active window to the area to be recorded, and resize manually if desired.
+       	
+Click OK when you've got the next active window sized and positioned correctly. 
+       	
+The next dialogue will give you a chance to close the next active window or make other adjustments before recording begins." \
+| yad --text-info --on-top --width=440 --height=280 --wrap --title="Further Set \
+Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1                </b><span font='24' color='green'>2</span>"
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+
         sleep 0.2 # Just making sure the dialogue window isn't in the way
         eval $(xwininfo -id $(xdotool getactivewindow) |
           sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
@@ -114,20 +115,17 @@ There will be one more dialogue popup before recording begins."
 fi
 echo '#!/bin/bash
 # Output from genffcom for screencast#='$1'
-yad --info-text --title="Get Ready" --window-icon="media-record" --text="\
-<span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>\n\
-SILENTCAST '$1': Click OK when ready to start recording.\n\
-\n\
-To Stop Recording: \n\
-Click the stop icon in the Notification Area"
+
+printf "Click OK when ready to start recording.
+
+To Stop Recording: 
+Click the stop icon in the Notification Area" \
+| yad ---text-info --on-top --width=440 --height=280 --wrap --title="Get Ready" --window-icon="media-record" --text="\
+<b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
-ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv &
-for PID in `pidof ffmpeg`
-do
-   ffmpegPID=$PID 
-done
+
+ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv & ffmpegPID=$!
 yad --notification --image="stop" --text="'$1'"
 kill $ffmpegPID' > ffcom
-
 
 # End of file
