@@ -37,7 +37,6 @@ arg_form=`yad --form --on-top --center\
   <span background="white">  install a markdown viewer extension   </span>\n\
   <span background="white">  to your browser and click: <a href="file:///usr/share/doc/silentcast/README.md">README.md</a>  </span>\n\
   <span background="white">                                        </span></tt>'\
-	--separator="," \
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8`
@@ -57,12 +56,12 @@ then
 		echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported."
 		exit -1
 	else
-		mkdir -p silentcast/silentcast
+		mkdir -p ~/silentcast/silentcast
 		castnum=2
-		cd ~/silentcast/silentcast 2>/dev/null
+		cd ~/silentcast/silentcast
 	fi
 else
-	mkdir -p silentcast 2>/dev/null # -p is supposed to suppress "already exists" message, but I'm getting it anyway
+	mkdir -p ~/silentcast 
 	cd ~/silentcast
 	castnum=1
 fi

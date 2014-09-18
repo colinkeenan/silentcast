@@ -115,17 +115,13 @@ then
 		winSelect=Resize
 		win=transparent
 	fi
-	size=`yad --list --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-'\
+	size_form=`yad --form --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-'\
 	       	--text="<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
-Choose one of the window sizes below and click OK$resizeInstructions\n\
+Choose one of the window sizes below or enter one after choosing WxH and click OK$resizeInstructions\n\
 	\n\
 After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
-	       	--column="Window Size for recording" \
-		No-auto-sizing \
-		560x315 \
-		640x360 \
-		853x480 \
-		1280x720` 
+	       	--field="Window Size for recording":CBE \
+		"No-auto-sizing"!"560x315"!"640x360"!"853x480"!"1280x720"!"WxH"`
 	if [ "$?" -ne "0" ] #Cancel was clicked
 	then
 		if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
@@ -135,9 +131,11 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 		exit 1 
 	fi 
 
+	size="$(awk -F, '{print $1}' <<<"$size_form")"
+
 	if [ $size != No-auto-sizing- ]
 	then
-		size=`echo $size | tr x , | tr -d -`
+		size=`echo $size | tr x , | tr -d -` # change 1280x720- to 1280,720
 		wmctrl -e 1,0,0,$size -r $winSelect
 	fi
 
