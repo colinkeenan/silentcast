@@ -133,22 +133,13 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 			kill $transparentPID
 		fi
 		exit 1 
-	fi
+	fi 
 
-	case $size in
-		560x315-)
-			wmctrl -e 1,0,0,560,315 -r $winSelect
-			;;
-		640x360-)
-			wmctrl -e 1,0,0,640,360 -r $winSelect
-			;;
-		853x480-)
-			wmctrl -e 1,0,0,853,480 -r $winSelect
-			;;
-		1280x720-)
-			wmctrl -e 1,0,0,1280,720 -r $winSelect
-			;;
-	esac
+	if [ $size != No-auto-sizing- ]
+	then
+		size=`echo $size | tr x , | tr -d -`
+		wmctrl -e 1,0,0,$size -r $winSelect
+	fi
 
 	printf "Move the $win window to the area to be recorded, and resize manually if desired.
        	
