@@ -14,13 +14,19 @@ stopping it with q - it won't work. If you don't have a
 notification area, you can still stop it with ctrl-c in
 the terminal where it is running.
    
-Usage: genffcom [-hfr rate#] {silentcast#}
+Usage: genffcom [-h -a area -r rate#] {silentcast#}
 
     -h          display this help and exit
-    -f          set recording area to fullscreen 
-                (default is active window excluding
-		window decorations)
-    -r rate#    set frames per second to rate#
+    -a area     area is one of the following letters:
+                f t i e
+		and have the following meanings:
+		f : Fullscreen
+		t : Transparent Window Interior
+		i : Interior of a Window
+		e : Entirety of a Window
+		(default is Interior of a Window)
+    -r rate#    set frames per second to rate#,
+                a natural number
                 (default is 8 frames per second)
     silentcast# is a single digit indicating how many
                 instances of silentcast are running.
@@ -28,35 +34,68 @@ Usage: genffcom [-hfr rate#] {silentcast#}
 		can be set to anything or left blank
 		if genffcom is called outside of silentcast
 
+Spaces are not necessary in specifying the options: -atr12
+would mean set area using Transparent Window Interior and
+set frames per second to 12.
+
 genffcom is normally called from silentcast, but
    can be called directly or from another script.
 EOF
 }
 
-unset x y w h fullscreen fps size
 #defaults
-fullscreen=false
 fps=8
+fullscreen=false
+entire=false
+all_keys=""
+transparentPID=0
+resizeInstructions=""
+winSelect=":SELECT:"
+win="next active"
+x=0
+y=0
+w=0
+h=0
 
 OPTIND=1
-while getopts ":hfr:" opt
+while getopts ":ha:r:" opt
 do 
+	echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
 	case $opt in
 		h)
 			show_help
 			exit 0
 			;;
-		f)
-			w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
-			h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
-			fullscreen=true
+		a)
+			case $OPTARG in
+				f)
+					w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
+					h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
+					fullscreen=true
+					;;
+				t)
+					all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`
+					python2 /usr/share/silentcast/transparent_window.py \""$all_keys"\" & transparentPID=$!
+					sleep 0.2 # wmctrl doesn't work unless I sleep here
+					wmctrl -r "Resize" -e 1,0,0,500,300 # move the transp win to top left so it's not hiding
+					;;
+				i)
+					# don't need to do anything here
+					;;
+				e)
+					entire=true
+					;;
+				[^ftie])
+					echo "Invalid Area: -a$OPTARG  ('genffcom -h' for help)" >&2
+					exit 1
+					;;
+			esac
 			;;
 		r)
-			echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
 			fps=$OPTARG 
 			;;
 		\?) 
-			echo "Invalid option: -$OPTARG" >&2
+			echo "Invalid option: -$OPTARG  ('genffcom -h' for help)" >&2
 			exit 1
 			;;
 	       	:)
@@ -67,11 +106,18 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving silentcast# as $1
 
-if [ "$fullscreen" = false ]
+if [ "$fullscreen" = false ] # getting the size and position of area to record - don't need that if fullscreen=true
 then
+	if [ $transparentPID -eq 0 ] 
+	then
+		resizeInstructions="; then, click on a window <span color='red'>that is not maximized.</span>"
+	else
+		winSelect=Resize
+		win=transparent
+	fi
 	size=`yad --list --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-'\
 	       	--text="<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
-Choose one of the window sizes below and click OK; then, click on a window <span color='red'>that is not maximized.</span>\n\
+Choose one of the window sizes below and click OK$resizeInstructions\n\
 	\n\
 After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
 	       	--column="Window Size for recording" \
@@ -80,31 +126,45 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 		640x360 \
 		853x480 \
 		1280x720` 
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+	if [ "$?" -ne "0" ] #Cancel was clicked
+	then
+		if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
+		then
+			kill $transparentPID
+		fi
+		exit 1 
+	fi
 
 	case $size in
 		560x315-)
-			wmctrl -e 1,0,0,560,315 -r :SELECT:
+			wmctrl -e 1,0,0,560,315 -r $winSelect
 			;;
 		640x360-)
-			wmctrl -e 1,0,0,640,360 -r :SELECT:
+			wmctrl -e 1,0,0,640,360 -r $winSelect
 			;;
 		853x480-)
-			wmctrl -e 1,0,0,853,480 -r :SELECT:
+			wmctrl -e 1,0,0,853,480 -r $winSelect
 			;;
 		1280x720-)
-			wmctrl -e 1,0,0,1280,720 -r :SELECT:
+			wmctrl -e 1,0,0,1280,720 -r $winSelect
 			;;
 	esac
 
-	printf "Move the next active window to the area to be recorded, and resize manually if desired.
+	printf "Move the $win window to the area to be recorded, and resize manually if desired.
        	
-Click OK when you've got the next active window sized and positioned correctly. 
+Click OK when you've got the $win window sized and positioned correctly. 
        	
-The next dialogue will give you a chance to close the next active window or make other adjustments before recording begins." \
+The next dialogue will give you a chance to close the $win window or make other adjustments before recording begins." \
 | yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Further Set \
 Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1                </b><span font='24' color='green'>2</span>"
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+	if [ "$?" -ne "0" ] #Cancel was clicked
+	then
+		if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
+		then
+			kill $transparentPID
+		fi
+		exit 1 
+	fi
 
         sleep 0.2 # Just making sure the dialogue window isn't in the way
         eval $(xwininfo -id $(xdotool getactivewindow) |
@@ -113,6 +173,13 @@ Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1           
                  -e "s/^ \+Width: \+\([0-9]\+\).*/w=\1/p" \
                  -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
 fi
+
+if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
+then
+	kill $transparentPID
+fi
+
+# Finally, make the ffcom bash file
 echo '#!/bin/bash
 # Output from genffcom for screencast#='$1'
 

@@ -10,18 +10,20 @@ license=('GPL')
 depends=('ffmpeg' 'imagemagick' 'wmctrl' 'yad' 'xdotool')
 install=${pkgname}.install
 
-source=('silentcast' 'genffcom' 'temptoanim' 'silentcast.desktop' 'README.md' 'LICENSE')
-md5sums=('d0fe2b3b5721c3ba7af8a4b1a009fdea'
-         '731132dfaf66d4a9db94cd890340d612'
-         '7215e35b694057d8a7608a3a8c1236fc'
-         '7557e9f21bd6c4b16efe2af09e3e3db3'
+source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md' 'LICENSE')
+md5sums=('29077805f65561f81ed68445c0a3d0a7'
+         'ce1e4cb25ae20552cea6397f4db1dc31'
+         'fe3483490fffcbd6c24561d5758332d9'
+         '559c007224fdecd5a37abbea9bfe82cf'
+         'ebe95d79842151e38ddd96fb5cc742c9'
+         'da31900b9d06443b5c8d07889ff5a301'
          '783b7e40cdfb4a1344d15b1f7081af66')
 
 package() {
-  install -d -m755 "$pkgdir/usr/bin"
-  install -m755 silentcast "$pkgdir/usr/bin/silentcast"
-  install -m755 genffcom "$pkgdir/usr/bin/genffcom"
-  install -m755 temptoanim "$pkgdir/usr/bin/temptoanim"
-  install -m755 silentcast.desktop "$pkgdir/usr/share/applications/silentcast.desktop"
-  install -m755 -D README.md "/usr/share/doc/silentcast/README.md"
+  install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
+  install -D -m755 genffcom "$pkgdir/usr/bin/genffcom"
+  install -D -m755 temptoanim "$pkgdir/usr/bin/temptoanim"
+  install -D -m755 transparent_window.py "$pkgdir/usr/share/silentcast/transparent_window.py"
+  install -D -m755 silentcast.desktop "$pkgdir/usr/share/applications/silentcast.desktop"
+  install -D -m755 README.md "$pkgdir/usr/share/doc/silentcast/README.md"
 }

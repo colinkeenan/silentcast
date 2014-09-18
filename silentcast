@@ -21,43 +21,34 @@ then
 	exit 0
 fi
 
-unset fps fullscreen ffcoms_running f rate arg_form
+unset fps area_choice area ffcoms_running rate arg_form
 #defaults
 fps=8
-fullscreen=FALSE
 ffcoms_running=0
-f=""
-rate=""
+area_choice="Fullscreen"
+area="f"
 
 arg_form=`yad --form --on-top --center\
 	--title="Silentcast" \
 	--window-icon="media-record" \
 	--text='<tt>\
-  <span background="white">For a demo, guide, and list of tips,</span>\n\
-  <span background="white">install a markdown viewer extension </span>\n\
-  <span background="white">to your web browser and click:      </span>\n\
-  <span background="white"><a href="file:///usr/share/doc/silentcast/README.md">\
-             README.md              </a></span></tt>\n\n\
-If Fullscreen is not checked, the area defined by an active window chosen later will be recorded. '\
+  <span background="white">                                        </span>\n\
+  <span background="white">  For a demo, guide, and list of tips,  </span>\n\
+  <span background="white">  install a markdown viewer extension   </span>\n\
+  <span background="white">  to your browser and click: <a href="file:///usr/share/doc/silentcast/README.md">README.md</a>  </span>\n\
+  <span background="white">                                        </span></tt>'\
 	--separator="," \
-	--field="Fullscreen":CHK \
+	--field="Area to be recorded":CB \
 	--field="Frames per second" \
-	FALSE 8`
+	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8`
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
-fullscreen="$(awk -F, '{print $1}' <<<"$arg_form")"
+
+area_choice="$(awk -F, '{print $1}' <<<"$arg_form")"
 fps="$(awk -F, '{print $2}' <<<"$arg_form")"
 
-if [ "$fullscreen" = TRUE ]
-then
-       f="-f"
-fi
+area=${area_choice,} # lower case first letter
+area=${area:0:1}     # area is now one of f t i e
 
-if [ "$fps" -ne 8 ]
-then
-	rate="-r"$fps
-fi
-
-cd
 ffcoms_running=`pgrep -f ffcom | wc -l`
 if [ $ffcoms_running -gt 0 ]
 then
@@ -68,20 +59,15 @@ then
 	else
 		mkdir -p silentcast/silentcast
 		castnum=2
+		cd ~/silentcast/silentcast 2>/dev/null
 	fi
 else
-	mkdir -p silentcast
+	mkdir -p silentcast 2>/dev/null # -p is supposed to suppress "already exists" message, but I'm getting it anyway
+	cd ~/silentcast
 	castnum=1
 fi
 
-if [ $castnum -eq 1 ]
-then
-	cd ~/silentcast
-else
-	cd ~/silentcast/silentcast
-fi
-
-genffcom $f $rate $castnum 
+genffcom "-a"$area "-r"$fps $castnum 
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
 bash ffcom
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in ffcom
