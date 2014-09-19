@@ -56,6 +56,8 @@ x=0
 y=0
 w=0
 h=0
+b=0
+t=0
 
 OPTIND=1
 while getopts ":ha:r:" opt
@@ -160,7 +162,16 @@ Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1           
           sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
                  -e "s/^ \+Absolute upper-left Y: \+\([0-9]\+\).*/y=\1/p" \
                  -e "s/^ \+Width: \+\([0-9]\+\).*/w=\1/p" \
-                 -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
+                 -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" \
+                 -e "s/^ \+Relative upper-left X: \+\([0-9]\+\).*/b=\1/p" \
+                 -e "s/^ \+Relative upper-left Y: \+\([0-9]\+\).*/t=\1/p" )
+	if [ "$entire" = true ]
+	then
+		let x=$x-$b
+		let y=$y-$t
+		let w=$w+2*$b
+		let h=$h+$t+$b
+	fi
 fi
 
 if [ $transparentPID -ne 0 ] # Close the transparent window if it was used

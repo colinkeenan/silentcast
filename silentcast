@@ -37,13 +37,14 @@ arg_form=`yad --form --on-top --center\
   <span background="white">  install a markdown viewer extension   </span>\n\
   <span background="white">  to your browser and click: <a href="file:///usr/share/doc/silentcast/README.md">README.md</a>  </span>\n\
   <span background="white">                                        </span></tt>'\
+  	--separator="," \
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8`
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 
 area_choice="$(awk -F, '{print $1}' <<<"$arg_form")"
-fps="$(awk -F, '{print $2}' <<<"$arg_form")"
+fps="$(awk -F, '{print $2}' <<<"$arg_form")"         # getting second field this way only works when --separator="'"
 
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
@@ -65,7 +66,6 @@ else
 	cd ~/silentcast
 	castnum=1
 fi
-
 genffcom "-a"$area "-r"$fps $castnum 
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
 bash ffcom
