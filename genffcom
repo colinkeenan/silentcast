@@ -50,6 +50,7 @@ entire=false
 all_keys=""
 transparentPID=0
 resizeInstructions=""
+nextInstructions=""
 winSelect=":SELECT:"
 win="next active"
 x=0
@@ -113,13 +114,17 @@ then
 	if [ $transparentPID -eq 0 ] 
 	then
 		resizeInstructions="; then, click on a window <span color='red'>that is not maximized.</span>"
+		nextInstructions="The next dialogue will give you a chance to get ready before recording begins."
 	else
 		winSelect=Resize
 		win=transparent
+		nextInstructions="The transparent window will close, but the recording area will be \
+where the interior was. The next dialogue will give you a chance to get ready before \
+recording begins."
 	fi
-	size_form=`yad --form --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator='-'\
+	size_form=`yad --form --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator=','\
 	       	--text="<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
-Choose one of the window sizes below or enter one after choosing WxH and click OK$resizeInstructions\n\
+Choose one of the window sizes below or enter one on the WxH choice and click OK$resizeInstructions\n\
 	\n\
 After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
 	       	--field="Window Size for recording":CBE \
@@ -135,9 +140,9 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 
 	size="$(awk -F, '{print $1}' <<<"$size_form")"
 
-	if [ $size != No-auto-sizing- ]
+	if [ $size != No-auto-sizing ]
 	then
-		size=`echo $size | tr x , | tr -d -` # change 1280x720- to 1280,720
+		size=`echo $size | tr x ,` # change 1280x720 to 1280,720
 		wmctrl -e 1,0,0,$size -r $winSelect
 	fi
 
@@ -145,7 +150,7 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
        	
 Click OK when you've got the $win window sized and positioned correctly. 
        	
-The next dialogue will give you a chance to close the $win window or make other adjustments before recording begins." \
+$nextInstructions" \
 | yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Further Set \
 Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1                </b><span font='24' color='green'>2</span>"
 	if [ "$?" -ne "0" ] #Cancel was clicked

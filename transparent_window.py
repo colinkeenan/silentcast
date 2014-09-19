@@ -14,7 +14,7 @@ class MyWin (gtk.Window):
                                         # I want to position it at top left, but all the WIN_POS are based on 
                                         # center related stuff, so moving it with wmctrl in the bash script
     
-    self.set_title("PID:" + str(os.getpid()) + " Resize with " + self.get_resize_hotkey(str(sys.argv[1]))) 
+    self.set_title("PID:" + str(os.getpid()) + " Resize with " + self.get_resize_hotkey(str(sys.argv[1])) + "mouse") 
                               # Showing pid in title so that if this is run outside of silentcast,
                               # it will be easy to kill this process. Also showing hotkey for resizing the window.
     self.set_deletable(False) # I added this to remove the close button because closing
@@ -42,7 +42,7 @@ class MyWin (gtk.Window):
 
   def get_resize_hotkey(self, all_hotkeys):
       try: 
-          resize_hotkey=re.search('(?<=custom\/)<.+>\w*(?=.+resize_window_key)', all_hotkeys).group()
+          resize_hotkey=re.search('(?<=custom\/)<.+>\w*(?=.+resize_window_key)', all_hotkeys).group() + " and "
       except AttributeError:
           resize_hotkey=""
       return resize_hotkey
