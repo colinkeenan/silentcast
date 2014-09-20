@@ -34,7 +34,10 @@ then
 	exit 0
 fi
 
-unset cut group count
+cut=0
+total_cut=0
+group=0
+count=0
 
 if [ "$1" -eq 1 ]; then cd ~/silentcast
 elif [ "$1" -eq 2 ]; then cd ~/silentcast/silentcast
@@ -72,7 +75,8 @@ Enter any positive integer less than the total number of images. It works like t
         --entry-text="0"`
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 
-    group=$((cut + 1))
+    let group=$cut+1
+    let total_cut=$total_cut+$cut
     if [ "$group" -gt 1 ]
     then
     	count=0
@@ -85,7 +89,7 @@ Enter any positive integer less than the total number of images. It works like t
     		    fi
     	done
     fi
-    convert -adjoin -delay "$cut"x"$2" -layers optimize *png anim.gif | \
+    convert -adjoin -delay "$total_cut"x"$2" -layers optimize *png anim.gif | \
 	    yad --progress --on-top --center --title="convert" --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
 Replacing images with anim.gif..." --pulsate --auto-close
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
