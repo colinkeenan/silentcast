@@ -1,7 +1,8 @@
 [Desktop Entry]
 Name=Silentcast
+Comment=Silent Screencast: video record your screen and make it into an animated gif
 Exec=silentcast
 Type=Application
 StartupNotify=true
 Icon=media-record
-Categories=Graphics;
+Categories=Graphics;AudioVideo;
