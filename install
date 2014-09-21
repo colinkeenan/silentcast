@@ -1,0 +1,7 @@
+#!/bin/bash
+install -D -m755 silentcast /usr/bin/silentcast
+install -D -m755 genffcom /usr/bin/genffcom
+install -D -m755 temptoanim /usr/bin/temptoanim
+install -D -m755 transparent_window.py /usr/share/silentcast/transparent_window.py
+install -D -m755 silentcast.desktop /usr/share/applications/silentcast.desktop
+install -D -m755 README.md /usr/share/doc/silentcast/README.md

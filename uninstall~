@@ -1,0 +1,7 @@
+#!/bin/bash
+rm /usr/bin/silentcast
+rm /usr/bin/genffcom
+rm /usr/bin/temptoanim
+rm /usr/share/silentcast/transparent_window.py
+rm /usr/share/applications/silentcast.desktop
+rm /usr/share/doc/silentcast/README.md
