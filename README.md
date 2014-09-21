@@ -1,4 +1,4 @@
-silentcast
+Silentcast
 ==========
 
 <!--
@@ -19,7 +19,7 @@ Markdown Preview
 Then, just open this file with Chrome. You'll probably want to make Google Chrome the default for .md files. You can also just drag and drop this file to an empty tab in Chrome.
 -->
 
-##Demo: silentcast in action
+##Demo: Silentcast in action
 Notice there's a stop icon in the Notificatoni Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
 ###Fullscreen: How to use Silentcast to record Gimp
 ![Fullscreen](http://i.imgur.com/I1mXz9N.gif)
