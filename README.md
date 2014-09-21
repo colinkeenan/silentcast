@@ -22,13 +22,13 @@ Then, just open this file with Chrome. You'll probably want to make Google Chrom
 ##Demo: silentcast in action
 Notice there's a stop icon in the Notificatoni Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
 ###Fullscreen: How to use Silentcast to record Gimp
-![Fullscreen](file:///usr/share/doc/silentcast/fullscreen.gif)
+![Fullscreen](http://i.imgur.com/I1mXz9N.gif)
 ###Transparent: How to use Silentcast to record 2 windows
-![Transparent](file:///usr/share/doc/silentcast/transparent.gif)
+![Transparent](http://i.imgur.com/ak6NQZB.gif)
 ###Interior: How to use Silentcast to only record the drawing
-![Interior](file:///usr/share/doc/silentcast/interior.gif)
+![Interior](http://i.imgur.com/VAmUl8d.gif)
 ###Entirety: How to use Silentcast to record 1 window
-![Entirety](file:///usr/share/doc/silentcast/entirety.gif)
+![Entirety](http://i.imgur.com/XlWzLRW.gif)
 ##Guide
 
 ##List: Tips
