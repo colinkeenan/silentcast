@@ -35,7 +35,8 @@ arg_form=`yad --form --on-top --center\
   <span background="white">                                        </span>\n\
   <span background="white">  For a demo, guide, and list of tips,  </span>\n\
   <span background="white">  install a markdown viewer extension   </span>\n\
-  <span background="white">  to your browser and click: <a href="file:///usr/share/doc/silentcast/README.md">README.md</a>  </span>\n\
+  <span background="white">  to your browser and click <a href="file:///usr/share/doc/silentcast/README.md">README.md</a>   </span>\n\
+  <span background="white">  for local file or <a href="https://github.com/colinkeenan/silentcast/#silentcast">README.md</a> for web.  </span>\n\
   <span background="white">                                        </span></tt>'\
   	--separator="," \
 	--field="Area to be recorded":CB \
