@@ -19,7 +19,7 @@ Markdown Preview
 Then, just open this file with Chrome. You'll probably want to make Google Chrome the default for .md files. You can also just drag and drop this file to an empty tab in Chrome.
 -->
 
-##Demo: Silentcast in action
+##Demos
 Notice there's a stop icon in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
 ###Fullscreen: How to use Silentcast to record Gimp
 ![Fullscreen](http://i.imgur.com/I1mXz9N.gif)
@@ -29,7 +29,7 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 ![Interior](http://i.imgur.com/VAmUl8d.gif)
 ###Entirety: How to use Silentcast to record 1 window
 ![Entirety](http://i.imgur.com/XlWzLRW.gif)
-##Guide
+##Guides
 ###Installation
 *if you stumbled accross this before I've completed this README.md, then it's not available in the AUR* yet
 *From the AUR (Arch Linux)* `yaourt -S silentcast`
@@ -37,5 +37,30 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 Uninstall in the usual way `pacman -R silentcast`
 
 *In any other Linux Distro* [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install** or from a terminal `cd` into the extracted directory and `sudo ./install`
-Uninstall instructions are the same replacing 'install' with 'uninstall'. The 'install' and 'uninstall' bash scripts just copy or deletes files. You may want to edit them if your distro puts files in unusual places.
-##List: Tips
+Uninstall instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+###Launch Methods
+
+- Menu Hierarchy
+    - Graphics -> Silentcast
+    - Multimedia -> Silentcast
+- Search Box Terms
+    - silentcast
+    - screencast
+    - record
+    - gif
+    - (and other things will work too)
+- ALT+F2
+    - silentcast
+- Terminal
+    - silentcast
+
+Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
+### Dialogues: Set 3 2 1 Record Stop Convert
+#### Set Area to be recorded and Frames per second
+#### 3 Auto Resize
+#### 2 Manual Resize and Position
+#### 1 Get Ready
+#### Record
+#### Stop
+#### Convert
+##List of Tips

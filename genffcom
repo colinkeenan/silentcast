@@ -122,7 +122,7 @@ then
 where the interior was. The next dialogue will give you a chance to get ready before \
 recording begins."
 	fi
-	size_form=`yad --form --on-top --center --height="340" --title="Set Recording Area" --window-icon="media-record" --separator=','\
+	size_form=`yad --form --on-top --center --height="340" --title="Auto Resize" --window-icon="media-record" --separator=','\
 	       	--text="<b>SILENTCAST $1                </b><span font='24' color='green'>3</span>\n\
 Choose one of the window sizes below or enter one on the WxH choice and click OK$resizeInstructions\n\
 	\n\
@@ -151,8 +151,8 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 Click OK when you've got the $win window sized and positioned correctly. 
        	
 $nextInstructions" \
-| yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Further Set \
-Recording Area" --window-icon="media-record" --text="<b>SILENTCAST $1                </b><span font='24' color='green'>2</span>"
+| yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Manual Resize \
+and Position" --window-icon="media-record" --text="<b>SILENTCAST $1                </b><span font='24' color='green'>2</span>"
 	if [ "$?" -ne "0" ] #Cancel was clicked
 	then
 		if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
