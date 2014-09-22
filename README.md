@@ -37,8 +37,7 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
     - [A compositing window manager](http://en.wikipedia.org/wiki/Compositing_window_manager#List_of_compositing_window_managers) that is compatible with the [EWMH/NetWM](http://en.wikipedia.org/wiki/Extended_Window_Manager_Hints) specification.
 
 - Arch Linux
-    - After I've completed this README.md, I'll put it in the AUR so it would be installed however you normally do, like `yaourt -S silentcast`.
-and Uninstall with `pacman -R silentcast`
+    - After I've completed this README.md, I'll put it in the AUR so it would be installed however you normally do, like `yaourt -S silentcast`. And, Uninstall with `pacman -R silentcast`
 
 - Any Linux Distro
     - Install Missing Dependencies (Package names may vary slightly across different Linux distros. These are how they're named in Arch Linux.)
@@ -47,40 +46,48 @@ and Uninstall with `pacman -R silentcast`
     <tr>
       <th>package
       <th>reason
+    </tr>
   </thead>
   <tr>
     <td>ffmpeg
     <td>for recording and extracting images
+  </tr>
   <tr>
     <td>imagemagick
     <td>for 'convert' to animate images
+  </tr>
   <tr>
     <td>yad
     <td>for the GUI - popup dialogue windows
+  </tr>
   <tr>
     <td>xrandr
     <td>for getting screen size
+  </tr>
   <tr>
     <td>xdotool
     <td>for getting the active window id
+  </tr>
   <tr>
     <td>xorg-xwininfo
     <td>for getting window size and position
+  </tr>
   <tr>
     <td>wmctrl
     <td>for resizing and positioning windows
+  </tr>
   <tr>
     <td>python-gobject
     <td>for Gtk+ window
+  </tr>
   <tr>
     <td>python-cairo
     <td>for making Gtk+ window transparent
+  </tr>
 </table>
 
     - Install Silentcast
-        - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install`
-        Uninstall instructions are the same replacing *install* with *uninstall*.
-        The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+        - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install` Uninstall instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
 
 ###Launch Methods
 
