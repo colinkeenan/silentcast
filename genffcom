@@ -78,7 +78,7 @@ do
 					;;
 				t)
 					all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`
-					python2 /usr/share/silentcast/transparent_window.py \""$all_keys"\" & transparentPID=$!
+					python /usr/share/silentcast/transparent_window.py \""$all_keys"\" & transparentPID=$!
 					sleep 0.2 # wmctrl doesn't work unless I sleep here
 					wmctrl -r "Resize" -e 1,0,0,500,300 # move the transp win to top left so it's not hiding
 					;;

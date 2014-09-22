@@ -30,14 +30,35 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 ###Entirety: How to use Silentcast to record 1 window
 ![Entirety](http://i.imgur.com/XlWzLRW.gif)
 ##Guides
-###Installation
-*if you stumbled accross this before I've completed this README.md, then it's not available in the AUR* yet
-*From the AUR (Arch Linux)* `yaourt -S silentcast`
-(Or, if you don't like yaourt, then use whatever method you normally do for AUR packages.)
-Uninstall in the usual way `pacman -R silentcast`
+###Installation Methods
 
-*In any other Linux Distro* [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install** or from a terminal `cd` into the extracted directory and `sudo ./install`
-Uninstall instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+- Desktop Environment Requirements
+    - A desktop that includes a standard notification area/system tray with clickable icons.
+    - [A compositing window manager](http://en.wikipedia.org/wiki/Compositing_window_manager#List_of_compositing_window_managers) that is compatible with the [EWMH/NetWM](http://en.wikipedia.org/wiki/Extended_Window_Manager_Hints) specification.
+
+- Arch Linux
+    - After I've completed this README.md, I'll put it in the AUR so it would be installed however you normally do, like `yaourt -S silentcast`.
+and Uninstall with `pacman -R silentcast`
+
+- Any Linux Distro
+    - Install Missing Dependencies (Package names may vary slightly across different Linux distros. These are how they're named in Arch Linux.)
+package | reason
+------- | -------
+ffmpeg | for recording and extracting images
+magemagick | for 'convert' to animate images
+yad | for the GUI - popup dialogue windows
+xrandr | for getting screen size
+xdotool | for getting the active window id
+xorg-xwininfo | for getting window size and position
+wmctrl | for resizing and positioning windows
+python-gobject | for Gtk+ window
+python-cairo | for making Gtk+ window transparent
+
+    - Install Silentcast
+        - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install`
+        Uninstall instructions are the same replacing *install* with *uninstall*.
+        The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+
 ###Launch Methods
 
 - Menu Hierarchy
