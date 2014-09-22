@@ -74,7 +74,7 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
   </tr>
   <tr>
     <td>python-gobject</td>
-    <td>for Gtk+ window</td>
+    <td>for gi.repository which has Gtk</td>
   </tr>
   <tr>
     <td>python-cairo</td>
@@ -83,10 +83,12 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 </table>
 
 - Arch Linux
-    - After I've completed this README.md, I'll put it in the AUR so it would be installed however you normally do, like `yaourt -S silentcast`. And, Uninstall with `pacman -R silentcast`
+    - After I've completed this README.md, I'll put it in the AUR so it would be installed with an AUR helper, like `yaourt -S silentcast`. This will automatically install missing dependencies. **Uninstall** with `pacman -R silentcast`
+    - Without an AUR helper, just [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip), extract, and do `makepkg -si` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `pacman -R silentcast`
 
 - Any Linux Distro
-    - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install` Uninstall instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+    - Install missing dependencies (see the second point in this list)
+    - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install` **Uninstall** instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
 
 ###Launch Methods
 
