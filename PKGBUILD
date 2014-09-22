@@ -7,16 +7,16 @@ pkgdesc="Run from Guake. Create silent mkv screencast and animated gif."
 arch=('any')
 url="https://github.com/colinkeenan/silentcast"
 license=('GPL')
-depends=('ffmpeg' 'imagemagick' 'yad' 'xrandr' 'wmctrl' 'xdotool' 'xorg-xwininfo' 'python-gobject' 'python-cairo')
+depends=('ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'xorg-xwininfo' 'python-gobject' 'python-cairo' 'xdg-utils')
 install=${pkgname}.install
 
 source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md' 'fullscreen.gif' 'transparent.gif' 'interior.gif' 'entirety.gif' 'LICENSE')
-md5sums=('95c75ec32bcf7ecca8768b683e55f1b3'
-         'a8e85b898b7a2b1c5433753aec0b604c'
+md5sums=('de05e0140e4640bf0b52077f4ade5a26'
+         '3b7311751662d8bd3034e4720239b070'
          '6ce4638b3358ca388838cf650083a528'
-         'ef77cc762ea0b6e77665d64bedeee538'
-         'ebe95d79842151e38ddd96fb5cc742c9'
-         'c176276cce05f42d826ed997ac6b271f'
+         '6bf9e695750a3f65e4421544c53bdb96'
+         'f1641d3959f479a97b6bcd26f103f900'
+         '539141058e7f8bcb99218e632a817e1e'
          '92c971c4485bc8ffbb0882c381a7a4c9'
          '7b6f5e2ce6fdc1f57a7ee3f687e73a05'
          'bfa2c9a9d28c3e046664d36a8964a44a'
