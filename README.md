@@ -45,6 +45,10 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
     </tr>
   </thead>
   <tr>
+    <td>bash</td>
+    <td>because silentcast is mostly bash scripts and I use bashisms</td>
+  </tr>
+  <tr>
     <td>ffmpeg</td>
     <td>for recording and extracting images</td>
   </tr>

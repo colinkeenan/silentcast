@@ -7,7 +7,7 @@ pkgdesc="Silent Screencast: video record your screen and make it into an animate
 arch=('any')
 url="https://github.com/colinkeenan/silentcast"
 license=('GPL')
-depends=('ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'xorg-xwininfo' 'python-gobject' 'python-cairo' 'xdg-utils')
+depends=('bash' 'ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'xorg-xwininfo' 'python-gobject' 'python-cairo' 'xdg-utils')
 install=${pkgname}.install
 
 source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md')
@@ -16,7 +16,7 @@ md5sums=('de05e0140e4640bf0b52077f4ade5a26'
          '6ce4638b3358ca388838cf650083a528'
          '6bf9e695750a3f65e4421544c53bdb96'
          'f1641d3959f479a97b6bcd26f103f900'
-         '0bd22f2b37cb65ee4f541712c2fe3d9c')
+         '4c2fa00a0d854551d7a8134484655a2a')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
