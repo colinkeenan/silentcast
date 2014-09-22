@@ -33,10 +33,10 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 ###Installation
 
 - Desktop Environment Requirements
-    - A desktop that includes a standard notification area/system tray with clickable icons.
+    - A desktop that includes a standard system-tray notification area with clickable icons.
     - [A compositing window manager](http://en.wikipedia.org/wiki/Compositing_window_manager#List_of_compositing_window_managers) that is compatible with the [EWMH/NetWM](http://en.wikipedia.org/wiki/Extended_Window_Manager_Hints) specification.
 
-- Install Missing Dependencies (Package names may vary slightly across different Linux distros. These are how they're named in Arch Linux.)
+- Dependencies (Package names may vary slightly across different Linux distros. These are how they're named in Arch Linux.)
 <table>
   <thead>
     <tr>
@@ -46,7 +46,7 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
   </thead>
   <tr>
     <td>bash</td>
-    <td>because silentcast is mostly bash scripts and I use bashisms</td>
+    <td>because Silentcast is mostly bash scripts and I use bashisms</td>
   </tr>
   <tr>
     <td>ffmpeg</td>
@@ -78,11 +78,15 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
   </tr>
   <tr>
     <td>python-gobject</td>
-    <td>for gi.repository which has Gtk</td>
+    <td>for 'gi.repository' which has Gtk</td>
   </tr>
   <tr>
     <td>python-cairo</td>
     <td>for making Gtk+ window transparent</td>
+  </tr>
+  <tr>
+    <td>xdg-utils</td>
+    <td>for 'xdg-open' to open the file-browser</td>
   </tr>
 </table>
 
