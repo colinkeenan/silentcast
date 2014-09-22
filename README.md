@@ -42,17 +42,40 @@ and Uninstall with `pacman -R silentcast`
 
 - Any Linux Distro
     - Install Missing Dependencies (Package names may vary slightly across different Linux distros. These are how they're named in Arch Linux.)
-package | reason
-------- | -------
-ffmpeg | for recording and extracting images
-magemagick | for 'convert' to animate images
-yad | for the GUI - popup dialogue windows
-xrandr | for getting screen size
-xdotool | for getting the active window id
-xorg-xwininfo | for getting window size and position
-wmctrl | for resizing and positioning windows
-python-gobject | for Gtk+ window
-python-cairo | for making Gtk+ window transparent
+<table>
+  <thead>
+    <tr>
+      <th>package
+      <th>reason
+  </thead>
+  <tr>
+    <td>ffmpeg
+    <td>for recording and extracting images
+  <tr>
+    <td>imagemagick
+    <td>for 'convert' to animate images
+  <tr>
+    <td>yad
+    <td>for the GUI - popup dialogue windows
+  <tr>
+    <td>xrandr
+    <td>for getting screen size
+  <tr>
+    <td>xdotool
+    <td>for getting the active window id
+  <tr>
+    <td>xorg-xwininfo
+    <td>for getting window size and position
+  <tr>
+    <td>wmctrl
+    <td>for resizing and positioning windows
+  <tr>
+    <td>python-gobject
+    <td>for Gtk+ window
+  <tr>
+    <td>python-cairo
+    <td>for making Gtk+ window transparent
+</table>
 
     - Install Silentcast
         - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install`
