@@ -10,18 +10,13 @@ license=('GPL')
 depends=('ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'xorg-xwininfo' 'python-gobject' 'python-cairo' 'xdg-utils')
 install=${pkgname}.install
 
-source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md' 'fullscreen.gif' 'transparent.gif' 'interior.gif' 'entirety.gif' 'LICENSE')
+source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md')
 md5sums=('de05e0140e4640bf0b52077f4ade5a26'
          '3b7311751662d8bd3034e4720239b070'
          '6ce4638b3358ca388838cf650083a528'
          '6bf9e695750a3f65e4421544c53bdb96'
          'f1641d3959f479a97b6bcd26f103f900'
-         '539141058e7f8bcb99218e632a817e1e'
-         '92c971c4485bc8ffbb0882c381a7a4c9'
-         '7b6f5e2ce6fdc1f57a7ee3f687e73a05'
-         'bfa2c9a9d28c3e046664d36a8964a44a'
-         '72e906f125486ec9883c6a13d40e0e65'
-         '783b7e40cdfb4a1344d15b1f7081af66')
+         '539141058e7f8bcb99218e632a817e1e')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
