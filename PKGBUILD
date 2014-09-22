@@ -3,7 +3,7 @@
 pkgname=silentcast
 pkgver=1.0
 pkgrel=1
-pkgdesc="Run from Guake. Create silent mkv screencast and animated gif."
+pkgdesc="Silent Screencast: video record your screen and make it into an animated gif"
 arch=('any')
 url="https://github.com/colinkeenan/silentcast"
 license=('GPL')
