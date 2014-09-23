@@ -90,7 +90,7 @@ Enter any positive integer less than the total number of images. It works like t
     		    fi
     	done
     fi
-    let denom="$2"/$(("$total_cut" + 1))
+    let denom="$2"/$((total_cut + 1))
     convert -adjoin -delay "$total_cut"x"$denom" -layers optimize *png anim.gif | \
 	    yad --progress --on-top --center --title="convert" --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
 Replacing images with anim.gif..." --pulsate --auto-close
