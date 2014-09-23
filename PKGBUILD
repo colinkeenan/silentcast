@@ -11,12 +11,12 @@ depends=('bash' 'ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'x
 install=${pkgname}.install
 
 source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md')
-md5sums=('de05e0140e4640bf0b52077f4ade5a26'
+md5sums=('4e5bdee7c9c4dd6a23291888c89a0103'
          '3b7311751662d8bd3034e4720239b070'
          '6ce4638b3358ca388838cf650083a528'
          '6bf9e695750a3f65e4421544c53bdb96'
          'f1641d3959f479a97b6bcd26f103f900'
-         '4c2fa00a0d854551d7a8134484655a2a')
+         '2b735588b44ae4c557240e3c6eb526d7')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
