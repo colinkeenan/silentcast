@@ -117,10 +117,24 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
 ### Dialogues: Set 3 2 1 Record Stop Convert
 #### Set Area to be recorded and Frames per second
+![Set Area](http://i.imgur.com/9EW41mC.png)
+![Set Rate](http://i.imgur.com/GhbZ1PC.png)
 #### 3 Auto Resize
+![3](http://i.imgur.com/cYcUwF4.png)
+![3_trans](http://i.imgur.com/o05GZGx.png)
 #### 2 Manual Resize and Position
+![2](http://i.imgur.com/tUm3GaI.png)
+![2_trans](http://i.imgur.com/KkKvPgG.png)
 #### 1 Get Ready
+![1](http://i.imgur.com/GL52fLO.png)
 #### Record
+There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will look different depending on your installed icon theme, but here are a couple of examples: ![gnome-stop](http://i.imgur.com/teUa0iV.png) ![numix-stop](http://i.imgur.com/nEg3PPh.png)
 #### Stop
+When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Preapare Images dialogue will popup:
+![Prepare Images](http://i.imgur.com/diXXYeY.png)
 #### Convert
+After preparing images and clicking OK, you'll see a progress dialogue as *convert* works on making anim.gif. If successful, Screencast has finished it's job.
+If you don't have a large enough swap and run out of memory, *convert* may crash, and you'll see this dialogue popup:
+![convert-error](http://i.imgur.com/K1SEvMz.png)
+After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
 ##List of Tips
