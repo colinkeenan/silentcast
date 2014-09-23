@@ -20,16 +20,27 @@ Then, just open this file with Chrome. You'll probably want to make Google Chrom
 -->
 
 ##Demos
-Notice there's a stop icon in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
+
+Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
+
 ###Fullscreen: How to use Silentcast to record Gimp
+
 ![Fullscreen](http://i.imgur.com/I1mXz9N.gif)
+
 ###Transparent: How to use Silentcast to record 2 windows
+
 ![Transparent](http://i.imgur.com/ak6NQZB.gif)
+
 ###Interior: How to use Silentcast to only record the drawing
+
 ![Interior](http://i.imgur.com/VAmUl8d.gif)
+
 ###Entirety: How to use Silentcast to record 1 window
+
 ![Entirety](http://i.imgur.com/XlWzLRW.gif)
+
 ##Guides
+
 ###Installation
 
 - Desktop Environment Requirements
@@ -115,8 +126,11 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
     - silentcast
 
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
+
 ### Dialogues: Set 3 2 1 Record Stop Convert
+
 #### Set Area
+
 ![Set Area](http://i.imgur.com/9EW41mC.png)
 
 - Fullscreen
@@ -129,29 +143,67 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
     - Records the "next active window" which is the window that will become active after closing dialogue <span style="color:green;">2</span>. The entire window will be recorded, including the title-bar and borders.
 
 #### Set Frames per second
+
 ![Set Rate](http://i.imgur.com/GhbZ1PC.png)
+
 The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. If it's too jumpy or fast though, just increase the frames per second by entering a larger number. Larger numbers will produce smoother, but slower animated gifs, and the motion will still be kind of jerky due to the inability to actually play back at high frame rates in a gif.
+
 #### 3 Auto Resize
+
+If you didn't Choose Fullscreen on the opening dialogue, you'll get a countdown of dialogues starting with <span style="color:green;">3</span>. This dialogue will look and behave differently depending on whether or not you chose Transparent Window Interior.
+
+##### No Transparent Window
+
 ![3](http://i.imgur.com/cYcUwF4.png)
+
+This one explains that after choosing a size, you will have to choose what window to resize by clicking on it. The mouse pointer will change to a + shape until you click a window. Nothing will happen if you click a maximized window, so you should unmaximize the window you want to record before clicking OK on this dialogue, unless you want it maximized.
+
+##### Transparent Window
+
 ![3_trans](http://i.imgur.com/o05GZGx.png)
+
+Since Silentcast put the transparent window up, it knows what you are resizing so that there's no need to click on any windows. As soon as you choose a size and click OK, it will resize the transparent window.
+
+##### WxH
+
+You can also enter your own size. The WxH choice is there to remind you that the first number is the width and the second number is the height and there should be an **x** between those numbers with no spaces. You can actually enter the new size on any line though.
+
 #### 2 Manual Resize and Position
+
 ![2](http://i.imgur.com/tUm3GaI.png)
+
+When automatically resizing, the previous dialogue moved the window to the top left corner. This dialogue gives you a chance to move and further resize the window.
+
 ![2_trans](http://i.imgur.com/KkKvPgG.png)
+
 #### 1 Get Ready
+
 ![1](http://i.imgur.com/GL52fLO.png)
+
+Just one last chance to get yourself and the screen ready for recording which will begin as soon as you click OK.
+
 #### Record
+
 There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will look different depending on your installed icon theme, but here are a couple of examples: ![gnome-stop](http://i.imgur.com/teUa0iV.png) ![numix-stop](http://i.imgur.com/nEg3PPh.png)
+
 #### Stop
+
 When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Prepare Images dialogue will popup:
+
 ![Prepare Images](http://i.imgur.com/diXXYeY.png)
+
 If you choose to automatically delete a lot of images to create a smaller anim.gif or because your system can't handle so many images at once, then as the dialogue explains, entering *1* will delete every other image, *2* will delete 2 out of every 3 images, etc. *Convert* will adjust timing so playback of anim.gif won't move too fast.
 
 In addition to automatically deleting images, you may choose to "edit" the yet to be made anim.gif by selectively deleting images. Just view an image in any viewer and move forward through them to see frame by frame what anim.gif will look like. Then, if you notice for example that your mouse cursor makes a slow pointless circle, just delete those images. For more ideas on what can be done while this dialogue is up, see *List of Tips* below.
+
 #### Convert
+
 After preparing images and clicking OK, you'll see a progress dialogue as *convert* works on making anim.gif. If successful, Screencast has finished it's job.
 
 However, if you don't have a large enough swap (or no swap as with my own system) and run out of memory, *convert* may crash, and you'll see this dialogue popup:
+
 ![convert-error](http://i.imgur.com/K1SEvMz.png)
 
 After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
+
 ##List of Tips
