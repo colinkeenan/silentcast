@@ -116,7 +116,7 @@ Notice there's a stop icon in the Notificaton Area before I even start Silentcas
 
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
 ### Dialogues: Set 3 2 1 Record Stop Convert
-#### Set Area to be recorded and Frames per second
+#### Set Area
 ![Set Area](http://i.imgur.com/9EW41mC.png)
 
 - Fullscreen
@@ -128,8 +128,9 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 - Entirety of a Window
     - Records the "next active window" which is the window that will become active after closing dialogue <span style="color:green;">2</span>. The entire window will be recorded, including the title-bar and borders.
 
+#### Set Frames per second
 ![Set Rate](http://i.imgur.com/GhbZ1PC.png)
-
+The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. If it's too jumpy or fast though, just increase the frames per second by entering a larger number. Larger numbers will produce smoother, but slower animated gifs, and the motion will still be kind of jerky due to the inability to actually play back at high frame rates in a gif.
 #### 3 Auto Resize
 ![3](http://i.imgur.com/cYcUwF4.png)
 ![3_trans](http://i.imgur.com/o05GZGx.png)

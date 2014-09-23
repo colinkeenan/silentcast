@@ -16,7 +16,7 @@ md5sums=('4e5bdee7c9c4dd6a23291888c89a0103'
          '083be2209b44ba91eff8cab363aa8170'
          '6bf9e695750a3f65e4421544c53bdb96'
          'f1641d3959f479a97b6bcd26f103f900'
-         '3f9580ef1e5995b4d4c07739c78d1f7b')
+         '148b7eb79953cd4def5441483b0f4fc5')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
