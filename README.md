@@ -118,7 +118,18 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 ### Dialogues: Set 3 2 1 Record Stop Convert
 #### Set Area to be recorded and Frames per second
 ![Set Area](http://i.imgur.com/9EW41mC.png)
+
+- Fullscreen
+    - Records the entire screen. Dialogue <span style="color:green;">1</span> will be next because dialogues <span style="color:green;">3</span> and <span style="color:green;">2</span> aren't needed.
+- Transparent Window Interior
+    - Records the area defined by a transparent window. The next dialogue will be <span style="color:green;">3</span> and it will popup along with a transparent window which you can use to outline the area of the screen you want to record. The transparent window will automatically close before recording begins.
+- Interior of a Window
+    - Records the interior of the "next active window" which is the window that will become active after closing dialogue <span style="color:green;">2</span>. The interior may include a menu bar or other UI elements, but does not include the title-bar or borders.
+- Entirety of a Window
+    - Records the "next active window" which is the window that will become active after closing dialogue <span style="color:green;">2</span>. The entire window will be recorded, including the title-bar and borders.
+
 ![Set Rate](http://i.imgur.com/GhbZ1PC.png)
+
 #### 3 Auto Resize
 ![3](http://i.imgur.com/cYcUwF4.png)
 ![3_trans](http://i.imgur.com/o05GZGx.png)
@@ -130,11 +141,16 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 #### Record
 There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will look different depending on your installed icon theme, but here are a couple of examples: ![gnome-stop](http://i.imgur.com/teUa0iV.png) ![numix-stop](http://i.imgur.com/nEg3PPh.png)
 #### Stop
-When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Preapare Images dialogue will popup:
+When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Prepare Images dialogue will popup:
 ![Prepare Images](http://i.imgur.com/diXXYeY.png)
+If you choose to automatically delete a lot of images to create a smaller anim.gif or because your system can't handle so many images at once, then as the dialogue explains, entering *1* will delete every other image, *2* will delete 2 out of every 3 images, etc. *Convert* will adjust timing so playback of anim.gif won't move too fast.
+
+In addition to automatically deleting images, you may choose to "edit" the yet to be made anim.gif by selectively deleting images. Just view an image in any viewer and move forward through them to see frame by frame what anim.gif will look like. Then, if you notice for example that your mouse cursor makes a slow pointless circle, just delete those images. For more ideas on what can be done while this dialogue is up, see *List of Tips* below.
 #### Convert
 After preparing images and clicking OK, you'll see a progress dialogue as *convert* works on making anim.gif. If successful, Screencast has finished it's job.
-If you don't have a large enough swap and run out of memory, *convert* may crash, and you'll see this dialogue popup:
+
+However, if you don't have a large enough swap (or no swap as with my own system) and run out of memory, *convert* may crash, and you'll see this dialogue popup:
 ![convert-error](http://i.imgur.com/K1SEvMz.png)
+
 After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
 ##List of Tips

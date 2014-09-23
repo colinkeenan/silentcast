@@ -38,6 +38,7 @@ cut=0
 total_cut=0
 group=0
 count=0
+denom="$2"
 
 if [ "$1" -eq 1 ]; then cd ~/silentcast
 elif [ "$1" -eq 2 ]; then cd ~/silentcast/silentcast
@@ -89,7 +90,8 @@ Enter any positive integer less than the total number of images. It works like t
     		    fi
     	done
     fi
-    convert -adjoin -delay "$total_cut"x"$2" -layers optimize *png anim.gif | \
+    let denom="$2"/$(("$total_cut" + 1))
+    convert -adjoin -delay "$total_cut"x"$denom" -layers optimize *png anim.gif | \
 	    yad --progress --on-top --center --title="convert" --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
 Replacing images with anim.gif..." --pulsate --auto-close
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
