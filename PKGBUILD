@@ -13,10 +13,10 @@ install=${pkgname}.install
 source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md')
 md5sums=('4e5bdee7c9c4dd6a23291888c89a0103'
          '3b7311751662d8bd3034e4720239b070'
-         '083be2209b44ba91eff8cab363aa8170'
+         'ab31e99d5945b90879b916ed5b8e3aa3'
          '6bf9e695750a3f65e4421544c53bdb96'
          'f1641d3959f479a97b6bcd26f103f900'
-         '12859c6fcd1ca9d9cbe93343d079fe2a')
+         '6ea4a07e5958982c67ed3cc26dbe77b3')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"

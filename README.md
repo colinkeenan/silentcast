@@ -176,6 +176,8 @@ When automatically resizing, the previous dialogue moved the window to the top l
 
 ![2_trans](http://i.imgur.com/KkKvPgG.png)
 
+If you are using a transparent window, this is the time to define the exact areay to be recorded. After clicking OK, the transparent window will close, but the area for recording will be set to where the interior of that window was.
+
 #### 1 Get Ready
 
 ![1](http://i.imgur.com/GL52fLO.png)
