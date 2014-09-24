@@ -58,7 +58,6 @@ fi
 ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
 	| yad --progress --on-top --center --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
 Creating images from temp.mkv" --pulsate --auto-close
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 
 while ! [ -f anim.gif ]
 do
@@ -89,12 +88,9 @@ Enter any positive integer less than the total number of images. It works like t
     		    fi
     	done
     fi
-    # After experimenting with formulas for the delay, decided since 8 fps is about the right speed 
-    # I'd just use 8 for the second part
-    convert -adjoin -delay "$total_cut"x"8" -layers optimize *png anim.gif | \
+    convert -adjoin -delay "$((total_cut + 1))"x"$2" -layers optimize *png anim.gif | \
 	    yad --progress --on-top --center --title="convert" --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
 Replacing images with anim.gif..." --pulsate --auto-close
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
     if ! [ -f anim.gif ]
     then 
 	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\

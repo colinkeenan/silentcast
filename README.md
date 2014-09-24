@@ -146,7 +146,7 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 
 ![Set Rate](http://i.imgur.com/GhbZ1PC.png)
 
-The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. If it's too jumpy or fast though, just increase the frames per second by entering a larger number. Larger numbers will produce smoother, but slower animated gifs, and the motion will still be kind of jerky due to the inability to actually play back at high frame rates in a gif.
+The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. Higher frame rates will be smoother but will require a lot of memory to create. Beyond a certain rate, and playback may be too slow. Seems to work reasonably well up to 50 Frames per second though.
 
 #### 3 Auto Resize
 
