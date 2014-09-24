@@ -14,12 +14,12 @@ source=(https://github.com/colinkeenan/silentcast/archive/master.zip)
 md5sums=('SKIP')
 
 package() {
-  install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
-  install -D -m755 genffcom "$pkgdir/usr/bin/genffcom"
-  install -D -m755 temptoanim "$pkgdir/usr/bin/temptoanim"
-  install -D -m755 transparent_window.py "$pkgdir/usr/share/silentcast/transparent_window.py"
-  install -D -m755 silentcast.desktop "$pkgdir/usr/share/applications/silentcast.desktop"
-  install -D -m755 localREADME.md "$pkgdir/usr/share/doc/silentcast/README.md"
+  install -d -m755 silentcast "$pkgdir/usr/bin/"
+  install -d -m755 genffcom "$pkgdir/usr/bin/"
+  install -d -m755 temptoanim "$pkgdir/usr/bin/"
+  install -d -m755 transparent_window.py "$pkgdir/usr/share/silentcast/"
+  install -d -m755 silentcast.desktop "$pkgdir/usr/share/applications/"
+  install -d -m755 localREADME.md "$pkgdir/usr/share/doc/silentcast/"
   install -m755 *png "$pkgdir/usr/share/doc/silentcast"
   install -m755 *gif "$pkgdir/usr/share/doc/silentcast"
 }
