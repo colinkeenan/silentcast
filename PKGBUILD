@@ -20,7 +20,7 @@ md5sums=('6ec03de75e7ed4688e2a463104fc3a50'
          '538ba7d29d4a72c16657c49c9088fad1'
          'e45db6d934a8d0da0377a2cc63a6467c'
          '42d1c677812d5740484ed26d95a82707'
-         '72e906f125486ec9883c6a13d40e0e65'
+         '563c7d0c83f04cdf6f234456add498e3'
          'f223e5e72c0c9e79789e8108d9df7d92'
          '8cd5da03d8f5035ad176b7b69de55ac4'
          'd639c30d697ee43e3e947b7d718efd48'
@@ -28,10 +28,10 @@ md5sums=('6ec03de75e7ed4688e2a463104fc3a50'
          'f2abb898a2371c6401ee2867cae91d86'
          'ab5da85b01aeff7076241aab74b592d1'
          '08180c0ba20917e301a40ba786c8b8a2'
-         '92c971c4485bc8ffbb0882c381a7a4c9'
-         'bfa2c9a9d28c3e046664d36a8964a44a'
+         '0e227c1fc56b72d156c6752f5a67bc93'
+         'ea755eaf3dc03b3aaec2db637bdd490e'
          '7b1c0fd0240028ed0aaecf02f9087147'
-         '7b6f5e2ce6fdc1f57a7ee3f687e73a05')
+         'ed78bb25561690bd55c82052ff0bc0ad')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"

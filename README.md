@@ -25,19 +25,19 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 
 ###Fullscreen: How to use Silentcast to record Gimp
 
-![Fullscreen](http://i.imgur.com/I1mXz9N.gif)
+![Fullscreen](http://i.imgur.com/ONmcYzd.gif)
 
 ###Transparent: How to use Silentcast to record 2 windows
 
-![Transparent](http://i.imgur.com/ak6NQZB.gif)
+![Transparent](http://i.imgur.com/nSOTGbf.gif)
 
 ###Interior: How to use Silentcast to only record the drawing
 
-![Interior](http://i.imgur.com/VAmUl8d.gif)
+![Interior](http://i.imgur.com/S4LXtlt.gif)
 
 ###Entirety: How to use Silentcast to record 1 window
 
-![Entirety](http://i.imgur.com/XlWzLRW.gif)
+![Entirety](http://i.imgur.com/VQWrJh4.gif)
 
 ##Guides
 
