@@ -4,4 +4,4 @@ rm /usr/bin/genffcom
 rm /usr/bin/temptoanim
 rm -r /usr/share/silentcast
 rm /usr/share/applications/silentcast.desktop
-rm /usr/share/doc/silentcast/README.md
+rm -r /usr/share/doc/silentcast
