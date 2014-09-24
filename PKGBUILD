@@ -13,7 +13,7 @@ install=${pkgname}.install
 source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'README.md')
 md5sums=('4e5bdee7c9c4dd6a23291888c89a0103'
          '3b7311751662d8bd3034e4720239b070'
-         '38d4c1ca4e96fe929d2081dcde6c0a09'
+         '710f4e2d60322bf4574406482c468343'
          '6bf9e695750a3f65e4421544c53bdb96'
          'f1641d3959f479a97b6bcd26f103f900'
          'b5f20e1a42c132da14eda9f3f4a247ca')

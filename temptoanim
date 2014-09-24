@@ -90,7 +90,7 @@ Enter any positive integer less than the total number of images. It works like t
     fi
     convert -adjoin -delay "$((total_cut + 1))"x"$2" -layers optimize *png anim.gif | \
 	    yad --progress --on-top --center --title="convert" --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
-Replacing images with anim.gif..." --pulsate --auto-close
+	    Replacing images with anim.gif... (clicking Close below doesn't stop convert, so don't)" --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 
 	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\
