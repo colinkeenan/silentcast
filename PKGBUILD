@@ -10,28 +10,8 @@ license=('GPL')
 depends=('bash' 'ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'xorg-xwininfo' 'python-gobject' 'python-cairo' 'xdg-utils')
 install=${pkgname}.install
 
-source=('silentcast' 'genffcom' 'temptoanim' 'transparent_window.py' 'silentcast.desktop' 'localREADME.md' '1.png' '2_Trans.png' '3_Trans.png' 'entirety.gif' 'gnome-stop.png' 'numix-stop.png' 'SetArea.png' 'Stop.png' '2.png' '3.png' 'convert-error.png' 'fullscreen.gif' 'interior.gif' 'SetRate.png' 'transparent.gif')
-md5sums=('6ec03de75e7ed4688e2a463104fc3a50'
-         '3b7311751662d8bd3034e4720239b070'
-         '710f4e2d60322bf4574406482c468343'
-         '6bf9e695750a3f65e4421544c53bdb96'
-         'f1641d3959f479a97b6bcd26f103f900'
-         '104164134221a2f7e724f94a7545f4d7'
-         '538ba7d29d4a72c16657c49c9088fad1'
-         'e45db6d934a8d0da0377a2cc63a6467c'
-         '42d1c677812d5740484ed26d95a82707'
-         '563c7d0c83f04cdf6f234456add498e3'
-         'f223e5e72c0c9e79789e8108d9df7d92'
-         '8cd5da03d8f5035ad176b7b69de55ac4'
-         'd639c30d697ee43e3e947b7d718efd48'
-         '0fc214d9ef5c6b37765cfd1252860c30'
-         'f2abb898a2371c6401ee2867cae91d86'
-         'ab5da85b01aeff7076241aab74b592d1'
-         '08180c0ba20917e301a40ba786c8b8a2'
-         '0e227c1fc56b72d156c6752f5a67bc93'
-         'ea755eaf3dc03b3aaec2db637bdd490e'
-         '7b1c0fd0240028ed0aaecf02f9087147'
-         'ed78bb25561690bd55c82052ff0bc0ad')
+source=(https://github.com/colinkeenan/silentcast/archive/master.zip)
+md5sums=('5ca9591b3d63541df547e2d5704070eb')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
