@@ -102,8 +102,8 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 </table>
 
 - Arch Linux
-    - After I've completed this README.md, I'll put it in the AUR so it would be installed with an AUR helper, like `yaourt -S silentcast`. This will automatically install missing dependencies. **Uninstall** with `pacman -R silentcast`
-    - Without an AUR helper, just [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip), extract, and do `makepkg -i` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `pacman -R silentcast`
+    - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
+    - Without an AUR helper, just [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip), extract, and do `makepkg -i` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
 
 - Any Linux Distro
     - Install missing dependencies (see the second point in this list)
@@ -209,3 +209,5 @@ However, if you don't have a large enough swap (or no swap as with my own system
 After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
 
 ##List of Tips
+
+In a future release, after I've used Silentcast for a while, I'll have a list of tips here. I'm thinking of command line stuff to for example insert an animated gif of you drawing on one of the images in the animated gif you're working on so that you can circle or highlight something in the animation. However, I haven't tried it yet and want to release this version 1.0 now.
