@@ -14,6 +14,7 @@ source=(https://github.com/colinkeenan/silentcast/archive/master.zip)
 md5sums=('SKIP')
 
 package() {
+  cd silentcast-master
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
   install -D -m755 genffcom "$pkgdir/usr/bin/genffcom"
   install -D -m755 temptoanim "$pkgdir/usr/bin/temptoanim"
