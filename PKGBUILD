@@ -11,7 +11,7 @@ depends=('bash' 'ffmpeg' 'imagemagick' 'yad' 'xorg-xrandr' 'wmctrl' 'xdotool' 'x
 install=${pkgname}.install
 
 source=(https://github.com/colinkeenan/silentcast/archive/master.zip)
-md5sums=('ba014abb7c017b63bf31cb066686fee4')
+md5sums=('SKIP')
 
 package() {
   install -D -m755 silentcast "$pkgdir/usr/bin/silentcast"
