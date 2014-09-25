@@ -73,7 +73,7 @@ do
 			case $OPTARG in
 				f)
 					w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
-					h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2)
+					h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2 | cut -d '_' -f1)
 					fullscreen=true
 					;;
 				t)
