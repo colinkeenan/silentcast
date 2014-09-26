@@ -53,11 +53,14 @@ resizeInstructions=""
 nextInstructions=""
 winSelect=":SELECT:"
 win="next active"
+extents=""
 x=0
 y=0
 w=0
 h=0
-b=0
+bl=0
+br=0
+bb=0
 t=0
 
 OPTIND=1
@@ -72,8 +75,8 @@ do
 		a)
 			case $OPTARG in
 				f)
-					w=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
-					h=$(xrandr --current | grep '* ' | uniq | awk '{print $1}' |  cut -d 'x' -f2 | cut -d '_' -f1)
+					w=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
+					h=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f2 | cut -d '_' -f1)
 					fullscreen=true
 					;;
 				t)
@@ -163,19 +166,24 @@ and Position" --window-icon="media-record" --text="<b>SILENTCAST $1             
 	fi
 
         sleep 0.2 # Just making sure the dialogue window isn't in the way
-        eval $(xwininfo -id $(xdotool getactivewindow) |
+	aw=$(xdotool getactivewindow)
+        eval $(xwininfo -id "$aw" |
           sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
                  -e "s/^ \+Absolute upper-left Y: \+\([0-9]\+\).*/y=\1/p" \
                  -e "s/^ \+Width: \+\([0-9]\+\).*/w=\1/p" \
-                 -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" \
-                 -e "s/^ \+Relative upper-left X: \+\([0-9]\+\).*/b=\1/p" \
-                 -e "s/^ \+Relative upper-left Y: \+\([0-9]\+\).*/t=\1/p" )
+                 -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p" )
 	if [ "$entire" = true ]
 	then
-		let x=$x-$b
+		extents=$(xprop _NET_FRAME_EXTENTS -id "$aw" | grep "NET_FRAME_EXTENTS" | cut -d '=' -f 2 | tr -d ' ')
+		bl=$(echo $extents | cut -d ',' -f 1) # width of left border
+		br=$(echo $extents | cut -d ',' -f 2) # width of right border
+		t=$(echo $extents | cut -d ',' -f 3)  # height of title bar
+		bb=$(echo $extents | cut -d ',' -f 4) # height of bottom border
+
+		let x=$x-$bl
 		let y=$y-$t
-		let w=$w+2*$b
-		let h=$h+$t+$b
+		let w=$w+$bl+$br
+		let h=$h+$t+$bb
 	fi
 fi
 
