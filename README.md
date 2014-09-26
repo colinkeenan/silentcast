@@ -109,6 +109,26 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
     - Install missing dependencies (see the second point in this list)
     - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install` **Uninstall** instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
 
+- Ubuntu (Installing the missing dependencies)
+    - Install what you can with apt-get
+
+            $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject pyhon-cairo xdg-utils
+            $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
+    - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad), click the 32 bit or 64 bit version and let Software Center install it.
+    - You will also need to get notifications to show up:
+
+            $ sudo apt-add-repository ppa:gurqn/systray-trusty
+            $ sudo gedit /etc/apt/preferences.d/systray-trusty
+            *** copy and paste into the gedit window ***
+            Package: *
+            Pin: release o=LP-PPA-gurqn-systray-trusty
+            Pin-Priority: 600
+            *** Save and exit gedit ***
+            $ sudo apt-get update
+            $ sudo apt-get upgrade
+
+    - After a reboot to finish getting notifications to show up, you're ready to install Silentcast using the Any Linux Distro method above.
+
 ###Launch Methods
 
 - Menu Hierarchy
