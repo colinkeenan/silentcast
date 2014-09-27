@@ -10,7 +10,7 @@ class IndicatorSilentcast:
                 "silentcast", 
                 "gnome-stop.png",
                 appindicator.IndicatorCategory.APPLICATION_STATUS,
-                    os.path.dirname(os.path.realpath(__file__)))
+                    os.path.dirname(os.path.abspath(__file__)))
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)
         
         self.menu = Gtk.Menu()
