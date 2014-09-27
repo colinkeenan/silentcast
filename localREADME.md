@@ -21,7 +21,8 @@ Then, just open this file with Chrome. You'll probably want to make Google Chrom
 
 ##Demos
 
-Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
+Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2. [These recordings were made before I created custom stop icons that say '1' or '2' in them.]
+
 
 ###Fullscreen: How to use Silentcast to record Gimp
 
@@ -116,19 +117,7 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
             $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
     - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
    click the 32 bit or 64 bit version and let Software Center install it.
-    - You will also need to get notifications to show up:
-
-            $ sudo apt-add-repository ppa:gurqn/systray-trusty
-            $ sudo gedit /etc/apt/preferences.d/systray-trusty
-            *** copy and paste into the gedit window ***
-            Package: *
-            Pin: release o=LP-PPA-gurqn-systray-trusty
-            Pin-Priority: 600
-            *** Save and exit gedit ***
-            $ sudo apt-get update
-            $ sudo apt-get upgrade
-
-    - After a reboot to finish getting notifications to show up, you're ready to install Silentcast using the Any Linux Distro method above.
+    - You're ready to install Silentcast using the Any Linux Distro method above.
 
 ###Launch Methods
 
@@ -207,7 +196,7 @@ Just one last chance to get yourself and the screen ready for recording which wi
 
 #### Record
 
-There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will look different depending on your installed icon theme, but here are a couple of examples: ![gnome-stop.png](./gnome-stop.png) ![numix-stop.png](./numix-stop.png)
+There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](./stop1.png) ![stop2](./stop2.png)
 
 
 #### Stop

@@ -2,10 +2,15 @@
 
 from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
+import os,sys
 
 class IndicatorSilentcast:
     def __init__(self):
-        self.indicator = appindicator.Indicator.new ("silentcast", "/usr/share/doc/silentcast/gnome-stop.png", appindicator.IndicatorCategory.APPLICATION_STATUS)
+        self.indicator = appindicator.Indicator.new_with_path (
+                "silentcast", 
+                "stop{}".format(str(sys.argv[1])),
+                appindicator.IndicatorCategory.APPLICATION_STATUS,
+                os.path.dirname(os.path.realpath(__file__)))
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)
         
         self.menu = Gtk.Menu()
