@@ -205,7 +205,12 @@ Click the stop icon in the Notification Area" \
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
 
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv & ffmpegPID=$!
-yad --notification --image="stop" --text="'$1'"
+if [[ "$XDG_CURRENT_DESKTOP" == "Unity"  ]]; then
+        echo "Unity detected, switching indicators..."
+	python /usr/share/silentcast/unity_indicator.py
+else
+    yad --notification --image="stop" --text="'$1'"
+fi
 kill $ffmpegPID' > ffcom
 
 # End of file
