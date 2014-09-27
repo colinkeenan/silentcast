@@ -6,14 +6,11 @@ import os
 
 class IndicatorSilentcast:
     def __init__(self):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        os.chdir(script_dir)
-        print(os.getcwd())
         self.indicator = appindicator.Indicator.new_with_path (
                 "silentcast", 
-                "gnome-stop.png",
+                "gnome-stop",
                 appindicator.IndicatorCategory.APPLICATION_STATUS,
-                script_dir)
+                    os.path.dirname(os.path.realpath(__file__)))
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)
         
         self.menu = Gtk.Menu()
