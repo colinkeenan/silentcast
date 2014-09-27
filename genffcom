@@ -208,7 +208,7 @@ Click the stop icon in the Notification Area" \
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv & ffmpegPID=$!
 if [[ "$XDG_CURRENT_DESKTOP" == "Unity"  ]]; then
         echo "Unity detected, switching indicators..."
-	python '$py_script_dir'/unity_indicator.py
+	python '$py_script_dir'/unity_indicator.py '$1'
 else
     yad --notification --image="'$py_script_dir'/stop'$1'.png" --text="'$1'"
 fi
