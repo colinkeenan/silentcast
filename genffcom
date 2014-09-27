@@ -44,6 +44,7 @@ EOF
 }
 
 #defaults
+py_script_dir=/usr/share/silentcast # if the python scripts are put somewhere else, change this, but the path must not have spaces
 fps=8
 fullscreen=false
 entire=false
@@ -81,7 +82,7 @@ do
 					;;
 				t)
 					all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`
-					python /usr/share/silentcast/transparent_window.py \""$all_keys"\" & transparentPID=$!
+					python "$py_script_dir"/transparent_window.py \""$all_keys"\" & transparentPID=$!
 					sleep 0.2 # wmctrl doesn't work unless I sleep here
 					wmctrl -r "Resize" -e 1,0,0,500,300 # move the transp win to top left so it's not hiding
 					;;
@@ -207,9 +208,9 @@ Click the stop icon in the Notification Area" \
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y temp.mkv & ffmpegPID=$!
 if [[ "$XDG_CURRENT_DESKTOP" == "Unity"  ]]; then
         echo "Unity detected, switching indicators..."
-	python /usr/share/silentcast/unity_indicator.py
+	python '$py_script_dir'/unity_indicator.py
 else
-    yad --notification --image="stop" --text="'$1'"
+    yad --notification --image="'$py_script_dir'/stop'$1'.png" --text="'$1'"
 fi
 kill $ffmpegPID' > ffcom
 
