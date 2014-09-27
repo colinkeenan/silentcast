@@ -5,7 +5,7 @@ from gi.repository import AppIndicator3 as appindicator
 
 class IndicatorSilentcast:
     def __init__(self):
-        self.indicator = appindicator.Indicator.new ("silentcast", "/usr/share/doc/silentcast/gnome-stop.png", appindicator.IndicatorCategory.APPLICATION_STATUS)
+        self.indicator = appindicator.Indicator.new ("silentcast", "gnome-stop.png",appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)
         
         self.menu = Gtk.Menu()
