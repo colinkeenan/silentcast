@@ -121,7 +121,12 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
 
 - Try it *before* you install it!
     - Install the dependencies, [Download and extracxt Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
-    - Then *without* running any install script or package manager, just `bash silentcast` from a terminal window. (For those advanced users who will be tempted to try `. silentcast` or `source silentcast`, it won't work because ffmpeg behaves strangely when launched that way, but that's how I'm launching other bash scripts from silentcast to make it possible to `bash silentcast` from the extracted directory.)
+
+    - Then *without* running any install script or package manager, just `bash silentcast` from within the extracted directory. (For those advanced users who will be tempted to try `. silentcast` or `source silentcast`, it won't work because ffmpeg behaves strangely when launched that way, but that's how I'm launching other bash scripts from silentcast to make it possible to `bash silentcast` from the extracted directory.)
+    - For example, if you extracted silentcast-master into your ~/Downloads folder, you would
+
+        cd ~/Downloads/silentcast-master
+        bash silentcast
 
 ###Launch Methods
 
@@ -138,7 +143,7 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
     - silentcast
 - Terminal
     - `silentcast`
-    - Or, if you haven't actually installed silentcast: `bash silentcast`
+    - Or, if you haven't actually installed silentcast, but installed the dependencies, downloaded and extracted silentcast-master, then: `bash silentcast` from within the extracted directory.
 
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
 
