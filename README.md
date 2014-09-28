@@ -125,6 +125,8 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
         cd ~/Downloads/silentcast-master
         bash silentcast
 
+    - Note that if there is a previous installation of Silentcast, you will end up running the previous installation. So to try out this method, first uninstall the previous installation of Silentcast.
+
 ###Launch Methods
 
 - Menu Hierarchy

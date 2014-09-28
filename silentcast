@@ -21,12 +21,17 @@ then
 	exit 0
 fi
 
-unset fps area_choice area ffcoms_running rate arg_form silentcast_dir
+unset fps area_choice area ffcoms_running rate arg_form silentcast_dir doc_dir
 #defaults
 fps=8
 ffcoms_running=0
 area_choice="Fullscreen"
 area="f"
+doc_dir=/usr/share/silentcast
+if ! [ -f $doc_dir/README.md ]
+then 
+	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )"
+fi
 
 arg_form=`yad --form --on-top --center\
 	--title="Silentcast" \
@@ -36,7 +41,7 @@ arg_form=`yad --form --on-top --center\
   <span background="white">  For a demo, guide, and list of tips,  </span>\n\
   <span background="white">  click <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a> or install a web  </span>\n\
   <span background="white">  browser addon for markdown and click  </span>\n\
-  <span background="white">  <a href="file:///usr/share/doc/silentcast/README.md">local README.md</a>                       </span>\n\
+  <span background="white">  <a href="file://'$doc_dir'/README.md">local README.md</a>                       </span>\n\
   <span background="white">                                        </span></tt>'\
   	--separator="," \
 	--field="Area to be recorded":CB \
