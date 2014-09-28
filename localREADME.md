@@ -122,8 +122,9 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
 - Try it *before* you install it!
     - Install the dependencies, [Download and extracxt Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
 
-    - Then *without* running any install script or package manager, just `bash silentcast` from within the extracted directory. (For those advanced users who will be tempted to try `. silentcast` or `source silentcast`, it won't work because ffmpeg behaves strangely when launched that way, but that's how I'm launching other bash scripts from silentcast to make it possible to `bash silentcast` from the extracted directory.)
-    - For example, if you extracted silentcast-master into your ~/Downloads folder, you would
+    - Open the extracted directory with your file browser and double click "bash silentcast"
+    - That's it!
+    - But, if you insist on using the terminal, here's an example:
 
             $ cd ~/Downloads/silentcast-master
             $ bash silentcast
