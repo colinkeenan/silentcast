@@ -21,7 +21,7 @@ then
 	exit 0
 fi
 
-unset fps area_choice area ffcoms_running rate arg_form
+unset fps area_choice area ffcoms_running rate arg_form silentcast_dir
 #defaults
 fps=8
 ffcoms_running=0
@@ -60,17 +60,17 @@ then
 	else
 		mkdir -p ~/silentcast/silentcast
 		castnum=2
-		cd ~/silentcast/silentcast
+		silentcast_dir=~/silentcast/silentcast
 	fi
 else
 	mkdir -p ~/silentcast 
-	cd ~/silentcast
+	silentcast_dir=~/silentcast
 	castnum=1
 fi
-genffcom "-a"$area "-r"$fps $castnum 
+source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum 
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
-bash ffcom
+bash $silentcast_dir/ffcom
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in ffcom
-temptoanim $castnum $fps
+source temptoanim $castnum $fps
 
 # End of file

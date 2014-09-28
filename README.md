@@ -117,6 +117,10 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
     - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad), click the 32 bit or 64 bit version and let Software Center install it.
     - You're ready to install Silentcast using the Any Linux Distro method above.
 
+- Try it *before* you install it!
+    - Install the dependencies, [Download and extract Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+    - Then *without* running any install script or package manager, just `bash silentcast` from a terminal window. (For those advanced users who will be tempted to try `. silentcast` or `source silentcast`, it won't work because ffmpeg behaves strangely when launched that way, but that's how I'm launching other bash scripts from silentcast to make it possible to `bash silentcast` from the extracted directory.)
+
 ###Launch Methods
 
 - Menu Hierarchy
@@ -131,7 +135,8 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 - ALT+F2
     - silentcast
 - Terminal
-    - silentcast
+    - `silentcast`
+    - Or, if you haven't actually installed silentcast: `bash silentcast`
 
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
 

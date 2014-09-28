@@ -1,7 +1,7 @@
 # Maintainer: Colin Keenan <colinnkeenan at gmail dot com>
 
 pkgname=silentcast
-pkgver=1.2
+pkgver=1.3
 pkgrel=1
 pkgdesc="Silent Screencast: video record your screen and make it into an animated gif"
 arch=('any')
