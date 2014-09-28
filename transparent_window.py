@@ -1,7 +1,11 @@
 #!/usr/bin/python
 import cairo
 from gi.repository import Gtk
-import os,sys,re                  # I added this so I could show the pid and Resize window keybinding in the title
+import os,argparse,re                  # I added this so I could show the pid and Resize window keybinding in the title
+
+parser = argparse.ArgumentParser()
+parser.add_argument("all_keys", help='ie: all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`; python ./transparent_window.py \\\""$all_keys"\\\"')
+args = parser.parse_args()
 
 class MyWin (Gtk.Window):
     def __init__(self):
@@ -9,7 +13,7 @@ class MyWin (Gtk.Window):
         self.set_position(Gtk.WindowPosition.NONE)# I changed CENTER to NONE because it was hiding behind my dialogue window
                                         # I want to position it at top left, but all the WIN_POS are based on 
                                         # center or mouse related stuff, so moving it with wmctrl in the bash script
-        self.set_title("PID: {} Resize with {} mouse".format(str(os.getpid()), self.get_resize_hotkey(str(sys.argv[1]))))
+        self.set_title("PID: {} Resize with {} mouse".format(str(os.getpid()), self.get_resize_hotkey(args.all_keys)))
                                   # Showing pid in title so that if this is run outside of silentcast,
                                   # it will be easy to kill this process. Also showing hotkey for resizing the window.
         self.set_deletable(False) # I added this to remove the close button because closing
