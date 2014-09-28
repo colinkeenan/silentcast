@@ -103,7 +103,7 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 
 - Arch Linux
     - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
-- Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
+    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
 
 - Any Linux Distro
     - Install missing dependencies (see the second point in this list)
