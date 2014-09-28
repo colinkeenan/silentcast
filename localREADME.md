@@ -125,9 +125,8 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
     - Then *without* running any install script or package manager, just `bash silentcast` from within the extracted directory. (For those advanced users who will be tempted to try `. silentcast` or `source silentcast`, it won't work because ffmpeg behaves strangely when launched that way, but that's how I'm launching other bash scripts from silentcast to make it possible to `bash silentcast` from the extracted directory.)
     - For example, if you extracted silentcast-master into your ~/Downloads folder, you would
 
-        cd ~/Downloads/silentcast-master
-        bash silentcast
-
+            $ cd ~/Downloads/silentcast-master
+            $ bash silentcast
     - Note that if there is a previous installation of Silentcast, you will end up running the previous installation. So to try out this method, first uninstall the previous installation of Silentcast.
 
 ###Launch Methods
