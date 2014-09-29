@@ -113,7 +113,7 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
 - Ubuntu (Installing the missing dependencies)
     - Install what you can with apt-get
 
-            $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject pyhon-cairo xdg-utils
+            $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
             $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
     - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
    click the 32 bit or 64 bit version and let Software Center install it.
