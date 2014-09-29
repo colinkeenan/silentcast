@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=bash silentcast
+Comment=Silent Screencast: video record your screen and make it into an animated gif
+Exec=bash silentcast
+Type=Application
+StartupNotify=true
+Icon=media-record
+Categories=Graphics;AudioVideo;

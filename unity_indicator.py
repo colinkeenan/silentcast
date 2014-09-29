@@ -2,13 +2,18 @@
 
 from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
-import os,sys
+import os,argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("silentcast_number", help="The number of Silentcast instances running. \
+        The system tray indicator icon will show the silentcast_number in it: either 1 or 2.")
+args = parser.parse_args()
 
 class IndicatorSilentcast:
     def __init__(self):
         self.indicator = appindicator.Indicator.new_with_path (
                 "silentcast", 
-                "stop{}".format(str(sys.argv[1])),
+                "stop{}".format(args.silentcast_number),
                 appindicator.IndicatorCategory.APPLICATION_STATUS,
                 os.path.dirname(os.path.realpath(__file__)))
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)

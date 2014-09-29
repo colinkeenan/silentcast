@@ -103,7 +103,7 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 
 - Arch Linux
     - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
-    - Without an AUR helper, just [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip), extract, and do `makepkg -i` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
+    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
 
 - Any Linux Distro
     - Install missing dependencies (see the second point in this list)
@@ -116,6 +116,16 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
             $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
     - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad), click the 32 bit or 64 bit version and let Software Center install it.
     - You're ready to install Silentcast using the Any Linux Distro method above.
+
+- Try it *before* you install it!
+    - Install the dependencies, [Download and extract Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+    - Open the extracted directory with your file browser and double click "bash silentcast"
+    - That's it!
+    - But, if you insist on using the terminal, here's an example:
+
+            $ cd ~/Downloads/silentcast-master
+            $ bash silentcast
+    - Note that if there is a previous installation of Silentcast, you will end up running the previous installation. So to try out this method, first uninstall the previous installation of Silentcast.
 
 ###Launch Methods
 
@@ -131,7 +141,8 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 - ALT+F2
     - silentcast
 - Terminal
-    - silentcast
+    - `silentcast`
+    - Or, if you haven't actually installed silentcast, but installed the dependencies, downloaded and extracted silentcast-master, then: `bash silentcast` from within the extracted directory.
 
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
 

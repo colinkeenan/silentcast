@@ -1,10 +1,20 @@
 #!/bin/bash
 
+v=1.5
+show_version() {
+	echo Silentcast v$v
+}
+
 show_help() {
 cat << EOF
-silentcast creates a silent video, silentcast/temp.mkv,
-and an animated gif, silentcast/anim.gif, recording an
-area of the screen.
+When run without any args, silentcast creates a silent video, 
+silentcast/temp.mkv, and an animated gif, silentcast/anim.gif, 
+recording an area of the screen.
+
+Usage: silentcast [-h -v]
+
+    -h          display this help and exit
+    -v		display version and exit
 
 silentcast runs 2 other bash scripts that are part of the 
 same package: genffcom and temptoanim
@@ -15,28 +25,43 @@ well as a step by step guide and a list of tips.
 EOF
 }
 
-if [ "$1" = "-h" ]
-then
-	show_help
-	exit 0
-fi
+OPTIND=1
+while getopts ":hv" opt
+do 
+	case $opt in
+		h)
+			show_help
+			exit 0
+			;;
+		v)
+			show_version
+			exit 0
+			;;
+       	esac
+done
+shift "$((OPTIND-1))" # get rid of everything just processed leaving anything else as $1 $2 etc.
 
-unset fps area_choice area ffcoms_running rate arg_form
+unset fps area_choice area ffcoms_running rate arg_form silentcast_dir doc_dir
 #defaults
 fps=8
 ffcoms_running=0
 area_choice="Fullscreen"
 area="f"
+doc_dir=/usr/share/silentcast
+if ! [ -f $doc_dir/README.md ]
+then 
+	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )"
+fi
 
 arg_form=`yad --form --on-top --center\
-	--title="Silentcast" \
+	--title="Silentcast v$v" \
 	--window-icon="media-record" \
 	--text='<tt>\
   <span background="white">                                        </span>\n\
   <span background="white">  For a demo, guide, and list of tips,  </span>\n\
   <span background="white">  click <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a> or install a web  </span>\n\
   <span background="white">  browser addon for markdown and click  </span>\n\
-  <span background="white">  <a href="file:///usr/share/doc/silentcast/README.md">local README.md</a>                       </span>\n\
+  <span background="white">  <a href="file://'$doc_dir'/README.md">local README.md</a>                       </span>\n\
   <span background="white">                                        </span></tt>'\
   	--separator="," \
 	--field="Area to be recorded":CB \
@@ -60,17 +85,17 @@ then
 	else
 		mkdir -p ~/silentcast/silentcast
 		castnum=2
-		cd ~/silentcast/silentcast
+		silentcast_dir=~/silentcast/silentcast
 	fi
 else
 	mkdir -p ~/silentcast 
-	cd ~/silentcast
+	silentcast_dir=~/silentcast
 	castnum=1
 fi
-genffcom "-a"$area "-r"$fps $castnum 
+source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum 
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
-bash ffcom
+bash $silentcast_dir/ffcom
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in ffcom
-temptoanim $castnum $fps
+source temptoanim $castnum $fps
 
 # End of file
