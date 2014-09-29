@@ -1,6 +1,6 @@
 #!/bin/bash
 
-v=1.5
+v=1.6
 show_version() {
 	echo Silentcast v$v
 }
@@ -47,7 +47,7 @@ fps=8
 ffcoms_running=0
 area_choice="Fullscreen"
 area="f"
-doc_dir=/usr/share/silentcast
+doc_dir=/usr/share/doc/silentcast
 if ! [ -f $doc_dir/README.md ]
 then 
 	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )"
