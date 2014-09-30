@@ -25,7 +25,7 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 
 ###Fullscreen: How to use Silentcast to record Gimp
 
-![Fullscreen](http://i.imgur.com/ONmcYzd.gif)
+![Fullscreen](https://github.com/colinkeenan/silentcast/blob/master/fullscreen.gif)
 
 ###Transparent: How to use Silentcast to record 2 windows
 
