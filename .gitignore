@@ -8,5 +8,6 @@
 pkg/
 src/
 *~
+*.svg
 PKGBUILD
 silentcast.install
