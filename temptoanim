@@ -33,7 +33,11 @@ then
 	show_help
 	exit 0
 fi
-
+castnum=""
+if ! [ "$1" -eq 0 ]
+then 
+	castnum=$1
+fi
 cut=0
 total_cut=0
 group=0
@@ -45,7 +49,7 @@ fi
 if ! [ -f temp.mkv ]
 then
 	echo "temp.mkv not found, so can't convert it to anim.gif" \
-	| yad --text-info --wrap --on-top --center --window-icon="media-record" --title="Error" --text="<b>SILENTCAST $1 </b>"
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
 	exit 0
 fi
 
@@ -56,12 +60,12 @@ if ls *png &> /dev/null; then rm *png
 fi
 
 ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
-	| yad --progress --on-top --center --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
+	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
 Creating images from temp.mkv" --pulsate --auto-close
 
 while ! [ -f anim.gif ]
 do
-    cut=`yad --entry --on-top --center --window-icon="media-record"\
+    cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
         --title="Prepare images before converting to Anim.gif" \
         --text="<b>SILENTCAST $1 </b> \n\
 Manually delete or otherwise manipulate the images and click OK,\n\
@@ -89,12 +93,12 @@ Enter any positive integer less than the total number of images. It works like t
     	done
     fi
     convert -adjoin -delay "$((total_cut + 1))"x"$2" -layers optimize *png anim.gif | \
-	    yad --progress --on-top --center --title="convert" --window-icon="media-record" --text="<b>SILENTCAST $1 </b> \n\
+	    yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
 	    Replacing images with anim.gif... (clicking Close below doesn't stop convert, so don't)" --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 
 	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\
-    	  yad --text-info --wrap --on-top --center --window-icon="media-record" --title="Error" --text="<b>SILENTCAST $1 </b>"
+    	  yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked
     else
     	  rm *png

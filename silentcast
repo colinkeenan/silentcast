@@ -1,6 +1,6 @@
 #!/bin/bash
 
-v=1.6
+v=1.7
 show_version() {
 	echo Silentcast v$v
 }
@@ -41,7 +41,7 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving anything else as $1 $2 etc.
 
-unset fps area_choice area ffcoms_running rate arg_form silentcast_dir doc_dir
+unset fps area_choice area ffcoms_running castnum rate arg_form silentcast_dir doc_dir
 #defaults
 fps=8
 ffcoms_running=0
@@ -53,9 +53,27 @@ then
 	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )"
 fi
 
+ffcoms_running=`pgrep -f ffcom | wc -l`
+if [ $ffcoms_running -gt 0 ]
+then
+	if [ $ffcoms_running -gt 1 ]
+	then
+		echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported."
+		exit -1
+	else
+		mkdir -p ~/silentcast/silentcast
+		castnum=2
+		silentcast_dir=~/silentcast/silentcast
+	fi
+else
+	mkdir -p ~/silentcast 
+	silentcast_dir=~/silentcast
+	castnum=1
+fi
+
 arg_form=`yad --form --on-top --center\
 	--title="Silentcast v$v" \
-	--window-icon="media-record" \
+	--window-icon="$doc_dir/record$castnum".png \
 	--text='<tt>\
   <span background="white">                                        </span>\n\
   <span background="white">  For a demo, guide, and list of tips,  </span>\n\
@@ -75,23 +93,6 @@ fps="$(awk -F, '{print $2}' <<<"$arg_form")"         # getting second field this
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
 
-ffcoms_running=`pgrep -f ffcom | wc -l`
-if [ $ffcoms_running -gt 0 ]
-then
-	if [ $ffcoms_running -gt 1 ]
-	then
-		echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported."
-		exit -1
-	else
-		mkdir -p ~/silentcast/silentcast
-		castnum=2
-		silentcast_dir=~/silentcast/silentcast
-	fi
-else
-	mkdir -p ~/silentcast 
-	silentcast_dir=~/silentcast
-	castnum=1
-fi
 source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum 
 [ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
 bash $silentcast_dir/ffcom

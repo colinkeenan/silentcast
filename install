@@ -5,6 +5,7 @@ install -D -m755 temptoanim /usr/bin/temptoanim
 install -D -m755 transparent_window.py /usr/share/silentcast/transparent_window.py
 install -m755 unity_indicator.py /usr/share/silentcast
 install -m755 stop?.png /usr/share/silentcast
+install -D -m755 silentcast.png /usr/share/pixmaps/silentcast.png
 install -D -m755 silentcast.desktop /usr/share/applications/silentcast.desktop
 install -D -m755 localREADME.md /usr/share/doc/silentcast/README.md
 install -m755 *png /usr/share/doc/silentcast
