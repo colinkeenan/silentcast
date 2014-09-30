@@ -21,23 +21,24 @@ Then, just open this file with Chrome. You'll probably want to make Google Chrom
 
 ##Demos
 
-Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2. [These recordings were made before I created custom stop icons that say '1' or '2' in them.]
+Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificaton Area before I even start Silentcast, then a 2nd stop icon appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2. [These recordings were made before I created custom stop icons that say '1' or '2' in them.]
+
 
 ###Fullscreen: How to use Silentcast to record Gimp
 
-![Fullscreen](https://github.com/colinkeenan/silentcast/blob/master/fullscreen.gif)
+![fullscreen.gif](./fullscreen.gif)
 
 ###Transparent: How to use Silentcast to record 2 windows
 
-![Transparent](http://i.imgur.com/nSOTGbf.gif)
+![transparent.gif](./transparent.gif)
 
 ###Interior: How to use Silentcast to only record the drawing
 
-![Interior](http://i.imgur.com/S4LXtlt.gif)
+![interior.gif](./interior.gif)
 
 ###Entirety: How to use Silentcast to record 1 window
 
-![Entirety](http://i.imgur.com/VQWrJh4.gif)
+![entirety.gif](./entirety.gif)
 
 ##Guides
 
@@ -114,11 +115,13 @@ Notice there's a stop icon ![numix-stop](http://i.imgur.com/nEg3PPh.png) in the 
 
             $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
             $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
-    - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad), click the 32 bit or 64 bit version and let Software Center install it.
+    - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
+   click the 32 bit or 64 bit version and let Software Center install it.
     - You're ready to install Silentcast using the Any Linux Distro method above.
 
 - Try it *before* you install it!
-    - Install the dependencies, [Download and extract Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+    - Install the dependencies, [Download and extracxt Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+
     - Open the extracted directory with your file browser and double click "bash silentcast"
     - That's it!
     - But, if you insist on using the terminal, here's an example:
@@ -150,7 +153,7 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 
 #### Set Area
 
-![Set Area](http://i.imgur.com/9EW41mC.png)
+![SetArea.png](./SetArea.png)
 
 - Fullscreen
     - Records the entire screen. Dialogue <span style="color:green;">1</span> will be next because dialogues <span style="color:green;">3</span> and <span style="color:green;">2</span> aren't needed.
@@ -163,7 +166,7 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 
 #### Set Frames per second
 
-![Set Rate](http://i.imgur.com/GhbZ1PC.png)
+![SetRate.png](./SetRate.png)
 
 The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. Higher frame rates will be smoother but will require a lot of memory to create. Beyond a certain rate, and playback may be too slow. Seems to work reasonably well up to 50 Frames per second though.
 
@@ -173,13 +176,13 @@ If you didn't Choose Fullscreen on the opening dialogue, you'll get a countdown 
 
 ##### No Transparent Window
 
-![3](http://i.imgur.com/cYcUwF4.png)
+![3.png](./3.png)
 
 This one explains that after choosing a size, you will have to choose what window to resize by clicking on it. The mouse pointer will change to a + shape until you click a window. Nothing will happen if you click a maximized window, so you should unmaximize the window you want to record before clicking OK on this dialogue, unless you want it maximized.
 
 ##### Transparent Window
 
-![3_trans](http://i.imgur.com/o05GZGx.png)
+![3_Trans.png](./3_Trans.png)
 
 Since Silentcast put the transparent window up, it knows what you are resizing so that there's no need to click on any windows. As soon as you choose a size and click OK, it will resize the transparent window.
 
@@ -189,29 +192,30 @@ You can also enter your own size. The WxH choice is there to remind you that the
 
 #### 2 Manual Resize and Position
 
-![2](http://i.imgur.com/tUm3GaI.png)
+![2.png](./2.png)
 
 When automatically resizing, the previous dialogue moved the window to the top left corner. This dialogue gives you a chance to move and further resize the window.
 
-![2_trans](http://i.imgur.com/KkKvPgG.png)
+![2_Trans.png](./2_Trans.png)
 
-If you are using a transparent window, this is the time to define the exact area to be recorded. After clicking OK, the transparent window will close, but the area for recording will be set to where the interior of that window was.
+If you are using a transparent window, this is the time to define the exact areay to be recorded. After clicking OK, the transparent window will close, but the area for recording will be set to where the interior of that window was.
 
 #### 1 Get Ready
 
-![1](http://i.imgur.com/GL52fLO.png)
+![1.png](./1.png)
 
 Just one last chance to get yourself and the screen ready for recording which will begin as soon as you click OK.
 
 #### Record
 
-There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](http://i.imgur.com/8RPS0yI.png) ![stop2](http://i.imgur.com/utMAzfv.png)
+There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](./stop1.png) ![stop2](./stop2.png)
+
 
 #### Stop
 
 When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Prepare Images dialogue will popup:
 
-![Prepare Images](http://i.imgur.com/diXXYeY.png)
+![Stop.png](./Stop.png)
 
 If you choose to automatically delete a lot of images to create a smaller anim.gif or because your system can't handle so many images at once, then as the dialogue explains, entering *1* will delete every other image, *2* will delete 2 out of every 3 images, etc. *Convert* will adjust timing so playback of anim.gif won't move too fast.
 
@@ -223,7 +227,7 @@ After preparing images and clicking OK, you'll see a progress dialogue as *conve
 
 However, if you don't have a large enough swap (or no swap as with my own system) and run out of memory, *convert* may crash, and you'll see this dialogue popup:
 
-![convert-error](http://i.imgur.com/K1SEvMz.png)
+![convert-error.png](./convert-error.png)
 
 After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
 
