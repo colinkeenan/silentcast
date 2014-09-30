@@ -132,7 +132,7 @@ castnum="$1"
 
 if [ "$fullscreen" = false ] # getting the size and position of area to record - don't need that if fullscreen=true
 then
-	if [ $transparentPID -eq 0 ] 
+	if (($transparentPID == 0)) 
 	then
 		resizeInstructions="; then, click on a window <span color='red'>that is not maximized.</span>"
 		nextInstructions="The next dialogue will give you a chance to get ready before recording begins."
@@ -150,9 +150,9 @@ Choose one of the window sizes below or enter one on the WxH choice and click OK
 After auto-resizing (or not), the next dialogue will give you another chance to make manual adjustments."\
 	       	--field="Window Size for recording":CBE \
 		"No-auto-sizing"!"560x315"!"640x360"!"853x480"!"1280x720"!"WxH"`
-	if [ "$?" -ne "0" ] #Cancel was clicked
+	if (($? != 0)) #Cancel was clicked
 	then
-		if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
+		if (($transparentPID != 0)) # Close the transparent window if it was used
 		then
 			kill $transparentPID
 		fi
@@ -175,9 +175,9 @@ $nextInstructions" \
 | yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Manual Resize \
 and Position" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum   \
 </b><span font='24' color='green'>2</span>"
-	if [ "$?" -ne "0" ] #Cancel was clicked
+	if (($? != 0)) #Cancel was clicked
 	then
-		if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
+		if (($transparentPID != 0)) # Close the transparent window if it was used
 		then
 			kill $transparentPID
 		fi
@@ -206,7 +206,7 @@ and Position" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST 
 	fi
 fi
 
-if [ $transparentPID -ne 0 ] # Close the transparent window if it was used
+if (($transparentPID != 0)) # Close the transparent window if it was used
 then
 	kill $transparentPID
 fi
@@ -221,10 +221,11 @@ To Stop Recording:
 Click the stop icon in the Notification Area" \
 | yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="'$doc_dir'/record'$castnum'".png --text="\
 <b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+(($? != 0)) && exit 1 #Cancel was clicked
 
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y '$ffcom_dir'/temp.mkv & ffmpegPID=$!
-if [[ "$XDG_CURRENT_DESKTOP" == "Unity"  ]]; then
+if [ "$XDG_CURRENT_DESKTOP" = "Unity"  ] 
+then
         echo "Unity detected, switching indicators..."
 	python '$py_script_dir'/unity_indicator.py '$1'
 else

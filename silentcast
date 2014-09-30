@@ -54,9 +54,9 @@ then
 fi
 
 ffcoms_running=`pgrep -f ffcom | wc -l`
-if [ $ffcoms_running -gt 0 ]
+if (($ffcoms_running > 0))
 then
-	if [ $ffcoms_running -gt 1 ]
+	if (($ffcoms_running > 1))
 	then
 		echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported."
 		exit -1
@@ -85,7 +85,7 @@ arg_form=`yad --form --on-top --center\
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8`
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+(($? != 0)) && exit 1 #Cancel was clicked
 
 area_choice="$(awk -F, '{print $1}' <<<"$arg_form")"
 fps="$(awk -F, '{print $2}' <<<"$arg_form")"         # getting second field this way only works when --separator="'"
@@ -94,9 +94,9 @@ area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
 
 source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum 
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked in genffcom
+(($? != 0)) && exit 1 #Cancel was clicked
 bash $silentcast_dir/ffcom
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked in ffcom
+(($? != 0)) && exit 1 #Cancel was clicked
 source temptoanim $castnum $fps
 
 # End of file

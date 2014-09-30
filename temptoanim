@@ -1,5 +1,5 @@
 #!/bin/bash
-# $1 is silentcast#
+# $1 is silentcast# (i.e. castnum)
 # $2 is fps
 
 # Usage info
@@ -34,7 +34,7 @@ then
 	exit 0
 fi
 castnum=""
-if ! [ "$1" -eq 0 ]
+if (($1 != 0))
 then 
 	castnum=$1
 fi
@@ -43,9 +43,10 @@ total_cut=0
 group=0
 count=0
 
-if [ "$1" -eq 1 ]; then cd ~/silentcast
-elif [ "$1" -eq 2 ]; then cd ~/silentcast/silentcast
+if (($1 == 1)); then cd ~/silentcast
+elif (($1 == 2)); then cd ~/silentcast/silentcast
 fi
+
 if ! [ -f temp.mkv ]
 then
 	echo "temp.mkv not found, so can't convert it to anim.gif" \
@@ -54,10 +55,8 @@ then
 fi
 
 xdg-open ./
-if [ -f anim.gif ]; then rm anim.gif
-fi
-if ls *png &> /dev/null; then rm *png
-fi
+find -maxdepth 1 -name 'anim.gif' -delete
+find -maxdepth 1 -name '*png' -delete
 
 ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
 	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
@@ -76,17 +75,17 @@ Enter any positive integer less than the total number of images. It works like t
 2 delete 2 out of every 3\n\
 3 delete 3 out of every 4 ..."\
         --entry-text="0"`
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+    (($? != 0)) && exit 1 #Cancel was clicked
 
     let group=$cut+1
     let total_cut=$total_cut+$cut
-    if [ "$group" -gt 1 ]
+    if (($group > 1))
     then
     	count=0
     	for f in *png
     	do
-    		    count=$((count + 1))
-    		    if ! [ `expr $count % $group` = 1 ]
+    		    let count++
+		    if (($count % $group != 1))
     		    then
     			    rm $f
     		    fi
@@ -99,7 +98,7 @@ Enter any positive integer less than the total number of images. It works like t
     then 
 	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\
     	  yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
-[ "$?" -ne "0" ] && exit 1 #Cancel was clicked
+	(($? != 0)) && exit 1 #Cancel was clicked
     else
     	  rm *png
     fi
