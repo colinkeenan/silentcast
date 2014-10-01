@@ -42,15 +42,13 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
 
 ##Guides
 
-###Installation
+###Getting Silentcast
 
-- Desktop Environment Requirements
-    - A desktop that includes a standard system-tray notification area with clickable icons.
-    - [A compositing window manager](http://en.wikipedia.org/wiki/Compositing_window_manager#List_of_compositing_window_managers) that is compatible with the [EWMH/NetWM](http://en.wikipedia.org/wiki/Extended_Window_Manager_Hints) specification.
-
-- Dependencies (Package names may vary slightly across different Linux distros. These are how they're named in Arch Linux.)
 <table>
   <thead>
+    <tr>
+      <th colspan="2">Dependencies (Arch package names used)</th>
+    <tr>
     <tr>
       <th>package</th>
       <th>reason</th>
@@ -73,12 +71,12 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
     <td>for the GUI - popup dialogue windows</td>
   </tr>
   <tr>
-    <td>xrandr</td>
-    <td>for getting screen size</td>
-  </tr>
-  <tr>
     <td>xdotool</td>
     <td>for getting the active window id</td>
+  </tr>
+  <tr>
+    <td>xorg-xrandr</td>
+    <td>for getting screen size</td>
   </tr>
   <tr>
     <td>xorg-xwininfo</td>
@@ -102,33 +100,60 @@ Notice there's a stop icon ![numix-stop.png](./numix-stop.png) in the Notificato
   </tr>
 </table>
 
-- Arch Linux
-    - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
-    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will automatically install missing dependencies. **Uninstall** with `sudo pacman -R silentcast`
+- **Desktop Environment Requirements**
+    - A desktop that includes a standard system-tray notification area with clickable icons. Works with most popular desktops, including Unity, but I haven't been able to figure out how to get yad notification to show up in Gnome yet.
+    - [A compositing window manager](http://en.wikipedia.org/wiki/Compositing_window_manager#List_of_compositing_window_managers) that is compatible with the [EWMH/NetWM](http://en.wikipedia.org/wiki/Extended_Window_Manager_Hints) specification.
 
-- Any Linux Distro
-    - Install missing dependencies (see the second point in this list)
-    - [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip) and extract. Then, either open the extracted folder from a file browser **as root** and double-click **install**, or from a terminal, `cd` into the extracted directory and `sudo ./install` **Uninstall** instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+- **Installing Dependencies by Distro**
+    - Arch
+        - Install what you can with pacman
 
-- Ubuntu (Installing the missing dependencies)
-    - Install what you can with apt-get
+                $ sudo pacman -S bash ffmpeg imagemagick xdotool xorg-xrandr xorg-xwininfo wmctrl python-gobject python-cairo xdg-utils
 
-            $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
-            $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
-    - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
-   click the 32 bit or 64 bit version and let Software Center install it.
-    - You're ready to install Silentcast using the Any Linux Distro method above.
+        - Install yad from the AUR with your AUR helper or [Download yad.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/ya/yad/yad.tar.gz), extract, and do `makepkg -si` from the extracted directory
 
-- Try it *before* you install it!
-    - Install the dependencies, [Download and extracxt Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+    - Ubuntu
+        - Install what you can with apt-get
 
-    - Open the extracted directory with your file browser and double click "bash silentcast"
-    - That's it!
-    - But, if you insist on using the terminal, here's an example:
+                $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
+                $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
+        - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
+       click the 32 bit or 64 bit version and let Software Center install it.
+
+    - Fedora
+        - Make sure you have the multimedia repository, [rpmfusion](http://rpmfusion.org/Configuration)
+
+                $ su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+
+        - Now install everything with yum
+
+                $ sudo yum install bash ffmpeg ImageMagick xdotool wmctrl xdg-utils yad
+
+- **Try it *before* you install it!** (If you already installed it, uninstall before trying this.)
+    - Install the dependencies as listed above, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract.
+
+    - Now just double click **bash silentcast** in the extracted folder.
+    - That's it! Nothing will be installed to your system folders, and you can get rid of Silentcast just by deleting the download and extracted folder.
+    - Here's an example of running it from the terminal:
 
             $ cd ~/Downloads/silentcast-master
             $ bash silentcast
-    - Note that if there is a previous installation of Silentcast, you will end up running the previous installation. So to try out this method, first uninstall the previous installation of Silentcast.
+    - Note that **if you have done a full install of Silentcast**, you will end up running portions of that installation when running *bash silentcast*. So, to try out this method, first **uninstall the full installation of Silentcast**.
+
+- **Arch Linux Full Install**
+    - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install the latest release and missing dependencies. Keep your install up to date the usual way with your AUR helper, like `yaourt -Syua`. **Uninstall** with `sudo pacman -R silentcast`
+    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will do exactly the same thing as an AUR helper would do for installation, but you will have to keep track of updates yourself. **Uninstall** with `sudo pacman -R silentcast`
+
+- **Any Linux Distro Full Install**
+    - Install missing dependencies (see the *Dependencies* table and *Installing Dependencies by Distro* above)
+    - Download a version of Silentcast:
+        - Should always work as intended: [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest)
+        - Most likely working right: [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+        - Probably broken when in active development, otherwise the same as master: [Downlad Silentcast next.zip from github.com](https://github.com/colinkeenan/silentcast/archive/next.zip)
+    - Extract. Then, from a terminal, `cd` into the extracted directory and `sudo ./install` **Uninstall** instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
+    - See what version you've got with `silentcast -v`. [Check for a newer version](https://github.com/colinkeenan/silentcast/releases/latest)
+
+
 
 ###Launch Methods
 

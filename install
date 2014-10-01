@@ -10,3 +10,6 @@ install -D -m755 silentcast.desktop /usr/share/applications/silentcast.desktop
 install -D -m755 README.md /usr/share/doc/silentcast/README.md
 install -m755 *png /usr/share/doc/silentcast
 install -m755 *gif /usr/share/doc/silentcast
+echo
+echo "NOTE==>The command is 'silentcast'. See /usr/share/docs/silentcast/README.md or https://github.com/colinkeenan/silentcast/#silentcast for full instructions and tips."
+
