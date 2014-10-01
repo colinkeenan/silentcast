@@ -56,7 +56,7 @@ fi
 
 xdg-open ./
 find -maxdepth 1 -name 'anim.gif' -delete
-find -maxdepth 1 -name '*png' -delete
+find -maxdepth 1 -name 'ew*png' -delete
 
 ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
 	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
@@ -82,7 +82,7 @@ Enter any positive integer less than the total number of images. It works like t
     if (($group > 1))
     then
     	count=0
-    	for f in *png
+    	for f in ew*png
     	do
     		    let count++
 		    if (($count % $group != 1))
@@ -100,7 +100,7 @@ Enter any positive integer less than the total number of images. It works like t
     	  yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
 	(($? != 0)) && exit 1 #Cancel was clicked
     else
-    	  rm *png
+    	  rm ew*png
     fi
 done
 
