@@ -1,25 +1,33 @@
 #!/bin/bash
 # $1 is silentcast# (i.e. castnum)
 # $2 is fps
+# $3 is working directory (working_dir) and is optional - defaults to ./
 
 # Usage info
 show_help() {
 cat << EOF
 temptoanim converts temp.mkv to anim.gif
 
-Usage: temptoanim silentcast# fps
+Usage: temptoanim silentcast# fps [working_dir]
 
-    silentcast# must be 0, 1, or 2
+    silentcast#     must be 0, 1, or 2
 
-	0: tries to convert ./temp.mkv
-	1: tries to convert ~/silentcast/temp.mkv
-	2: tries to convert ~/silentcast/silentcast/temp.mkv
+	0: tries to convert ./temp.mkv (if working_dir is also 
+	   specified, it will be ignored)
+	1: tries to convert working_dir/silentcast/temp.mkv
+	2: tries to convert working_dir/silentcast/silentcast/temp.mkv
 
-    fps is an integer and must match the frames per second used to
-        create temp.mkv. temptoanim doesn't verify the actual fps 
-	in temp.mkv.
+    fps             is an integer and must match the frames per second used to
+	            create temp.mkv. temptoanim doesn't verify the actual fps 
+	            in temp.mkv.
 	
-    Both args are required.
+    Both silentcast# and fps are required and must appear in the correct
+    order.
+
+    working_dir     must be the last arg, defaults to ~/ and is where 
+                    temptoanim will expect to find the silentcast or 
+		    silentcast/silentcast directory
+
 
 There are some dialogues that come up, and it's important to read
 and understand them. View /usr/share/doc/silentcast/README.md with
@@ -33,30 +41,45 @@ then
 	show_help
 	exit 0
 fi
+
 castnum=""
 if (($1 != 0))
 then 
 	castnum=$1
 fi
+
 cut=0
 total_cut=0
 group=0
 count=0
 
-if (($1 == 1)); then cd ~/silentcast
-elif (($1 == 2)); then cd ~/silentcast/silentcast
+if [ "$3" != "" ] 
+then
+	working_dir=$3
+else
+	working_dir=.
+fi
+
+if ! [ -d $working_dir/ ]
+then
+	echo "$working_dir is not an existing directory, so the silentcast directory can't be there" \
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
+	exit -1
+fi
+if (($1 == 1)); then cd $working_dir/silentcast
+elif (($1 == 2)); then cd $working_dir/silentcast/silentcast
 fi
 
 if ! [ -f temp.mkv ]
 then
 	echo "temp.mkv not found, so can't convert it to anim.gif" \
 	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
-	exit 0
+	exit -1
 fi
 
 xdg-open ./
 find -maxdepth 1 -name 'anim.gif' -delete
-find -maxdepth 1 -name 'ew*png' -delete
+find -maxdepth 1 -regex '\.\/ew-[0-9][0-9][0-9]\.png' -delete
 
 ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
 	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
