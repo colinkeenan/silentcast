@@ -132,12 +132,14 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 - **Try it *before* you install it!** (If you already installed it, uninstall before trying this.)
     - Install the dependencies as listed above, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract.
 
-    - Now just double click **bash silentcast** in the extracted folder.
-    - That's it! Nothing will be installed to your system folders, and you can get rid of Silentcast just by deleting the download and extracted folder.
+    - In Xfce, you can just double click **bash silentcast** in the extracted folder. Seems as though most other desktops don't default to running in the same directory as the launcher, so you'l have to run it in the terminal.
     - Here's an example of running it from the terminal:
 
-            $ cd ~/Downloads/silentcast-master
+            $ cd ~/Downloads/silentcast-1.7
             $ bash silentcast
+
+    - That's it! Nothing will be installed to your system folders, and you can get rid of Silentcast just by deleting the download and extracted folder.
+    - If you want to make the **bash silentcast** launcher work instead of doing a full install, edit `bash_silentcast.desktop` in a terminal and put the full path in, for example `Exec=/home/colin/Downloads/silentcast-1.7/silentcast` and `Path=/home/colin/Downloads/silentcast-1.7/`
     - Note that **if you have done a full install of Silentcast**, you will end up running portions of that installation when running *bash silentcast*. So, to try out this method, first **uninstall the full installation of Silentcast**.
 
 - **Arch Linux Full Install**
