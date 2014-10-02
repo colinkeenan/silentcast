@@ -30,15 +30,15 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 
 ###Transparent: How to use Silentcast to record 2 windows
 
-![transparent.gif](./transparent.gif)
+![transparent.gif](transparent.gif)
 
 ###Interior: How to use Silentcast to only record the drawing
 
-![interior.gif](./interior.gif)
+![interior.gif](interior.gif)
 
 ###Entirety: How to use Silentcast to record 1 window
 
-![entirety.gif](./entirety.gif)
+![entirety.gif](entirety.gif)
 
 ##Guides
 
@@ -176,9 +176,24 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 
 ### Dialogues: Set 3 2 1 Record Stop Convert
 
+#### Set Working Directory
+
+![SetDir.png](SetDir.png)
+
+A directory named `silentcast` will be created if it doesn't already exist, and that's where temp.mkv and anim.gif will go, but where should `silentcast` go? (If you are already running another instance of Silentcast, it will create `silentcast/silentcast` if it doesn't already exist.)
+
+- `/home/you` (your home directory) is the default choice
+
+- `/tmp` or `/dev/shm` (your shared memory ram disk) After images are generated, you may want to free some memory to allow the creation of anim.gif to happen:
+	- Move temp.mkv out of memory and onto your hard drive to save it (or delete it otherwise)
+	- Stop the thumbnailer that's been working overtime keeping up with all the images (in Xfce the thumbnailer is tumblerd)
+	- Use htop to find out what else is taking up too much memory that you can stop
+
+- `other` (you need to type in an existing directory here)
+
 #### Set Area
 
-![SetArea.png](./SetArea.png)
+![SetArea.png](SetArea.png)
 
 - Fullscreen
     - Records the entire screen. Dialogue <span style="color:green;">1</span> will be next because dialogues <span style="color:green;">3</span> and <span style="color:green;">2</span> aren't needed.
@@ -191,7 +206,7 @@ Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *sil
 
 #### Set Frames per second
 
-![SetRate.png](./SetRate.png)
+![SetRate.png](SetRate.png)
 
 The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. Higher frame rates will be smoother but will require a lot of memory to create. Beyond a certain rate, and playback may be too slow. Seems to work reasonably well up to 50 Frames per second though.
 
@@ -201,13 +216,13 @@ If you didn't Choose Fullscreen on the opening dialogue, you'll get a countdown 
 
 ##### No Transparent Window
 
-![3.png](./3.png)
+![3.png](3.png)
 
 This one explains that after choosing a size, you will have to choose what window to resize by clicking on it. The mouse pointer will change to a + shape until you click a window. Nothing will happen if you click a maximized window, so you should unmaximize the window you want to record before clicking OK on this dialogue, unless you want it maximized.
 
 ##### Transparent Window
 
-![3_Trans.png](./3_Trans.png)
+![3_Trans.png](3_Trans.png)
 
 Since Silentcast put the transparent window up, it knows what you are resizing so that there's no need to click on any windows. As soon as you choose a size and click OK, it will resize the transparent window.
 
@@ -217,30 +232,30 @@ You can also enter your own size. The WxH choice is there to remind you that the
 
 #### 2 Manual Resize and Position
 
-![2.png](./2.png)
+![2.png](2.png)
 
 When automatically resizing, the previous dialogue moved the window to the top left corner. This dialogue gives you a chance to move and further resize the window.
 
-![2_Trans.png](./2_Trans.png)
+![2_Trans.png](2_Trans.png)
 
 If you are using a transparent window, this is the time to define the exact areay to be recorded. After clicking OK, the transparent window will close, but the area for recording will be set to where the interior of that window was.
 
 #### 1 Get Ready
 
-![1.png](./1.png)
+![1.png](1.png)
 
 Just one last chance to get yourself and the screen ready for recording which will begin as soon as you click OK.
 
 #### Record
 
-There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](./stop1.png) ![stop2](./stop2.png)
+There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](stop1.png) ![stop2](stop2.png)
 
 
 #### Stop
 
 When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Prepare Images dialogue will popup:
 
-![Stop.png](./Stop.png)
+![Stop.png](Stop.png)
 
 If you choose to automatically delete a lot of images to create a smaller anim.gif or because your system can't handle so many images at once, then as the dialogue explains, entering *1* will delete every other image, *2* will delete 2 out of every 3 images, etc. *Convert* will adjust timing so playback of anim.gif won't move too fast.
 
@@ -252,7 +267,7 @@ After preparing images and clicking OK, you'll see a progress dialogue as *conve
 
 However, if you don't have a large enough swap (or no swap as with my own system) and run out of memory, *convert* may crash, and you'll see this dialogue popup:
 
-![convert-error.png](./convert-error.png)
+![convert-error.png](convert-error.png)
 
 After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
 
