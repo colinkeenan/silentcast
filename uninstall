@@ -1,7 +1,11 @@
 #!/bin/bash
+echo Deleting silentcast, genffcom, and temptoanim from /usr/bin
 rm /usr/bin/silentcast
 rm /usr/bin/genffcom
 rm /usr/bin/temptoanim
+echo Deleting directories /usr/share/silentcast and /usr/share/doc/silentcast
 rm -r /usr/share/silentcast
-rm /usr/share/applications/silentcast.desktop
 rm -r /usr/share/doc/silentcast
+echo Deleting desktop launcher from /usr/share/applications
+rm /usr/share/applications/silentcast.desktop
+echo Done uninstalling Silentcast
