@@ -6,6 +6,7 @@ rm /usr/bin/temptoanim
 echo Deleting directories /usr/share/silentcast and /usr/share/doc/silentcast
 rm -r /usr/share/silentcast
 rm -r /usr/share/doc/silentcast
-echo Deleting desktop launcher from /usr/share/applications
+echo Deleting desktop launcher from /usr/share/applications and the icon from pixmaps
 rm /usr/share/applications/silentcast.desktop
+rm /usr/share/pixmaps/silentcast.png
 echo Done uninstalling Silentcast
