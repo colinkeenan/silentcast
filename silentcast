@@ -64,7 +64,20 @@ then
 fi
 
 working_dir=~
-df /tmp | grep -q tmpfs && tmp=/tmp || tmp=/dev/shm # offer /tmp if it's shared memory disk, otherwise /dev/shm (debian & ubuntu)
+
+if df /tmp | grep -q tmpfs && touch /tmp/foo 2>/dev/null
+then
+        rm -f /tmp/foo
+	tmp=/tmp                    # if /tmp is a writable RAM	disk, offer it
+else
+	if touch /dev/shm/foo 2>/dev/null
+	then
+		rm -f /dev/shm/foo
+		tmp=/dev/shm        # if /dev/shm (assumed to be a ram disk) is writable, offer it
+	else
+		tmp="Didn't find a RAM disk"
+	fi
+fi
 
 arg_form=`yad --form --on-top --center\
 	--title="Silentcast v$v" \

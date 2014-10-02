@@ -184,7 +184,7 @@ A directory named `silentcast` will be created if it doesn't already exist, and 
 
 - `/home/you` (your home directory) is the default choice
 
-- `/tmp` or `/dev/shm` (your shared memory ram disk) After images are generated, you may want to free some memory to allow the creation of anim.gif to happen:
+- `/tmp` or `/dev/shm` (your [RAM disk](http://en.wikipedia.org/wiki/Tmpfs)) After images are generated, you may want to free some memory to allow the creation of anim.gif to happen:
 	- Move temp.mkv out of memory and onto your hard drive to save it (or delete it otherwise)
 	- Stop the thumbnailer that's been working overtime keeping up with all the images (in Xfce the thumbnailer is tumblerd)
 	- Use htop to find out what else is taking up too much memory that you can stop
