@@ -140,6 +140,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 
     - That's it! Nothing will be installed to your system folders, and you can get rid of Silentcast just by deleting the download and extracted folder.
     - If you want to make the **bash silentcast** launcher work instead of doing a full install, edit `bash_silentcast.desktop` in a terminal and put the full path in, for example `Exec=/home/colin/Downloads/silentcast-1.7/silentcast` and `Path=/home/colin/Downloads/silentcast-1.7/`
+
     - Note that **if you have done a full install of Silentcast**, you will end up running portions of that installation when running *bash silentcast*. So, to try out this method, first **uninstall the full installation of Silentcast**.
 
 - **Arch Linux Full Install**
