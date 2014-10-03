@@ -101,7 +101,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 </table>
 
 - **Desktop Environment Requirements**
-    - A desktop that includes a standard system-tray notification area with clickable icons. Works with most popular desktops, including Unity, but I haven't been able to figure out how to get yad notification to show up in Gnome yet.
+    - A desktop that includes a standard system-tray notification area with clickable icons. Works with most popular desktops, including Unity. For Gnome, install [The Topicons extension](https://extensions.gnome.org/extension/495/topicons/)
     - [A compositing window manager](http://en.wikipedia.org/wiki/Compositing_window_manager#List_of_compositing_window_managers) that is compatible with the [EWMH/NetWM](http://en.wikipedia.org/wiki/Extended_Window_Manager_Hints) specification.
 
 - **Installing Dependencies by Distro**
@@ -121,6 +121,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
        click the 32 bit or 64 bit version and let Software Center install it.
 
     - Fedora
+        - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
         - Make sure you have the multimedia repository, [rpmfusion](http://rpmfusion.org/Configuration)
 
                 $ su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
