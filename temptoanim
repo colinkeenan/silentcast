@@ -79,7 +79,7 @@ fi
 
 if [ "$XDG_CURRENT_DESKTOP" = "GNOME"  ] 
 then
-	nautilus ./ # for some reason xdg-open doesn't work inside this script in Gnome, so just calling nautilus directly
+	nautilus ./ & # for some reason xdg-open doesn't work inside this script in Gnome, so just calling nautilus directly
 else
 	xdg-open ./
 fi
@@ -131,5 +131,7 @@ Enter any positive integer less than the total number of images. It works like t
     	  rm ew*png
     fi
 done
+
+exit 0
 
 # End of file
