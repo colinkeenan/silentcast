@@ -146,7 +146,25 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 
 - **Arch Linux Full Install**
     - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install the latest release and missing dependencies. Keep your install up to date the usual way with your AUR helper, like `yaourt -Syua`. **Uninstall** with `sudo pacman -R silentcast`
-    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will do exactly the same thing as an AUR helper would do for installation, but you will have to keep track of updates yourself. **Uninstall** with `sudo pacman -R silentcast`
+    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will do exactly the same thing as an AUR helper would do for installation, but you will have to keep track of updates yourself. **Uninstall** with `sudo pacman -R silentcast`  
+    
+- **Ubuntu Linux Full Install**  
+    - For 14.04 and 12.04 run the following commands to add the needed PPA/repositories (for older versions of Ubuntu follow the "Any Linux Distro" instructions below): 
+     
+            sudo add-apt-repository ppa:jon-severinsson/ffmpeg
+            sudo add-apt-repository ppa:webupd8team/y-ppa-manager  
+            sudo add-apt-repository ppa:sethj/silentcast  
+            sudo apt-get update
+            sudo apt-get install silentcast  
+            
+       Or run the following, condensed, command:  
+       
+            sudo add-apt-repository ppa:jon-severinsson/ffmpeg && sudo add-apt-repository ppa:webupd8team/y-ppa-manager && sudo add-apt-repository ppa:sethj/silentcast && sudo apt-get update && sudo apt-get install silentcast  
+            
+       - **Uninstall**  
+       Run `sudo apt-get remove silentcast`. You can then remove the PPAs with `sudo add-apt-repository -r` like so:  
+       
+                sudo add-apt-repository -r ppa:jon-severinsson/ffmpeg && sudo add-apt-repository -r ppa:webupd8team/y-ppa-manager && sudo add-apt-repository -r ppa:sethj/silentcast
 
 - **Any Linux Distro Full Install**
     - Install missing dependencies (see the *Dependencies* table and *Installing Dependencies by Distro* above)
