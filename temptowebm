@@ -1,0 +1,88 @@
+#!/bin/bash
+# $1 is silentcast# (i.e. castnum)
+# $2 is working directory (working_dir) and is optional - defaults to ./
+
+# Usage info
+show_help() {
+cat << EOF
+temptowebm converts temp.mkv to vid.webm
+
+Usage: temptowebm silentcast# [working_dir]
+
+    silentcast#     must be 0, 1, or 2
+
+	0: tries to convert ./temp.mkv (if working_dir is also 
+	   specified, it will be ignored)
+	1: tries to convert working_dir/silentcast/temp.mkv
+	2: tries to convert working_dir/silentcast/silentcast/temp.mkv
+
+    working_dir     must be the last arg, defaults to ~/ and is where 
+                    temptoanim will expect to find the silentcast or 
+		    silentcast/silentcast directory
+
+
+View /usr/share/doc/silentcast/README.md with a markdown viewer and 
+get an animated gif demo made with silentcast, as well as a step by 
+step guide and a list of tips.
+EOF
+}
+
+if ! [[ "$1" =~ ^[0-2]$ ]] 
+then
+	show_help
+	exit 0
+fi
+
+castnum=""
+if (($1 != 0))
+then 
+	castnum=$1
+fi
+
+if [ "$2" != "" ] 
+then
+	working_dir=$2
+else
+	working_dir=.
+fi
+
+if ! [ -d $working_dir/ ]
+then
+	echo "$working_dir is not an existing directory, so the silentcast directory can't be there" \
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
+	exit -1
+fi
+if (($1 == 1)); then cd $working_dir/silentcast
+elif (($1 == 2)); then cd $working_dir/silentcast/silentcast
+fi
+
+if ! [ -f temp.mkv ]
+then
+	echo "temp.mkv not found, so can't convert it to vid.webm" \
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
+	exit -1
+fi
+
+if [ "$XDG_CURRENT_DESKTOP" = "GNOME"  ] 
+then
+	nautilus ./ & file_browserPID=$! # for some reason xdg-open doesn't work inside this script in Gnome
+else
+	xdg-open ./ 
+fi
+find -maxdepth 1 -name 'vid.webm' -delete
+
+ffmpeg -i $silentcast_dir/temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749K $silentcast_dir/vid.webm \
+	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
+Creating vid.webm from temp.mkv" --pulsate --auto-close
+
+if [ $mp4 = FALSE ] 
+then 
+	exit 0
+else
+	pkill $file_browserPID
+	wmctrl -c "silentcast"
+	cd -
+fi
+
+
+# End of file

@@ -1,0 +1,80 @@
+#!/bin/bash
+# $1 is silentcast# (i.e. castnum)
+# $2 is working directory (working_dir) and is optional - defaults to ./
+
+# Usage info
+show_help() {
+cat << EOF
+temptomp4 converts temp.mkv to vid.mp4
+
+Usage: temptomp4 silentcast# [working_dir]
+
+    silentcast#     must be 0, 1, or 2
+
+	0: tries to convert ./temp.mkv (if working_dir is also 
+	   specified, it will be ignored)
+	1: tries to convert working_dir/silentcast/temp.mkv
+	2: tries to convert working_dir/silentcast/silentcast/temp.mkv
+
+    working_dir     must be the last arg, defaults to ~/ and is where 
+                    temptoanim will expect to find the silentcast or 
+		    silentcast/silentcast directory
+
+
+View /usr/share/doc/silentcast/README.md with a markdown viewer and 
+get an animated gif demo made with silentcast, as well as a step by 
+step guide and a list of tips.
+EOF
+}
+
+if ! [[ "$1" =~ ^[0-2]$ ]] 
+then
+	show_help
+	exit 0
+fi
+
+castnum=""
+if (($1 != 0))
+then 
+	castnum=$1
+fi
+
+if [ "$2" != "" ] 
+then
+	working_dir=$2
+else
+	working_dir=.
+fi
+
+if ! [ -d $working_dir/ ]
+then
+	echo "$working_dir is not an existing directory, so the silentcast directory can't be there" \
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
+	exit -1
+fi
+if (($1 == 1)); then cd $working_dir/silentcast
+elif (($1 == 2)); then cd $working_dir/silentcast/silentcast
+fi
+
+if ! [ -f temp.mkv ]
+then
+	echo "temp.mkv not found, so can't convert it to vid.mp4" \
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
+	exit -1
+fi
+
+if [ "$XDG_CURRENT_DESKTOP" = "GNOME"  ] 
+then
+	nautilus ./ & # for some reason xdg-open doesn't work inside this script in Gnome, so just calling nautilus directly
+else
+	xdg-open ./
+fi
+find -maxdepth 1 -name 'vid.mp4' -delete
+
+ffmpeg -i $silentcast_dir/temp.mkv $silentcast_dir/vid.mp4 \
+	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
+Creating vid.mp4 from temp.mkv" --pulsate --auto-close
+
+exit 0
+
+# End of file
