@@ -41,7 +41,7 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving anything else as $1 $2 etc.
 
-unset fps area_choice area ffcoms_running castnum rate arg_form silentcast_dir doc_dir working_dir tmp
+unset fps area_choice area ffcoms_running castnum rate arg_form silentcast_dir doc_dir working_dir tmp anim mp4 webm
 
 ffcoms_running=`pgrep -f ffcom | wc -l`
 if (($ffcoms_running > 1))
@@ -54,6 +54,9 @@ else
 fi
 
 #defaults
+anim=TRUE
+webm=FALSE
+mp4=FALSE
 fps=8
 area_choice="Fullscreen"
 area="f"
@@ -92,13 +95,17 @@ arg_form=`yad --form --on-top --center\
   \n\
  In the Working Directory specified below, silentcast \n\
  or silencast/silentcast will be created to contain \n\
- temp.mkv and anim.gif: Choose one or type it in.'\
+ temp.mkv and anim.gif etc.: Choose one or type it in.'\
   	--separator="," \
 	--field="Working Directory":CBE \
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
+	--field="anim.gif":CHK \
+	--field="vid.webm":CHK \
+	--field="vid.mp4":CHK \
 	"$HOME"!"$tmp"!"other" \
-	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8`
+	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
+	TRUE FALSE FALSE`
 (($? != 0)) && exit 1 #Cancel was clicked
 
 working_dir="$(awk -F, '{print $1}' <<<"$arg_form")"         
@@ -109,8 +116,11 @@ then
 	exit -1
 fi
 
-area_choice="$(awk -F, '{print $2}' <<<"$arg_form")" # getting 2nd & 3rd fields this way only works when --separator=","
-fps="$(awk -F, '{print $3}' <<<"$arg_form")"         
+area_choice="$(awk -F, '{print $2}' <<<"$arg_form")" # getting 2nd, 3rd,... fields this way only works when --separator=","
+fps="$(awk -F, '{print $3}' <<<"$arg_form")"
+anim="$(awk -F, '{print $4}' <<<"$arg_form")"
+webm="$(awk -F, '{print $5}' <<<"$arg_form")"
+mp4="$(awk -F, '{print $6}' <<<"$arg_form")"
 
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
@@ -125,10 +135,16 @@ else
 	castnum=1
 fi
 
+find $silentcast_dir -maxdepth 1 -name 'anim.gif' -delete
+find $silentcast_dir -maxdepth 1 -name 'vid.webm' -delete
+find $silentcast_dir -maxdepth 1 -name 'vid.mp4' -delete
+
 source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum 
 (($? != 0)) && exit 1 #Cancel was clicked
 bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
-source temptoanim $castnum $fps $working_dir
+[ $anim = TRUE ] && source temptoanim $castnum $fps $working_dir
+[ $webm = TRUE ] && source temptowebm $castnum $working_dir
+[ $mp4 = TRUE ] && source temptomp4 $castnum $working_dir
 
 # End of file
