@@ -130,6 +130,20 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 
                 $ sudo yum install bash ffmpeg ImageMagick xdotool wmctrl xdg-utils yad
 
+        - That's all you need to run Silentcast, but to watch the mp4 or webm files, I recommend [installing Google Chrome](https://www.google.com/chrome/)
+
+    - openSUSE
+        - Install ffmpeg by getting the multimedia codecs for either KDE or Gnome by clicking the appropriate button at [opensuse-community.org/](http://opensuse-community.org/), and letting YaST do the install for you. Trust the keys and resolve the conflict by choosing the first option which will switch to the Packman repository.
+        - Install everything else with zypper
+
+                $ sudo zypper install bash ImageMagick yad xdotool xrandr xwininfo wmctrl python-gobject python-cairo xdg-utils
+
+        - That's all you need to run Silentcast, but to watch the mp4 or webm files, I recommend installing Google Chrome as follows
+
+                $ sudo zypper ar http://dl.google.com/linux/chrome/rpm/stable/x86_64 Google-Chrome
+                $ sudo zypper ref
+                $ sudo zypper in google-chrome-stable
+
 - **Try it *before* you install it!** (If you already installed it, uninstall before trying this.)
     - Install the dependencies as listed above, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract.
 
@@ -171,7 +185,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
     - Download a version of Silentcast:
         - Should always work as intended: [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest)
         - Most likely working right: [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
-        - Probably broken when in active development, otherwise the same as master: [Downlad Silentcast next.zip from github.com](https://github.com/colinkeenan/silentcast/archive/next.zip)
+        - Probably broken when in active development, otherwise the same as master: [Download Silentcast next.zip from github.com](https://github.com/colinkeenan/silentcast/archive/next.zip)
     - Extract. Then, from a terminal, `cd` into the extracted directory and `sudo ./install` **Uninstall** instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
     - See what version you've got with `silentcast -v`. [Check for a newer version](https://github.com/colinkeenan/silentcast/releases/latest)
 
