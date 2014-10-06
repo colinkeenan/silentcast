@@ -7,7 +7,7 @@ When viewed in a markdown viewer, you'll get pictures and even animations made w
 
 https://chrome.google.com/webstore/detail/markdown-preview/jmchmkecamhbiokiopfpnfgbidieafmd
 
-After installing the Markdown Preview extenstion, you can't use it until you go into
+After installing the Markdown Preview extension, you can't use it until you go into
 
 chrome://extensions/
 
@@ -21,7 +21,7 @@ Then, just open this file with Chrome. You'll probably want to make Google Chrom
 
 ##Demos
 
-Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area before I even start Silentcast, then a 2nd stop icon ![stop2.png](stop2.png) appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
+Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area before I even start Silentcast, then a 2nd stop icon ![stop2.png](stop2.png) appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
 
 
 ###Fullscreen: How to use Silentcast to record Gimp
@@ -147,7 +147,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 - **Try it *before* you install it!** (If you already installed it, uninstall before trying this.)
     - Install the dependencies as listed above, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract.
 
-    - In Xfce, you can just double click **bash silentcast** in the extracted folder. Seems as though most other desktops don't default to running in the same directory as the launcher, so you'l have to run it in the terminal.
+    - In Xfce, you can just double click **bash silentcast** in the extracted folder. Seems as though most other desktops don't default to running in the same directory as the launcher, so you'll have to run it in the terminal.
     - Here's an example of running it from the terminal:
 
             $ cd ~/Downloads/silentcast-1.7
@@ -210,7 +210,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notificaton Area befor
 
 Find *Silentcast* in the menu under either *Graphics* or *Multimedia*, type *silentcast* into the search box, or *ALT+F2 silentcast*. It can also be run from a terminal as *silentcast*.
 
-### Dialogues: Set 3 2 1 Record Stop Convert
+### Dialogs: Set 3 2 1 Record Stop Convert
 
 #### Set Working Directory
 
@@ -232,13 +232,13 @@ A directory named `silentcast` will be created if it doesn't already exist, and 
 ![SetArea.png](SetArea.png)
 
 - Fullscreen
-    - Records the entire screen. Dialogue <span style="color:green;">1</span> will be next because dialogues <span style="color:green;">3</span> and <span style="color:green;">2</span> aren't needed.
+    - Records the entire screen. Dialog <span style="color:green;">1</span> will be next because dialogs <span style="color:green;">3</span> and <span style="color:green;">2</span> aren't needed.
 - Transparent Window Interior
-    - Records the area defined by a transparent window. The next dialogue will be <span style="color:green;">3</span> and it will popup along with a transparent window which you can use to outline the area of the screen you want to record. The transparent window will automatically close before recording begins.
+    - Records the area defined by a transparent window. The next dialog will be <span style="color:green;">3</span> and it will popup along with a transparent window which you can use to outline the area of the screen you want to record. The transparent window will automatically close before recording begins.
 - Interior of a Window
-    - Records the interior of the "next active window" which is the window that will become active after closing dialogue <span style="color:green;">2</span>. The interior may include a menu bar or other UI elements, but does not include the title-bar or borders.
+    - Records the interior of the "next active window" which is the window that will become active after closing dialog <span style="color:green;">2</span>. The interior may include a menu bar or other UI elements, but does not include the title-bar or borders.
 - Entirety of a Window
-    - Records the "next active window" which is the window that will become active after closing dialogue <span style="color:green;">2</span>. The entire window will be recorded, including the title-bar and borders.
+    - Records the "next active window" which is the window that will become active after closing dialog <span style="color:green;">2</span>. The entire window will be recorded, including the title-bar and borders.
 
 #### Set Frames per second
 
@@ -248,13 +248,13 @@ The default *Frames per second* is 8 which plays back at a reasonable speed and 
 
 #### 3 Auto Resize
 
-If you didn't Choose Fullscreen on the opening dialogue, you'll get a countdown of dialogues starting with <span style="color:green;">3</span>. This dialogue will look and behave differently depending on whether or not you chose Transparent Window Interior.
+If you didn't Choose Fullscreen on the opening dialog, you'll get a countdown of dialogs starting with <span style="color:green;">3</span>. This dialog will look and behave differently depending on whether or not you chose Transparent Window Interior.
 
 ##### No Transparent Window
 
 ![3.png](3.png)
 
-This one explains that after choosing a size, you will have to choose what window to resize by clicking on it. The mouse pointer will change to a + shape until you click a window. Nothing will happen if you click a maximized window, so you should unmaximize the window you want to record before clicking OK on this dialogue, unless you want it maximized.
+This one explains that after choosing a size, you will have to choose what window to resize by clicking on it. The mouse pointer will change to a + shape until you click a window. Nothing will happen if you click a maximized window, so you should unmaximize the window you want to record before clicking OK on this dialog, unless you want it maximized.
 
 ##### Transparent Window
 
@@ -270,11 +270,11 @@ You can also enter your own size. The WxH choice is there to remind you that the
 
 ![2.png](2.png)
 
-When automatically resizing, the previous dialogue moved the window to the top left corner. This dialogue gives you a chance to move and further resize the window.
+When automatically resizing, the previous dialog moved the window to the top left corner. This dialog gives you a chance to move and further resize the window.
 
 ![2_Trans.png](2_Trans.png)
 
-If you are using a transparent window, this is the time to define the exact areay to be recorded. After clicking OK, the transparent window will close, but the area for recording will be set to where the interior of that window was.
+If you are using a transparent window, this is the time to define the exact area to be recorded. After clicking OK, the transparent window will close, but the area for recording will be set to where the interior of that window was.
 
 #### 1 Get Ready
 
@@ -284,28 +284,28 @@ Just one last chance to get yourself and the screen ready for recording which wi
 
 #### Record
 
-There's no dialogue, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](stop1.png) ![stop2](stop2.png)
+There's no dialog, but during recording there will be a stop icon in the system tray notification area. That icon will will indicate if it is the 1st or 2nd instance of Silentcast running: ![stop1](stop1.png) ![stop2](stop2.png)
 
 
 #### Stop
 
-When you click the stop icon in the system tray notification area, you'll see a progress dialogue and your file browser open to the silentcast folder as it makes images from the recording, then the Prepare Images dialogue will popup:
+When you click the stop icon in the system tray notification area, you'll see a progress dialog and your file browser open to the silentcast folder as it makes images from the recording, then the Prepare Images dialog will popup:
 
 ![Stop.png](Stop.png)
 
-If you choose to automatically delete a lot of images to create a smaller anim.gif or because your system can't handle so many images at once, then as the dialogue explains, entering *1* will delete every other image, *2* will delete 2 out of every 3 images, etc. *Convert* will adjust timing so playback of anim.gif won't move too fast.
+If you choose to automatically delete a lot of images to create a smaller anim.gif or because your system can't handle so many images at once, then as the dialog explains, entering *1* will delete every other image, *2* will delete 2 out of every 3 images, etc. *Convert* will adjust timing so playback of anim.gif won't move too fast.
 
-In addition to automatically deleting images, you may choose to "edit" the yet to be made anim.gif by selectively deleting images. Just view an image in any viewer and move forward through them to see frame by frame what anim.gif will look like. Then, if you notice for example that your mouse cursor makes a slow pointless circle, just delete those images. For more ideas on what can be done while this dialogue is up, see *List of Tips* below.
+In addition to automatically deleting images, you may choose to "edit" the yet to be made anim.gif by selectively deleting images. Just view an image in any viewer and move forward through them to see frame by frame what anim.gif will look like. Then, if you notice for example that your mouse cursor makes a slow pointless circle, just delete those images. For more ideas on what can be done while this dialog is up, see *List of Tips* below.
 
 #### Convert
 
-After preparing images and clicking OK, you'll see a progress dialogue as *convert* works on making anim.gif. If successful, Screencast has finished it's job.
+After preparing images and clicking OK, you'll see a progress dialog as *convert* works on making anim.gif. If successful, Screencast has finished it's job.
 
-However, if you don't have a large enough swap (or no swap as with my own system) and run out of memory, *convert* may crash, and you'll see this dialogue popup:
+However, if you don't have a large enough swap (or no swap as with my own system) and run out of memory, *convert* may crash, and you'll see this dialog popup:
 
 ![convert-error.png](convert-error.png)
 
-After clicking OK, you'll be back at the Prepare Images dialogue so that you can delete uneeded images or make other changes that will allow *convert* to complete anim.gif.
+After clicking OK, you'll be back at the Prepare Images dialog so that you can delete unneeded images or make other changes that will allow *convert* to complete anim.gif.
 
 ##List of Tips
 
