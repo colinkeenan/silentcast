@@ -94,7 +94,8 @@ do
 					fullscreen=true
 					;;
 				t)
-					all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`
+					ps -e | grep -E '^.* xfce4-session$' > /dev/null
+					(($? != 0)) && all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`
 					python "$py_script_dir"/transparent_window.py \""$all_keys"\" & transparentPID=$!
 					sleep 0.2 # wmctrl doesn't work unless I sleep here
 					wmctrl -r "Resize" -e 1,0,0,500,300 # move the transp win to top left so it's not hiding
@@ -224,7 +225,7 @@ Click the stop icon in the Notification Area" \
 (($? != 0)) && exit 1 #Cancel was clicked
 
 ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y '$ffcom_dir'/temp.mkv & ffmpegPID=$!
-if [ "$XDG_CURRENT_DESKTOP" = "Unity"  ] 
+if [ "$XDG_CURRENT_DESKTOP" = "Unity"  ]
 then
         echo "Unity detected, switching indicators..."
 	python '$py_script_dir'/unity_indicator.py '$1'
