@@ -92,6 +92,7 @@ Creating images from temp.mkv" --pulsate --auto-close
 
 while ! [ -f anim.gif ]
 do
+    xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
     cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
         --title="Prepare images before converting to Anim.gif" \
         --text="<b>SILENTCAST $1 </b> \n\
@@ -132,6 +133,7 @@ Enter any positive integer less than the total number of images. It works like t
     fi
 done
 
+xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 if [ $mp4 = FALSE ] && [ $webm = FALSE ] 
 then 
 	exit 0

@@ -75,6 +75,7 @@ ffmpeg -i $silentcast_dir/temp.mkv $silentcast_dir/vid.mp4 \
 	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
 Creating vid.mp4 from temp.mkv" --pulsate --auto-close
 
+xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 exit 0
 
 # End of file

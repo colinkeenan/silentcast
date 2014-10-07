@@ -75,6 +75,7 @@ ffmpeg -i $silentcast_dir/temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749K
 	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
 Creating vid.webm from temp.mkv" --pulsate --auto-close
 
+xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 if [ $mp4 = FALSE ] 
 then 
 	exit 0
