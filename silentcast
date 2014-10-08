@@ -63,10 +63,10 @@ area="f"
 doc_dir=/usr/share/doc/silentcast
 if ! [ -f $doc_dir/README.md ]
 then 
-	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )"
+	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )" # current directory
 fi
 
-working_dir=~
+working_dir=~ # home directory
 
 if df /tmp | grep -q tmpfs && touch /tmp/foo 2>/dev/null
 then
@@ -90,7 +90,7 @@ arg_form=`yad --form --on-top --center\
   <span background="white">  For a demo, guide, and list of tips,  </span>\n\
   <span background="white">  click <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a> or install a web  </span>\n\
   <span background="white">  browser addon for markdown and click  </span>\n\
-  <span background="white">  <a href="file://'$doc_dir'/README.md">local README.md</a>                       </span>\n\
+  <span background="white">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>                       </span>\n\
   <span background="white">                                        </span></tt>\n\
   \n\
  In the Working Directory specified below, silentcast \n\

@@ -45,8 +45,8 @@ EOF
 #defaults
 
 py_script_dir=/usr/share/silentcast # if the python scripts are put somewhere else, 
-if ! [ -f $py_script_dir/transparent_window.py ] # change /usr/share/silentcast, but
-then                                             # the path must not have spaces
+if ! [ -f $py_script_dir/transparent_window.py ] # change /usr/share/silentcast
+then
 	if [ -f ./transparent_window.py ]
 	then
 		py_script_dir=.                  # defaults to current directory
@@ -116,7 +116,7 @@ do
 			fps=$OPTARG 
 			;;
 		d)
-			ffcom_dir=$OPTARG
+			ffcom_dir="$OPTARG"
 			;;
 		\?) 
 			echo "Invalid option: -$OPTARG  ('genffcom -h' for help)" >&2
@@ -220,18 +220,18 @@ printf "Click OK when ready to start recording.
 
 To Stop Recording: 
 Click the stop icon in the Notification Area" \
-| yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="'$doc_dir'/record'$castnum'".png --text="\
+| yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="'"$doc_dir"'/record'$castnum'".png --text="\
 <b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
 (($? != 0)) && exit 1 #Cancel was clicked
 
-ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y '$ffcom_dir'/temp.mkv & ffmpegPID=$!
+ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i :0.0+'$x','$y' -c:v ffvhuff -an -y '"$ffcom_dir"'/temp.mkv & ffmpegPID=$!
 if [ "$XDG_CURRENT_DESKTOP" = "Unity"  ]
 then
         echo "Unity detected, switching indicators..."
-	python '$py_script_dir'/unity_indicator.py '$1'
+	python '"$py_script_dir"'/unity_indicator.py '$1'
 else
-    yad --notification --image="'$py_script_dir'/stop'$1'.png" --text="'$1'"
+    yad --notification --image="'"$py_script_dir"'/stop'$1'.png" --text="'$1'"
 fi
-kill $ffmpegPID' > $ffcom_dir/ffcom
+kill $ffmpegPID' > "$ffcom_dir"/ffcom
 
 # End of file
