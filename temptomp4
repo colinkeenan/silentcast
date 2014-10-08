@@ -70,8 +70,8 @@ else
 	xdg-open ./
 fi
 find -maxdepth 1 -name 'vid.mp4' -delete
-
-ffmpeg -i $silentcast_dir/temp.mkv -pix_fmt yuv420p $silentcast_dir/vid.mp4 \
+# -pix_fmt yuv420p was suggested by ffmpeg itself for max compatibility and -vf ... is because dim have to be even
+ffmpeg -i $silentcast_dir/temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" $silentcast_dir/vid.mp4 \
 	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
 Creating vid.mp4 from temp.mkv" --pulsate --auto-close
 
