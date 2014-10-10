@@ -64,7 +64,6 @@ kvid=""      # this is later possibly set to -k for temptowebm and temptomp4
 vidfps=""    # this is later possibly set to -r $fps for temptowebm and temptomp4
 vids_from="temp.mkv"
 pngs=FALSE
-keep_png=FALSE
 anim=TRUE
 webm=FALSE
 mp4=FALSE
@@ -121,7 +120,6 @@ arg_form=`yad --form --on-top --center\
 	--field="vid.webm":CHK \
 	--field="vid.mp4":CHK \
 	--field="Vids made from:":CB \
-	--field="Keep ew-???.png images":CHK \
 	"$HOME"!"$tmp"!"other" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
 	TRUE FALSE FALSE "temp.mkv"!'ew-???.png'`
@@ -142,17 +140,23 @@ pngs="$(awk -F, '{print $5}' <<<"$arg_form")"
 webm="$(awk -F, '{print $6}' <<<"$arg_form")"
 mp4="$(awk -F, '{print $7}' <<<"$arg_form")"
 vids_from="$(awk -F, '{print $8}' <<<"$arg_form")"
-keep_png="$(awk -F, '{print $9}' <<<"$arg_form")"
 
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
 
-[ "$keep_png" = TRUE ] 						&& kp="-k"
-[ "$pngs" = TRUE ] && [ "$anim" = FALSE ] 			&& kp="-p"
-[ "$vids_from" = 'ew-???.png' ] && [ "$anim" = FALSE ] 		&& kp="-p"
-[ "$vids_from" = 'ew-???.png' ] && [ "$kp" = "" ] 		&& kp="-k"
-[ "$keep_png" = TRUE ] && [ "$vids_from" = 'ew-???.png' ] 	&& kvid="-k"
-[ "$vids_from" = 'ew-???.png' ] 				&& vidfps="-r $fps"
+if [ "$anim" = TRUE ]
+then 
+	[ "$pngs" = TRUE ] || [ "$vids_from" = 'ew-???.png' ] && kp="-k" # making anim.gif and keeping png images
+else
+	[ "$pngs" = TRUE ] || [ "$vids_from" = 'ew-???.png' ] && kp="-p" # not making anim.gif, but make pngs anyway  
+fi
+
+if [ "$vids_from" = 'ew-???.png' ]
+then 
+	vidfps="-r $fps"                # only need to specify fps for vids if making from pngs
+	[ "$pngs" = TRUE ] && kvid="-k" # keep and don't delete the pngs when done making vid if $pngs is true
+fi	
+
 
 if (($castnum == 2))
 then 
@@ -173,11 +177,14 @@ cd -
 
 source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum 
 (($? != 0)) && exit 1 #Cancel was clicked
+
 bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
-[ $anim = TRUE ] && source temptoanim -s $castnum -r $fps $kp -d $working_dir
+
+[ "$anim" = TRUE ] || ! [ "$kp" = "" ] && source temptoanim -s $castnum -r $fps $kp -d $working_dir
 (($? != 0)) && exit 1 #Cancel was clicked
-[ $webm = TRUE ] && source temptowebm -s $castnum $kfps $kvid -d $working_dir
-[ $mp4 = TRUE ] && source temptomp4 -s $castnum $kfps $kvid -d $working_dir
+
+[ "$webm" = TRUE ] && source temptowebm -s $castnum $kfps $kvid -d $working_dir
+[ "$mp4" = TRUE ] && source temptomp4 -s $castnum $kfps $kvid -d $working_dir
 
 # End of file
