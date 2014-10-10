@@ -101,13 +101,13 @@ arg_form=`yad --form --on-top --center\
   <span background="white">  click <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a> or install a web  </span>\n\
   <span background="white">  browser addon for markdown and click  </span>\n\
   <span background="white">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>                       </span>\n\
+  <span background="white">                                        </span>\n\
+  <span background="white">  If creating a webm or mp4, you may    </span>\n\
+  <span background="white">  want to edit first; so, choose        </span>\n\
+  <span background="white">  "Vids made from: ew-???.png"          </span>\n\
+  <span background="white">  and delete unnecessary images.        </span>\n\
   <span background="white">                                        </span></tt>\n\
   \n\
- If creating a webm or mp4, you may want to edit first. \n\
- Do this by choosing "Vids made from: ew-???.png". Then, \n\
- view frame by frame with an image viewer, and delete \n\
- unecessary images. \n\
- \n\
  In the Working Directory specified below, silentcast \n\
  or silencast/silentcast will be created to contain \n\
  temp.mkv and anim.gif etc.: Choose one or type it in.'\
