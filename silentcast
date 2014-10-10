@@ -7,17 +7,22 @@ show_version() {
 
 show_help() {
 cat << EOF
-When run without any args, silentcast creates a silent video, 
+When run without any args, Silentcast creates a silent video, 
 silentcast/temp.mkv, and an animated gif, silentcast/anim.gif, 
-recording an area of the screen.
+recording an area of the screen. Instead of anim.gif, or in
+addition to it, Silentcast can create vid.webm or vid.mp4; temp.mkv
+is uncompressed for speed and therefore possibly hundreds of
+times larger than any of the final files. Usually, anim.gif will
+be around twice the size of the vid's with vid.webm slightly
+larger than vid.mp4.
 
 Usage: silentcast [-h -v]
 
     -h          display this help and exit
     -v		display version and exit
 
-silentcast runs 2 other bash scripts that are part of the 
-same package: genffcom and temptoanim
+silentcast runs 4 other bash scripts that are part of the 
+same package: genffcom, temptoanim, temptowebm, and temptomp4
 Look at those help outputs for more information. Even better,
 view /usr/share/doc/silentcast/README.md with a markdown
 viewer and get an animated gif demo made with silentcast, as
@@ -41,7 +46,7 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving anything else as $1 $2 etc.
 
-unset fps area_choice area ffcoms_running castnum rate arg_form silentcast_dir doc_dir working_dir tmp anim mp4 webm
+unset fps area_choice area ffcoms_running castnum rate arg_form silentcast_dir doc_dir working_dir tmp anim mp4 webm kp pngs
 
 ffcoms_running=`pgrep -f ffcom | wc -l`
 if (($ffcoms_running > 1))
@@ -54,6 +59,12 @@ else
 fi
 
 #defaults
+kp=""        # this is later possibly set to either -k or -p for genffcom
+kvid=""      # this is later possibly set to -k for temptowebm and temptomp4
+vidfps=""    # this is later possibly set to -r $fps for temptowebm and temptomp4
+vids_from="temp.mkv"
+pngs=FALSE
+keep_png=FALSE
 anim=TRUE
 webm=FALSE
 mp4=FALSE
@@ -93,6 +104,11 @@ arg_form=`yad --form --on-top --center\
   <span background="white">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>                       </span>\n\
   <span background="white">                                        </span></tt>\n\
   \n\
+ If creating a webm or mp4, you may want to edit first. \n\
+ Do this by choosing "Vids made from: ew-???.png". Then, \n\
+ view frame by frame with an image viewer, and delete \n\
+ unecessary images. \n\
+ \n\
  In the Working Directory specified below, silentcast \n\
  or silencast/silentcast will be created to contain \n\
  temp.mkv and anim.gif etc.: Choose one or type it in.'\
@@ -101,11 +117,14 @@ arg_form=`yad --form --on-top --center\
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
 	--field="anim.gif":CHK \
+	--field="ew-???.png images":CHK
 	--field="vid.webm":CHK \
 	--field="vid.mp4":CHK \
+	--field="Vids made from:":CB \
+	--field="Keep ew-???.png images":CHK \
 	"$HOME"!"$tmp"!"other" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
-	TRUE FALSE FALSE`
+	TRUE FALSE FALSE "temp.mkv"!'ew-???.png'`
 (($? != 0)) && exit 1 #Cancel was clicked
 
 working_dir="$(awk -F, '{print $1}' <<<"$arg_form")"         
@@ -119,11 +138,21 @@ fi
 area_choice="$(awk -F, '{print $2}' <<<"$arg_form")" # getting 2nd, 3rd,... fields this way only works when --separator=","
 fps="$(awk -F, '{print $3}' <<<"$arg_form")"
 anim="$(awk -F, '{print $4}' <<<"$arg_form")"
-webm="$(awk -F, '{print $5}' <<<"$arg_form")"
-mp4="$(awk -F, '{print $6}' <<<"$arg_form")"
+pngs="$(awk -F, '{print $5}' <<<"$arg_form")"
+webm="$(awk -F, '{print $6}' <<<"$arg_form")"
+mp4="$(awk -F, '{print $7}' <<<"$arg_form")"
+vids_from="$(awk -F, '{print $8}' <<<"$arg_form")"
+keep_png="$(awk -F, '{print $9}' <<<"$arg_form")"
 
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
+
+[ "$keep_png" = TRUE ] 						&& kp="-k"
+[ "$pngs" = TRUE ] && [ "$anim" = FALSE ] 			&& kp="-p"
+[ "$vids_from" = 'ew-???.png' ] && [ "$anim" = FALSE ] 		&& kp="-p"
+[ "$vids_from" = 'ew-???.png' ] && [ "$kp" = "" ] 		&& kp="-k"
+[ "$keep_png" = TRUE ] && [ "$vids_from" = 'ew-???.png' ] 	&& kvid="-k"
+[ "$vids_from" = 'ew-???.png' ] 				&& vidfps="-r $fps"
 
 if (($castnum == 2))
 then 
@@ -146,8 +175,9 @@ source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum
 (($? != 0)) && exit 1 #Cancel was clicked
 bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
-[ $anim = TRUE ] && source temptoanim -s $castnum -r $fps -d $working_dir
-[ $webm = TRUE ] && source temptowebm -s $castnum -d $working_dir
-[ $mp4 = TRUE ] && source temptomp4 -s $castnum -d $working_dir
+[ $anim = TRUE ] && source temptoanim -s $castnum -r $fps $kp -d $working_dir
+(($? != 0)) && exit 1 #Cancel was clicked
+[ $webm = TRUE ] && source temptowebm -s $castnum $kfps $kvid -d $working_dir
+[ $mp4 = TRUE ] && source temptomp4 -s $castnum $kfps $kvid -d $working_dir
 
 # End of file
