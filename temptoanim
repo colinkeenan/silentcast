@@ -1,33 +1,39 @@
 #!/bin/bash
-# $1 is silentcast# (i.e. castnum)
-# $2 is fps
-# $3 is working directory (working_dir) and is optional - defaults to ./
 
 # Usage info
 show_help() {
 cat << EOF
 temptoanim converts temp.mkv to anim.gif
 
-Usage: temptoanim silentcast# fps [working_dir]
+Usage: temptoanim [-h -s# -r# -k -p -d working_dir]
 
-    silentcast#     must be 0, 1, or 2
+    -h          display this help and exit
+
+    -s #        i.e. Silentcast # - the number of instances of Silentcast
+                that are running
+
+	# must be 0, 1, or 2 (default is 0 meaning temptoanim was started
+	outside of the Silentcast application)
 
 	0: tries to convert ./temp.mkv (if working_dir is also 
 	   specified, it will be ignored)
 	1: tries to convert working_dir/silentcast/temp.mkv
 	2: tries to convert working_dir/silentcast/silentcast/temp.mkv
 
-    fps             is an integer and must match the frames per second used to
-	            create temp.mkv. temptoanim doesn't verify the actual fps 
-	            in temp.mkv.
+    -r #        i.e. rate # or fps (default is 8)
+	        # is a natural number (2 to 120) that should match the 
+		frames per second of temp.mkv. 
+		temptoanim doesn't verify the actual fps in temp.mkv. 
 	
-    Both silentcast# and fps are required and must appear in the correct
-    order.
+    -k          keep all the png images that are created as an intermediate
+                step towards creating anim.gif
 
-    working_dir     must be the last arg, defaults to ~/ and is where 
-                    temptoanim will expect to find the silentcast or 
-		    silentcast/silentcast directory
+    -p          png images only (implies k) anim.gif will not be created
 
+    -d working_dir  
+                defaults to the current directory and is where temptoanim 
+                will expect to find the silentcast or silentcast/silentcast 
+		directory
 
 There are some dialogues that come up, and it's important to read
 and understand them. View /usr/share/doc/silentcast/README.md with
@@ -36,28 +42,73 @@ as well as a step by step guide and a list of tips.
 EOF
 }
 
-if ! [[ "$1" =~ ^[0-2]$ ]] || ! [[ "$2" =~ ^[0-9]+$ ]]
-then
-	show_help
-	exit 0
-fi
+#defaults
 
 castnum=""
-if (($1 != 0))
-then 
-	castnum=$1
-fi
-
+fps=8
 cut=0
 total_cut=0
 group=0
 count=0
+rm_png=true
+make_anim=true
 
-if [ "$3" != "" ] 
-then
-	working_dir=$3
-else
-	working_dir=.
+OPTIND=1
+while getopts ":hs:r:kpd:" opt
+do 
+	echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
+	case $opt in
+		h)
+			show_help
+			exit 0
+			;;
+		s)
+			case $OPTARG in
+				1)
+					castnum=1
+					;;
+				2)
+					castnum=2
+					;;
+				[!012])
+					echo "Invalid Silentcast#: -s$OPTARG  ('temptoanim -h' for help)" >&2
+					exit 1
+					;;
+			esac
+			;;
+		r)
+			fps=$OPTARG 
+			if ! [[ "$fps" =~ ^[0-9]+$ ]] && (($fps<2 || $fps>120)) 
+			then
+				show_help
+				exit 0
+			fi
+			;;
+		k)
+			rm_png=false
+			;;
+		p)
+			rm_png=false
+			make_anim=false
+			;;
+		d)
+			working_dir="$OPTARG"
+			;;
+		\?) 
+			echo "Invalid option: -$OPTARG  ('genffcom -h' for help)" >&2
+			exit 1
+			;;
+	       	:)
+		       	echo "Option -$OPTARG requires an argument." >&2
+		       	exit 1
+		       	;;
+       	esac
+done
+shift "$((OPTIND-1))" # get rid of everything just processed leaving anything left as $1
+if [ $1 != "" ] 
+then 
+	show_help # shouldn't be anything else so show help if there is
+	exit 1
 fi
 
 if ! [ -d $working_dir/ ]
@@ -66,14 +117,14 @@ then
 	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
 	exit -1
 fi
-if (($1 == 1)); then cd $working_dir/silentcast
-elif (($1 == 2)); then cd $working_dir/silentcast/silentcast
-fi
+
+[ $castnum = 1 ] && cd $working_dir/silentcast
+[ $castnum = 2 ] && cd $working_dir/silentcast/silentcast
 
 if ! [ -f temp.mkv ]
 then
 	echo "temp.mkv not found, so can't convert it to anim.gif" \
-	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $castnum </b>"
 	exit -1
 fi
 
@@ -83,19 +134,21 @@ then
 else
 	xdg-open ./ 
 fi
+
 find -maxdepth 1 -name 'anim.gif' -delete
 find -maxdepth 1 -regex '\.\/ew-[0-9][0-9][0-9]\.png' -delete
 
-ffmpeg -i temp.mkv -r $2 -an ew-%03d.png \
-	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
+ffmpeg -i temp.mkv -r $fps ew-%03d.png \
+	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum </b> \n\
 Creating images from temp.mkv" --pulsate --auto-close
 
-while ! [ -f anim.gif ]
+xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
+
+[ make_anim = true ] && while ! [ -f anim.gif ]
 do
-    xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
     cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
         --title="Prepare images before converting to Anim.gif" \
-        --text="<b>SILENTCAST $1 </b> \n\
+        --text="<b>SILENTCAST $castnum </b> \n\
 Manually delete or otherwise manipulate the images and click OK,\n\
 Or \n\
 Enter any positive integer less than the total number of images. It works like this:\n\
@@ -111,7 +164,7 @@ Enter any positive integer less than the total number of images. It works like t
     if (($group > 1))
     then
     	count=0
-    	for f in ew*png
+    	for f in ew-[0-9][0-9][0-9].png
     	do
     		    let count++
 		    if (($count % $group != 1))
@@ -120,20 +173,20 @@ Enter any positive integer less than the total number of images. It works like t
     		    fi
     	done
     fi
-    convert -adjoin -delay "$((total_cut + 1))"x"$2" -layers optimize *png anim.gif | \
-	    yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $1 </b> \n\
+    convert -adjoin -delay "$((total_cut + 1))"x"$fps" -layers optimize ew-[0-9][0-9][0-9].png anim.gif | \
+	    yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum </b> \n\
 	    Replacing images with anim.gif... (clicking Close below doesn't stop convert, so don't)" --pulsate --auto-close
     if ! [ -f anim.gif ]
     then 
 	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\
-    	  yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $1 </b>"
+    	  yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $castnum </b>"
 	(($? != 0)) && exit 1 #Cancel was clicked
     else
-    	  rm ew*png
+	    [ rm_png = true ] && rm ew-[0-9][0-9][0-9].png
     fi
+    xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 done
 
-xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 if [ $mp4 = FALSE ] && [ $webm = FALSE ] 
 then 
 	exit 0

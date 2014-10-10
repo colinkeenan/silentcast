@@ -146,8 +146,8 @@ source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum
 (($? != 0)) && exit 1 #Cancel was clicked
 bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
-[ $anim = TRUE ] && source temptoanim $castnum $fps $working_dir
-[ $webm = TRUE ] && source temptowebm $castnum $working_dir
-[ $mp4 = TRUE ] && source temptomp4 $castnum $working_dir
+[ $anim = TRUE ] && source temptoanim -s $castnum -r $fps -d $working_dir
+[ $webm = TRUE ] && source temptowebm -s $castnum -d $working_dir
+[ $mp4 = TRUE ] && source temptomp4 -s $castnum -d $working_dir
 
 # End of file

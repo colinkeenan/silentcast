@@ -26,7 +26,7 @@ Usage: genffcom [-h -a area -r rate# -d dir] {silentcast#}
 		e : Entirety of a Window
 		(default is Interior of a Window)
     -r rate#    set frames per second to rate#,
-                a natural number
+	        a natural number (2 to 120)
                 (default is 8 frames per second)
     -d dir	directory where the bash script ffcom
     		will be created
@@ -106,7 +106,7 @@ do
 				e)
 					entire=true
 					;;
-				[^ftie])
+				[!ftie])
 					echo "Invalid Area: -a$OPTARG  ('genffcom -h' for help)" >&2
 					exit 1
 					;;
@@ -114,6 +114,11 @@ do
 			;;
 		r)
 			fps=$OPTARG 
+			if ! [[ "$fps" =~ ^[0-9]+$ ]] && (($fps<2 || $fps>120)) 
+			then
+				show_help
+				exit 0
+			fi
 			;;
 		d)
 			ffcom_dir="$OPTARG"
