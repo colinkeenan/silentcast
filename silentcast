@@ -116,13 +116,13 @@ arg_form=`yad --form --on-top --center\
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
 	--field="anim.gif":CHK \
-	--field="ew-???.png images":CHK
+	--field="ew-???.png images":CHK \
 	--field="vid.webm":CHK \
 	--field="vid.mp4":CHK \
 	--field="Vids made from:":CB \
 	"$HOME"!"$tmp"!"other" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
-	TRUE FALSE FALSE "temp.mkv"!'ew-???.png'`
+	TRUE FALSE FALSE FALSE "temp.mkv"!'ew-???.png'`
 (($? != 0)) && exit 1 #Cancel was clicked
 
 working_dir="$(awk -F, '{print $1}' <<<"$arg_form")"         
