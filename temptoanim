@@ -105,7 +105,7 @@ do
        	esac
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving anything left as $1
-if [ $1 != "" ] 
+if [ "$1" != "" ] 
 then 
 	show_help # shouldn't be anything else so show help if there is
 	exit 1
@@ -144,7 +144,7 @@ Creating images from temp.mkv" --pulsate --auto-close
 
 xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 
-[ make_anim = true ] && while ! [ -f anim.gif ]
+[ $make_anim = true ] && while ! [ -f anim.gif ]
 do
     cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
         --title="Prepare images before converting to Anim.gif" \
