@@ -76,6 +76,8 @@ bl=0
 br=0
 bb=0
 t=0
+xMax=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
+yMax=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f2 | cut -d '_' -f1)
 
 OPTIND=1
 while getopts ":ha:r:d:" opt
@@ -89,8 +91,8 @@ do
 		a)
 			case $OPTARG in
 				f)
-					w=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
-					h=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f2 | cut -d '_' -f1)
+					w=$xMax
+					h=$yMax
 					fullscreen=true
 					;;
 				t)
@@ -216,6 +218,9 @@ if (($transparentPID != 0)) # Close the transparent window if it was used
 then
 	kill $transparentPID
 fi
+
+(($x+$w > $xMax)) && let w=$xMax-$x # ffmpeg x11grab fails if trying to grab past the edge of the screen
+(($y+$h > $yMax)) && let h=$yMax-$y # so if the area goes past either edge, just reducing w & h so it won't
 
 # Finally, make the ffcom bash file
 echo '#!/bin/bash
