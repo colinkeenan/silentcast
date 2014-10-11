@@ -167,7 +167,7 @@ source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum
 bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
 
-[ "$pngs" = TRUE ] && source temptoanim -s $castnum -r $fps -o p -d $working_dir && k="-k" && e="-e"
+[ "$pngs" = TRUE ] && source temptoanim -s $castnum -r $fps -o png -d $working_dir && k="-k" && e="-e"
 (($? != 0)) && exit 1 #Cancel was clicked
 
 [ "$anims_from" = "ew-???.png" ] && [ "$e" = "" ] e='-g'
@@ -176,7 +176,7 @@ if [ "$gif" = TRUE ]
 then
 	[ "$webm" = TRUE ] || [ "$mp4" = TRUE ] && [ "$anims_from" = "ew-???.png" ] && k="-k"
 
-	source temptoanim -s $castnum -r $fps $k $e -o g -d $working_dir 
+	source temptoanim -s $castnum -r $fps $k $e -o gif -d $working_dir 
 	(($? != 0)) && exit 1 #Cancel was clicked
 
 	[ "$anims_from" = "ew-???.png" ] && [ "$k" = "-k" ] && e="-e"
@@ -187,14 +187,14 @@ if [ "$webm" = TRUE ]
 then
 	[ "$mp4" = TRUE ] && [ "$anims_from" = "ew-???.png" ] && k="-k"
 
-	source temptoanim -s $castnum -r $fps $k $e -o w -d $working_dir 
+	source temptoanim -s $castnum -r $fps $k $e -o webm -d $working_dir 
 	(($? != 0)) && exit 1 #Cancel was clicked
 
 	[ "$anims_from" = "ew-???.png" ] && [ "$k" = "-k" ] && e="-e"
 	[ "$pngs" = FALSE ] && k=""
 fi
 
-[ "$mp4" = TRUE ] && source temptoanim -s $castnum -r $fps $k $e -o m -d $working_dir
+[ "$mp4" = TRUE ] && source temptoanim -s $castnum -r $fps $k $e -o mp4 -d $working_dir
 (($? != 0)) && exit 1 #Cancel was clicked
 
 

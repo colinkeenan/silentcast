@@ -5,7 +5,7 @@ show_help() {
 cat << EOF
 temptoanim converts temp.mkv to anim.gif
 
-Usage: temptoanim [-h -s# -r# -k -p -d working_dir]
+Usage: temptoanim [-h -s# -r# -k -g -e -o type -d working_dir]
 
     -h          display this help and exit
 
@@ -22,13 +22,57 @@ Usage: temptoanim [-h -s# -r# -k -p -d working_dir]
 
     -r #        i.e. rate # or fps (default is 8)
 	        # is a natural number (2 to 120) that should match the 
-		frames per second of temp.mkv. 
-		temptoanim doesn't verify the actual fps in temp.mkv. 
-	
-    -k          keep all the png images that are created as an intermediate
-                step towards creating anim.gif
+		frames per second of temp.mkv for making or using png
+		images. A rate does not need to be specified if not using
+		png images at all, and will be ignored if specified. When
+		making anim.gif, png images are always necessary so that
+		a rate must be specified.
 
-    -p          png images only (implies k) anim.gif will not be created
+		temptoanim doesn't verify the actual fps in temp.mkv. 
+
+    -k          keep all the png images that are created. Default is to
+                delete them unless -o png is used, in which case -k isn't
+		needed.
+
+    -g          generate png images and use them to create the webm or mp4
+                video. No need to specifiy -g for a gif because png images
+		are required in that cast, but for webm or mp4, the default
+	       	is to use temp.mkv directly so that png images are not 
+		generated or used if already existing.
+
+    -e		use existing png images, so don't generate them. If both
+                -g and -e are used, exising images will be used unless there
+		are none, then they will be generated. The default for
+		making anim.gif is to delete any existing png images and
+		generate new ones from temp.mkv. For webm and mp4, the
+		default is to use temp.mkv directly so if you want to
+		edit frame by frame, you have to specify -g or -e for
+		frame png images to be used in creating the video.
+
+    -o type	final desired output. Default is anim.gif. The recognized types are
+
+                png		generates a series of png images: ew-???.png
+		                ew-001.png ew-002.png .... ew-999.png
+				If more than 999 pngs, the first ones will
+				be overwritten
+
+		gif		generates an animated gif named anim.gif.
+		                ew-???.png images used will be deleted
+				unless -k is used.
+
+		webm		generates a compressed video named anim.webm
+		                from the uncompressed video temp.mkv unless
+				-e or -g is used, then it will create anim.webm
+				from png images. Those png images will be
+				deleted unless -k is used.
+
+		mp4		same as webm except it will be anim.mp4 that
+		                is created. With the quality settings currently
+				used, anim.mp4 will usually be a little smaller
+				than anim.webm.
+
+		All of these outputs are many times smaller than temp.mkv, and
+		sometimes hundreds of times smaller.
 
     -d working_dir  
                 defaults to the current directory and is where temptoanim 
