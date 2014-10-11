@@ -26,23 +26,23 @@ Usage: temptoanim [-h -s# -r# -k -g -e -o type -d working_dir]
 		images. A rate does not need to be specified if not using
 		png images at all, and will be ignored if specified. When
 		making anim.gif, png images are always necessary so that
-		a rate must be specified.
+		if a rate is not specified, 8 will be used.
 
 		temptoanim doesn't verify the actual fps in temp.mkv. 
 
     -k          keep all the png images that are created. Default is to
-                delete them unless -o png is used, in which case -k isn't
+                delete them unless '-o png' is used, in which case -k isn't
 		needed.
 
     -g          generate png images and use them to create the webm or mp4
                 video. No need to specifiy -g for a gif because png images
 		are required in that cast, but for webm or mp4, the default
 	       	is to use temp.mkv directly so that png images are not 
-		generated or used if already existing.
+		generated or used.
 
-    -e		use existing png images, so don't generate them. If both
-                -g and -e are used, exising images will be used unless there
-		are none, then they will be generated. The default for
+    -e		existing png images will be used, so don't generate them. If
+                -g and -e are both used, exising images will be used unless 
+		there are none, then they will be generated. The default for
 		making anim.gif is to delete any existing png images and
 		generate new ones from temp.mkv. For webm and mp4, the
 		default is to use temp.mkv directly so if you want to
@@ -71,8 +71,8 @@ Usage: temptoanim [-h -s# -r# -k -g -e -o type -d working_dir]
 				used, anim.mp4 will usually be a little smaller
 				than anim.webm.
 
-		All of these outputs are many times smaller than temp.mkv, and
-		sometimes hundreds of times smaller.
+		All of these outputs are many times smaller than temp.mkv,
+		which is uncompressed, and sometimes hundreds of times smaller.
 
     -d working_dir  
                 defaults to the current directory and is where temptoanim 
@@ -89,16 +89,22 @@ EOF
 #defaults
 
 castnum=""
+anims_from="temp.mkv"
+pngs=false
+gif=true       # default output is anim.gif
+webm=false
+mp4=false
+rm_png=true    # this is whether or not to remove pngs after output is generated
+use_pngs=false # default to making webm/mp4 from temp.mkv and deleting existing ones even for gif
+gen_pngs=false # pngs will be generated (or existing ones used if use_pngs=true) anyway for gif
 fps=8
 cut=0
 total_cut=0
 group=0
 count=0
-rm_png=true
-make_anim=true
 
 OPTIND=1
-while getopts ":hs:r:kpd:" opt
+while getopts ":hs:r:kgeo:d:" opt
 do 
 	echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
 	case $opt in
@@ -131,19 +137,38 @@ do
 		k)
 			rm_png=false
 			;;
-		p)
-			rm_png=false
-			make_anim=false
+		g)
+			gen_png=true
+			;;
+		e)
+			use_png=true # if both gen_png and use_png are true, existing pngs will be used if there are any
+			;;
+		o)
+			case $OPTARG in
+				png)
+					png=true
+					;;
+				gif)
+					gif=true
+					;;
+				webm)
+					webm=true
+					;;
+				mp4)
+					mp4=true
+					;;
+				*)
+					echo "Invalid output type: -o$OPTARG ('temptoanim -h' for help)" >&2
 			;;
 		d)
 			working_dir="$OPTARG"
 			;;
 		\?) 
-			echo "Invalid option: -$OPTARG  ('genffcom -h' for help)" >&2
+			echo "Invalid option: -$OPTARG ('genffcom -h' for help)" >&2
 			exit 1
 			;;
 	       	:)
-		       	echo "Option -$OPTARG requires an argument." >&2
+		       	echo "Option -$OPTARG requires an argument. ('genffcom -h' for help)" >&2
 		       	exit 1
 		       	;;
        	esac
@@ -165,12 +190,7 @@ fi
 [ $castnum = 1 ] && cd $working_dir/silentcast
 [ $castnum = 2 ] && cd $working_dir/silentcast/silentcast
 
-if ! [ -f temp.mkv ]
-then
-	echo "temp.mkv not found, so can't convert it to anim.gif" \
-	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $castnum </b>"
-	exit -1
-fi
+[ "$use_png" = false ] && find -maxdepth 1 -regex '\.\/ew-[0-9][0-9][0-9]\.png' -delete
 
 if [ "$XDG_CURRENT_DESKTOP" = "GNOME"  ] 
 then
@@ -179,57 +199,97 @@ else
 	xdg-open ./ 
 fi
 
-find -maxdepth 1 -name 'anim.gif' -delete
-find -maxdepth 1 -regex '\.\/ew-[0-9][0-9][0-9]\.png' -delete
+[ "$png" = true ] && generate_pngs
 
-ffmpeg -i temp.mkv -r $fps ew-%03d.png \
-	| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum </b> \n\
-Creating images from temp.mkv" --pulsate --auto-close
+if [ "$gif" = true ] 
+then
+	find -maxdepth 1 -name 'anim.gif' -delete
+	[ "$use_png" = false ] || ! [ -f ew-[0-9][0-9][0-9].png ] && generate_pngs
 
-xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
+	while ! [ -f anim.gif ]
+	do
+		edit_pngs
 
-[ $make_anim = true ] && while ! [ -f anim.gif ]
-do
-    cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
-        --title="Prepare images before converting to Anim.gif" \
-        --text="<b>SILENTCAST $castnum </b> \n\
-Manually delete or otherwise manipulate the images and click OK,\n\
-Or \n\
-Enter any positive integer less than the total number of images. It works like this:\n\
-0 do nothing\n\
-1 delete every other\n\
-2 delete 2 out of every 3\n\
-3 delete 3 out of every 4 ..."\
-        --entry-text="0"`
-    (($? != 0)) && exit 1 #Cancel was clicked
+		# try to make anim.gif from pngs
+	        convert -adjoin -delay "$((total_cut + 1))"x"$fps" -layers optimize ew-[0-9][0-9][0-9].png anim.gif | \
+			yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png \
+			--text="<b>SILENTCAST $castnum </b> \n\
+			Replacing images with anim.gif... (clicking Close below doesn't stop convert, so don't)" --pulsate --auto-close
 
-    let group=$cut+1
-    let total_cut=$total_cut+$cut
-    if (($group > 1))
-    then
-    	count=0
-    	for f in ew-[0-9][0-9][0-9].png
-    	do
-    		    let count++
+		if ! [ -f anim.gif ]
+		then 
+			mem_error
+		else
+			[ $rm_png = true ] && rm ew-[0-9][0-9][0-9].png
+		fi
+
+		xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
+	done
+fi
+
+if [ "$webm" = true ] 
+then
+	find -maxdepth 1 -name 'anim.webm' -delete
+fi
+
+if [ "$mp4" = true ] 
+then
+	find -maxdepth 1 -name 'anim.mp4' -delete
+fi
+
+generate_pngs() {
+	find -maxdepth 1 -regex '\.\/ew-[0-9][0-9][0-9]\.png' -delete
+	if ! [ -f temp.mkv ]
+	then
+		echo "temp.mkv not found, so can't generate png image frames from it" \
+		| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" \
+		--text="<b>SILENTCAST $castnum </b>"
+		exit -1
+	fi
+	ffmpeg -i temp.mkv -r $fps ew-%03d.png \
+		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum </b> \n\
+	Creating images from temp.mkv" --pulsate --auto-close
+
+	xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
+}
+
+edit_pngs() {
+        cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
+		--title="Prepare images before converting to Anim.gif" \
+		--text="<b>SILENTCAST $castnum </b> \n\
+	Manually delete or otherwise manipulate the images and click OK,\n\
+	Or \n\
+	Enter any positive integer less than the total number of images. It works like this:\n\
+	0 do nothing\n\
+	1 delete every other\n\
+	2 delete 2 out of every 3\n\
+	3 delete 3 out of every 4 ..."\
+		--entry-text="0"`
+   	(($? != 0)) && exit 1 #Cancel was clicked
+
+	let group=$cut+1
+	let total_cut=$total_cut+$cut
+	if (($group > 1))
+	then
+	count=0
+	for f in ew-[0-9][0-9][0-9].png
+	do
+		    let count++
 		    if (($count % $group != 1))
-    		    then
-    			    rm $f
-    		    fi
-    	done
-    fi
-    convert -adjoin -delay "$((total_cut + 1))"x"$fps" -layers optimize ew-[0-9][0-9][0-9].png anim.gif | \
-	    yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum </b> \n\
-	    Replacing images with anim.gif... (clicking Close below doesn't stop convert, so don't)" --pulsate --auto-close
-    if ! [ -f anim.gif ]
-    then 
-	echo "Too many images for the available memory - convert crashed. Try closing other applications, creating a swap file, or removing unecessary images." |\
-    	  yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" --text="<b>SILENTCAST $castnum </b>"
+		    then
+			    rm $f
+		    fi
+	done
+	fi
+}
+
+mem_error() {
+	echo "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images." |\
+		yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" \
+		--text="<b>SILENTCAST $castnum </b>"
 	(($? != 0)) && exit 1 #Cancel was clicked
-    else
-	    [ $rm_png = true ] && rm ew-[0-9][0-9][0-9].png
-    fi
-    xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
-done
+}
+
 
 if [ $mp4 = FALSE ] && [ $webm = FALSE ] 
 then 
@@ -240,4 +300,4 @@ else
 	cd -
 fi
 
-# End of file
+# End of file: temptoanim
