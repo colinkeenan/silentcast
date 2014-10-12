@@ -99,7 +99,7 @@ do
 					ps -e | grep -E '^.* xfce4-session$' > /dev/null
 					(($? == 0)) && all_keys=`xfconf-query -c xfce4-keyboard-shortcuts -lv`
 					python "$py_script_dir"/transparent_window.py \""$all_keys"\" & transparentPID=$!
-					sleep 0.2 # wmctrl doesn't work unless I sleep here
+					sleep 0.5 # wmctrl doesn't work unless I sleep here
 					wmctrl -r "Resize" -e 1,0,0,500,300 # move the transp win to top left so it's not hiding
 					;;
 				i)

@@ -122,7 +122,10 @@ arg_form=`yad --form --on-top --center --columns=2\
 	--field="anim.mp4":CHK \
 	"$HOME"!"$tmp"!"other" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
-	"temp.mkv"!'ew-???.png' TRUE FALSE FALSE FALSE`
+	"temp.mkv"!'ew-???.png' TRUE FALSE FALSE FALSE & yadPID=$!
+sleep 0.5
+xdotool key 'Tab' # making the Working Directory field highlighted in stead of a link to README.md so that
+wait $yadPID`     # hitting enter doesn't do anything and also it's obvious the directory can be typed in
 (($? != 0)) && exit 1 #Cancel was clicked
 
 working_dir="$(awk -F, '{print $1}' <<<"$arg_form")"         
