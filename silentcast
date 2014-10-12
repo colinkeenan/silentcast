@@ -167,8 +167,6 @@ source genffcom "-a"$area "-r"$fps "-d"$silentcast_dir $castnum
 bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
 
-echo pngs $pngs anims_from $anims_from gif $gif webm $webm mp4 $mp4
-
 [ "$pngs" = TRUE ] && source temptoanim -s $castnum -r $fps -o png -d $working_dir && k="-k" && e="-e"
 (($? != 0)) && exit 1 #Cancel was clicked
 
