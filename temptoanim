@@ -67,9 +67,7 @@ Usage: temptoanim [-h -s# -r# -k -g -e -o type -d working_dir]
 				deleted unless -k is used.
 
 		mp4		same as webm except it will be anim.mp4 that
-		                is created. With the quality settings currently
-				used, anim.mp4 will usually be a little smaller
-				than anim.webm.
+		                is created. 
 
 		All of these outputs are many times smaller than temp.mkv,
 		which is uncompressed, and sometimes hundreds of times smaller.
@@ -90,11 +88,8 @@ EOF
 
 castnum=""
 anims_from="temp.mkv"
-pngs=false
-gif=true          # default to making anim.gif if no -o type is specified
-webm=false
-mp4=false
-rm_png=false      # this is whether or not to remove pngs after output is generated
+otype="gif"       # default to making anim.gif if no -o type is specified
+rm_png=true       # this is whether or not to remove pngs after output is generated
 use_pngs=false    # default to making webm/mp4 from temp.mkv but if true, make from existing pngs instead
 gen_pngs=false    # generate pngs and make webm/mp4 from those if true
 fps=8
@@ -131,12 +126,11 @@ mem_error() {
 }
 
 check_for_anim() {
-	tpe=$1
-	if ! [ -f anim.$tpe ]
+	if ! [ -f anim.gif ]
 	then 
 		mem_error
 	else
-		[ $rm_png = true ] && rm ew-[0-9][0-9][0-9].png
+		[ "$rm_png" = true ] && rm ew-[0-9][0-9][0-9].png
 	fi
 
 	xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
@@ -215,31 +209,28 @@ generate_anim() {
 	[ "$gen_pngs" = true ] && generate_pngs
 	find -maxdepth 1 -name 'anim.$vidtype' -delete
 
-	while ! [ -f anim.$vidtype ]
-	do
-		if [ "$use_pngs" = true ] || [ "$gen_pngs" = true ]
+	if [ "$use_pngs" = true ] || [ "$gen_pngs" = true ]
+	then
+		check_for_pngs
+		if [ "$vidtype" = webm ]
 		then
-			check_for_pngs
-			if [ "$vidtype" = webm ]
-			then
-				make_webm_from_pngs
-			elif [ "$vidtype" = mp4 ]
-			then
-				make_mp4_from_pngs
-			fi
-		else
-			check_for_temp
-			if [ "$vidtype" = webm ]
-			then
-				make_webm_from_temp
-			elif [ "$vidtype" = mp4 ]
-			then
-				make_mp4_from_temp
-			fi
+			make_webm_from_pngs
+		elif [ "$vidtype" = mp4 ]
+		then
+			make_mp4_from_pngs
 		fi
-
-		check_for_anim $vidtype 
-	done
+		[ "$rm_pngs" = true ] && rm ew-[0-9][0-9][0-9].png
+		xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
+	else
+		check_for_temp
+		if [ "$vidtype" = webm ]
+		then
+			make_webm_from_temp
+		elif [ "$vidtype" = mp4 ]
+		then
+			make_mp4_from_temp
+		fi
+	fi
 }
 
 OPTIND=1
@@ -260,7 +251,7 @@ do
 					castnum=2
 					;;
 				[!012])
-					echo "Invalid Silentcast#: -s$OPTARG  ('temptoanim -h' for help)" >&2
+					echo "Invalid Silentcast#: -s $OPTARG  ('temptoanim -h' for help)" >&2
 					exit 1
 					;;
 			esac
@@ -283,25 +274,13 @@ do
 			use_png=true # if both gen_png and use_png are true, existing pngs will be used if there are any
 			;;
 		o)
-			case $OPTARG in
-				png)
-					png=true
-					gif=false
-					;;
-				gif)
-					# gif is already true so nothing to do here
-					;;
-				webm)
-					webm=true
-					gif=false
-					;;
-				mp4)
-					mp4=true
-					gif=false
-					;;
-				*)
-					echo "Invalid output type: -o$OPTARG ('temptoanim -h' for help)" >&2
-			esac
+			if [ "$OPTARG" = png ] || [ "$OPTARG" = gif ] || [ "$OPTARG" = webm ] || [ "$OPTARG" = mp4 ]
+			then
+				otype=$OPTARG
+			else
+				echo "Invalid output type: -o $OPTARG ('temptoanim -h' for help)" >&2
+				exit 1
+			fi
 			;;
 		d)
 			working_dir="$OPTARG"
@@ -342,38 +321,34 @@ else
 	xdg-open ./ 
 fi
 
-if [ "$pngs" = true ] 
-then
-	generate_pngs
+case $otype in
+	png)
+		generate_pngs
+		;;
+	gif)
+		[ "$use_png" = false ] || ! [ -f ew-[0-9][0-9][0-9].png ] && generate_pngs
+		find -maxdepth 1 -name 'anim.gif' -delete
 
-elif [ "$gif" = true ] 
-then
-	[ "$use_png" = false ] || ! [ -f ew-[0-9][0-9][0-9].png ] && generate_pngs
-	find -maxdepth 1 -name 'anim.gif' -delete
+		while ! [ -f anim.gif ]
+		do
+			edit_pngs
 
-	while ! [ -f anim.gif ]
-	do
-		edit_pngs
+			# try to make anim.gif from pngs
+			convert -adjoin -delay "$((total_cut + 1))"x"$fps" -layers optimize ew-[0-9][0-9][0-9].png anim.gif | \
+				yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png \
+				--text="<b>SILENTCAST $castnum </b> \n\
+				Replacing images with anim.gif... (clicking Close below doesn't stop convert, \
+				so don't)" --pulsate --auto-close
 
-		# try to make anim.gif from pngs
-	        convert -adjoin -delay "$((total_cut + 1))"x"$fps" -layers optimize ew-[0-9][0-9][0-9].png anim.gif | \
-			yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png \
-			--text="<b>SILENTCAST $castnum </b> \n\
-			Replacing images with anim.gif... (clicking Close below doesn't stop convert, so don't)" --pulsate --auto-close
+			check_for_anim
+		done
+		;;
+	*)
+		generate_anim $otype
+		;;
+esac
 
-		check_for_anim "gif"
-	done
-
-elif [ "$webm" = true ] 
-then
-	generate_anim "webm" 
-
-elif [ "$mp4" = true ] 
-then
-	generate_anim "mp4" 
-fi
-
-! [ "$file_browserPID" = "" ] && pkill $file_browserPID
+! [ "$file_browserPID" = "" ] && kill $file_browserPID
 cd -
 
 # End of file: temptoanim
