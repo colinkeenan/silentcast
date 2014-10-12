@@ -197,5 +197,5 @@ fi
 [ "$mp4" = TRUE ] && source temptoanim -s $castnum -r $fps $k $e -o mp4 -d $working_dir
 (($? != 0)) && exit 1 #Cancel was clicked
 
-
-# End of file
+exit 0
+# End of file: silentcast
