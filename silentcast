@@ -168,6 +168,7 @@ bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
 
 [ "$pngs" = TRUE ] && source temptoanim -s $castnum -r $fps -o png -d $working_dir && k="-k" && e="-e"
+echo why do I have to echo something here to make the script continue?
 (($? != 0)) && exit 1 #Cancel was clicked
 
 [ "$anims_from" = "ew-???.png" ] && [ "$e" = "" ] && e='-g'

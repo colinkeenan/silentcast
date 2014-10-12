@@ -370,7 +370,7 @@ then
 	generate_anim "mp4" 
 fi
 
-pkill $file_browserPID
+! [ "$file_browserPID" = "" ] && pkill $file_browserPID
 wmctrl -c "silentcast"
 cd -
 
