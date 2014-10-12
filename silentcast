@@ -168,29 +168,32 @@ bash $silentcast_dir/ffcom
 (($? != 0)) && exit 1 #Cancel was clicked
 
 [ "$pngs" = TRUE ] && source temptoanim -s $castnum -r $fps -o png -d $working_dir && k="-k" && e="-e"
-echo why do I have to echo something here to make the script continue?
+echo Why do I have to echo something here to make the script continue?
 (($? != 0)) && exit 1 #Cancel was clicked
 
 [ "$anims_from" = "ew-???.png" ] && [ "$e" = "" ] && e='-g'
 
 if [ "$gif" = TRUE ]
 then
+	[ "$pngs" = TRUE ] && wmctrl -c "silentcast"
 	[ "$webm" = TRUE ] || [ "$mp4" = TRUE ] && [ "$anims_from" = "ew-???.png" ] && k="-k"
 	source temptoanim -s $castnum -r $fps $k $e -o gif -d $working_dir 
 	(($? != 0)) && exit 1 #Cancel was clicked
+
 	[ "$anims_from" = "ew-???.png" ] && [ "$k" = "-k" ] && e="-e"
 	[ "$pngs" = FALSE ] && k=""
 fi
 
 if [ "$webm" = TRUE ] 
 then
+	[ "$pngs" = TRUE ] || [ "$gif" = TRUE ] && wmctrl -c "silentcast"
 	[ "$mp4" = TRUE ] && [ "$anims_from" = "ew-???.png" ] && k="-k"
-
 	source temptoanim -s $castnum -r $fps $k $e -o webm -d $working_dir 
 	(($? != 0)) && exit 1 #Cancel was clicked
 
 	[ "$anims_from" = "ew-???.png" ] && [ "$k" = "-k" ] && e="-e"
 	[ "$pngs" = FALSE ] && k=""
+	[ "$mp4" = TRUE ] && wmctrl -c "silentcast"
 fi
 
 [ "$mp4" = TRUE ] && source temptoanim -s $castnum -r $fps $k $e -o mp4 -d $working_dir

@@ -91,12 +91,12 @@ EOF
 castnum=""
 anims_from="temp.mkv"
 pngs=false
-gif=true       # default output is anim.gif
+gif=true          # default to making anim.gif if no -o type is specified
 webm=false
 mp4=false
-rm_png=true    # this is whether or not to remove pngs after output is generated
-use_pngs=false # default to making webm/mp4 from temp.mkv and deleting existing ones even for gif
-gen_pngs=false # pngs will be generated (or existing ones used if use_pngs=true) anyway for gif
+rm_png=false      # this is whether or not to remove pngs after output is generated
+use_pngs=false    # default to making webm/mp4 from temp.mkv but if true, make from existing pngs instead
+gen_pngs=false    # generate pngs and make webm/mp4 from those if true
 fps=8
 cut=0
 total_cut=0
@@ -184,29 +184,29 @@ edit_pngs() {
 
 make_webm_from_pngs() {
 	ffmpeg -r $fps -i $silentcast_dir/ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k \
-		$silentcast_dir/vid.webm \
+		$silentcast_dir/anim.webm \
 		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
-		--text="<b>SILENTCAST $castnum </b> \nCreating vid.webm from ew-???.png" --pulsate --auto-close
+		--text="<b>SILENTCAST $castnum </b> \nCreating anim.webm from ew-???.png" --pulsate --auto-close
 }
 
 make_mp4_from_pngs() {
 	ffmpeg -r $fps -i $silentcast_dir/ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
-		$silentcast_dir/vid.mp4 \
+		$silentcast_dir/anim.mp4 \
 		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
-		--text="<b>SILENTCAST $castnum </b> \nCreating vid.mp4 from ew-???.png" --pulsate --auto-close
+		--text="<b>SILENTCAST $castnum </b> \nCreating anim.mp4 from ew-???.png" --pulsate --auto-close
 }
 
 make_webm_from_temp() {
-	ffmpeg -i $silentcast_dir/temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k $silentcast_dir/vid.webm \
+	ffmpeg -i $silentcast_dir/temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k $silentcast_dir/anim.webm \
 		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
-		--text="<b>SILENTCAST $castnum </b> \nCreating vid.webm from temp.mkv" --pulsate --auto-close
+		--text="<b>SILENTCAST $castnum </b> \nCreating anim.webm from temp.mkv" --pulsate --auto-close
 }
 
 make_mp4_from_temp() {
 	# -pix_fmt yuv420p was suggested by ffmpeg itself for max compatibility and -vf ... is because dim have to be even
-	ffmpeg -i $silentcast_dir/temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" $silentcast_dir/vid.mp4 \
+	ffmpeg -i $silentcast_dir/temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" $silentcast_dir/anim.mp4 \
 		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
-		--text="<b>SILENTCAST $castnum </b> \nCreating vid.mp4 from temp.mkv" --pulsate --auto-close
+		--text="<b>SILENTCAST $castnum </b> \nCreating anim.mp4 from temp.mkv" --pulsate --auto-close
 }
 
 generate_anim() {
@@ -286,15 +286,18 @@ do
 			case $OPTARG in
 				png)
 					png=true
+					gif=false
 					;;
 				gif)
-					gif=true
+					# gif is already true so nothing to do here
 					;;
 				webm)
 					webm=true
+					gif=false
 					;;
 				mp4)
 					mp4=true
+					gif=false
 					;;
 				*)
 					echo "Invalid output type: -o$OPTARG ('temptoanim -h' for help)" >&2
@@ -339,7 +342,7 @@ else
 	xdg-open ./ 
 fi
 
-if [ "$png" = true ] 
+if [ "$pngs" = true ] 
 then
 	generate_pngs
 
@@ -371,7 +374,6 @@ then
 fi
 
 ! [ "$file_browserPID" = "" ] && pkill $file_browserPID
-wmctrl -c "silentcast"
 cd -
 
 # End of file: temptoanim
