@@ -61,7 +61,7 @@ install -d "$HOME/.local/share/applications"
 cat > "$HOME/.local/share/applications/no_root_silentcast.desktop" <<EOF
 [Desktop Entry]
 Name=Silentcast
-Comment=Silent Screencast: video record your screen and make it into an animated gif, webm, or mp4
+Comment=To uninstall: rm -r $(printf %q "$install_dir"); rm "$HOME/.local/share/applications/no_root_silentcast.desktop" video record your screen and make it into an animated gif, webm, or mp4 screencast
 Exec="$install_dir/silentcast"
 Path=$install_dir
 Type=Application

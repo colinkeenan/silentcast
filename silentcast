@@ -91,37 +91,38 @@ else
 	fi
 fi
 
-arg_form=`yad --form --on-top --center\
+arg_form=`yad --form --on-top --center --columns=2\
 	--title="Silentcast v$v" \
 	--window-icon="$doc_dir/record$castnum".png \
 	--text='<tt>\
-  <span background="white">                                        </span>\n\
-  <span background="white">  For a demo, guide, and list of tips,  </span>\n\
-  <span background="white">  click <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a> or install a web  </span>\n\
-  <span background="white">  browser addon for markdown and click  </span>\n\
-  <span background="white">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>                       </span>\n\
-  <span background="white">                                        </span>\n\
-  <span background="white">  If creating a webm or mp4, you may    </span>\n\
-  <span background="white">  want to edit first; so, choose        </span>\n\
-  <span background="white">  "Vids made from: ew-???.png"          </span>\n\
-  <span background="white">  and delete unnecessary images.        </span>\n\
-  <span background="white">                                        </span></tt>\n\
+  <span background="white">                                                            </span>\n\
+  <span background="white">  For a demo, guide, and list of tips, click\
+\ <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a>  </span>\n\
+  <span background="white">  or install a web-browser addon for markdown and click     </span>\n\
+  <span background="white">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>        \
+                                   </span>\n\
+  <span background="white">                                                            </span>\n\
+  <span background="white">  If creating a webm or mp4, you may want to edit first;    </span>\n\
+  <span background="white">  so, choose "Videos made from: ew-???.png" and delete      </span>\n\
+  <span background="white">  unnecessary images.                                       </span>\n\
+  <span background="white">                                                            </span>\n\
   \n\
- In the Working Directory specified below, silentcast \n\
- or silencast/silentcast will be created to contain \n\
- temp.mkv and anim.gif etc.: Choose one or type it in.'\
+    silentcast or silencast/silentcast will be created in the \n\
+    Working Directory specified below to hold the videos. \n\
+    \n\
+                 <b>Choose or Enter a Directory  Final Outputs</b></tt>'\
   	--separator="," \
 	--field="Working Directory":CBE \
 	--field="Area to be recorded":CB \
 	--field="Frames per second" \
+	--field="Videos made from:":CB \
 	--field="anim.gif":CHK \
 	--field="ew-???.png images":CHK \
 	--field="anim.webm":CHK \
 	--field="anim.mp4":CHK \
-	--field="Vids made from:":CB \
 	"$HOME"!"$tmp"!"other" \
 	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
-	TRUE FALSE FALSE FALSE "temp.mkv"!'ew-???.png'`
+	"temp.mkv"!'ew-???.png' TRUE FALSE FALSE FALSE`
 (($? != 0)) && exit 1 #Cancel was clicked
 
 working_dir="$(awk -F, '{print $1}' <<<"$arg_form")"         
@@ -134,11 +135,11 @@ fi
 
 area_choice="$(awk -F, '{print $2}' <<<"$arg_form")" # getting 2nd, 3rd,... fields this way only works when --separator=","
 fps="$(awk -F, '{print $3}' <<<"$arg_form")"
-gif="$(awk -F, '{print $4}' <<<"$arg_form")"
-pngs="$(awk -F, '{print $5}' <<<"$arg_form")"
-webm="$(awk -F, '{print $6}' <<<"$arg_form")"
-mp4="$(awk -F, '{print $7}' <<<"$arg_form")"
-anims_from="$(awk -F, '{print $8}' <<<"$arg_form")"
+anims_from="$(awk -F, '{print $4}' <<<"$arg_form")"
+gif="$(awk -F, '{print $5}' <<<"$arg_form")"
+pngs="$(awk -F, '{print $6}' <<<"$arg_form")"
+webm="$(awk -F, '{print $7}' <<<"$arg_form")"
+mp4="$(awk -F, '{print $8}' <<<"$arg_form")"
 
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
