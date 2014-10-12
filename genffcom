@@ -243,6 +243,6 @@ else
     yad --notification --image="'"$py_script_dir"'/stop'$1'.png" --text="'$1'"
 fi
 kill $ffmpegPID
-sleep 1 # without sleep, will not exit this script all the time' > "$ffcom_dir"/ffcom
+wait # make sure ffmpeg is killed before exit or else can get stuck here' > "$ffcom_dir"/ffcom
 
 # End of file: genffcom
