@@ -106,6 +106,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
 
 - **Installing Dependencies by Distro**
     - Arch
+        - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
         - Install what you can with pacman
 
                 $ sudo pacman -S bash ffmpeg imagemagick xdotool xorg-xrandr xorg-xwininfo wmctrl python-gobject python-cairo xdg-utils
@@ -113,6 +114,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
         - Install yad from the AUR with your AUR helper or [Download yad.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/ya/yad/yad.tar.gz), extract, and do `makepkg -si` from the extracted directory
 
     - Ubuntu
+        - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
         - Install what you can with apt-get
 
                 $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
@@ -158,27 +160,14 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
 
     - Note that **if you have done a full install of Silentcast**, you will end up running portions of that installation when running *bash silentcast*. So, to try out this method, first **uninstall the full installation of Silentcast**.
 
-- **Arch Linux Full Install**
-    - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install the latest release and missing dependencies. Keep your install up to date the usual way with your AUR helper, like `yaourt -Syua`. **Uninstall** with `sudo pacman -R silentcast`
-    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will do exactly the same thing as an AUR helper would do for installation, but you will have to keep track of updates yourself. **Uninstall** with `sudo pacman -R silentcast`  
-    
-- **Ubuntu Linux Full Install**  
-    - For 14.04 and 12.04 run the following commands to add the needed PPA/repositories (for older versions of Ubuntu follow the "Any Linux Distro" instructions below): 
-     
-            sudo add-apt-repository ppa:jon-severinsson/ffmpeg
-            sudo add-apt-repository ppa:webupd8team/y-ppa-manager  
-            sudo add-apt-repository ppa:sethj/silentcast  
-            sudo apt-get update
-            sudo apt-get install silentcast  
-            
-       Or run the following, condensed, command:  
-       
-            sudo add-apt-repository ppa:jon-severinsson/ffmpeg && sudo add-apt-repository ppa:webupd8team/y-ppa-manager && sudo add-apt-repository ppa:sethj/silentcast && sudo apt-get update && sudo apt-get install silentcast  
-            
-       - **Uninstall**  
-       Run `sudo apt-get remove silentcast`. You can then remove the PPAs with `sudo add-apt-repository -r` like so:  
-       
-                sudo add-apt-repository -r ppa:jon-severinsson/ffmpeg && sudo add-apt-repository -r ppa:webupd8team/y-ppa-manager && sudo add-apt-repository -r ppa:sethj/silentcast
+- **Any Linux Distro Full Install Without Root Access**
+    - Install missing dependencies (see the *Dependencies* table and *Installing Dependencies by Distro* above)
+    - Download a version of Silentcast:
+        - Should always work as intended: [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest)
+        - Most likely working right: [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
+        - Probably broken when in active development, otherwise the same as master: [Download Silentcast next.zip from github.com](https://github.com/colinkeenan/silentcast/archive/next.zip)
+    - Extract. Then, from a terminal, `cd` into the extracted directory and `./no_root_install` **Uninstall** instructions are provided in the output of the *no_root_install* script. You can also see them in the comments to the launcher. See options with `./no_root_install -h`. If installed to the default location, **uninstall** with the following commands: `rm -r ~/.silentcast` and `rm ~/.local/share/applications/no_root_silentcast.desktop` 
+    - See what version you've got with `silentcast -v`. [Check for a newer version](https://github.com/colinkeenan/silentcast/releases/latest)
 
 - **Any Linux Distro Full Install**
     - Install missing dependencies (see the *Dependencies* table and *Installing Dependencies by Distro* above)
@@ -189,7 +178,27 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
     - Extract. Then, from a terminal, `cd` into the extracted directory and `sudo ./install` **Uninstall** instructions are the same replacing *install* with *uninstall*. The **install** (or **uninstall**) bash script just copies (or deletes) files. You may want to edit them if your distro puts files in unusual places.
     - See what version you've got with `silentcast -v`. [Check for a newer version](https://github.com/colinkeenan/silentcast/releases/latest)
 
-
+- **Arch Linux Full Install**
+    - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install the latest release and missing dependencies. Keep your install up to date the usual way with your AUR helper, like `yaourt -Syua`. **Uninstall** with `sudo pacman -R silentcast`
+    - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will do exactly the same thing as an AUR helper would do for installation, but you will have to keep track of updates yourself. **Uninstall** with `sudo pacman -R silentcast`  
+    
+- **Ubuntu Linux Full Install**  
+    - For 14.04 and 12.04 run the following commands to add the needed PPA/repositories (If the PPA/repositories are out of date or for older versions of Ubuntu follow one of the "Any Linux Distro" instructions): 
+     
+            $ sudo add-apt-repository ppa:jon-severinsson/ffmpeg
+            $ sudo add-apt-repository ppa:webupd8team/y-ppa-manager  
+            $ sudo add-apt-repository ppa:sethj/silentcast  
+            $ sudo apt-get update
+            $ sudo apt-get install silentcast  
+            
+       Or run the following, condensed, command:  
+       
+            $ sudo add-apt-repository ppa:jon-severinsson/ffmpeg && sudo add-apt-repository ppa:webupd8team/y-ppa-manager && sudo add-apt-repository ppa:sethj/silentcast && sudo apt-get update && sudo apt-get install silentcast  
+            
+       - **Uninstall**  
+       Run `sudo apt-get remove silentcast`. You can then remove the PPAs with `sudo add-apt-repository -r` like so:  
+       
+                $ sudo add-apt-repository -r ppa:jon-severinsson/ffmpeg && sudo add-apt-repository -r ppa:webupd8team/y-ppa-manager && sudo add-apt-repository -r ppa:sethj/silentcast
 
 ###Launch Methods
 
@@ -245,6 +254,18 @@ A directory named `silentcast` will be created if it doesn't already exist, and 
 ![SetRate.png](SetRate.png)
 
 The default *Frames per second* is 8 which plays back at a reasonable speed and smoothness in gif animations served from a website. Higher frame rates will be smoother but will require a lot of memory to create. Beyond a certain rate, and playback may be too slow. Seems to work reasonably well up to 50 Frames per second though.
+
+#### Choose How webm or mp4 videos will be made
+
+![SetFrom.png](SetFrom.png)
+
+The default behavior makes webm or mp4 videos directly from temp.mkv, but this doesn't allow for editing. If you want, you can edit frame-by-frame by choosing **ew-???.png** as an answer to *Videos made from:*. Then, before allowing the video to be made, view the frame-by-frame png images and delete unnecessary ones.
+
+#### Select Outputs
+
+![SetOut.png](SetOut.png)
+
+By default, **anim.gif** is already checked, but you can remove that. Check as many as you want in the final output. If not checked, any png images that were generated as an intermediate step will be deleted. You do not have to check the png images to be able to make videos from png images.
 
 #### 3 Auto Resize
 
