@@ -117,7 +117,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
         - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
         - Install what you can with apt-get
 
-                $ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
+                $ sudo apt-get install bash yad libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
                 $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
         - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
        click the 32 bit or 64 bit version and let Software Center install it.
