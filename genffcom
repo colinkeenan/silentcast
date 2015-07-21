@@ -6,14 +6,14 @@ cat << EOF
 genffcom generates a bash script in the current directory
 called ffcom containing an ffmpeg command that will record
 a silent mkv video at a default rate of 8 frames per second.
-Execute the generated script with 
-\$ bash ffcom 
+Execute the generated script with
+\$ bash ffcom
 in a terminal, and exit by clicking the stop icon in the
 notification area. Ignore instructions from ffmpeg about
 stopping it with q - it won't work. If you don't have a
 notification area, you can still stop it with ctrl-c in
 the terminal where it is running.
-   
+
 Usage: genffcom [-h -a area -r rate# -d dir] {silentcast#}
 
     -h          display this help and exit
@@ -44,7 +44,7 @@ EOF
 
 #defaults
 
-py_script_dir=/usr/share/silentcast # if the python scripts are put somewhere else, 
+py_script_dir=/usr/share/silentcast # if the python scripts are put somewhere else,
 if ! [ -f $py_script_dir/transparent_window.py ] # change /usr/share/silentcast
 then
 	if [ -f ./transparent_window.py ]
@@ -76,12 +76,12 @@ bl=0
 br=0
 bb=0
 t=0
-xMax=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f1)
-yMax=$(xrandr --current | grep '*' | uniq | awk '{print $1}' |  cut -d 'x' -f2 | cut -d '_' -f1)
+xMax=$(xrandr | head -1 | awk '{print $8}')
+yMax=$(xrandr | head -1 | awk '{print $10}' | rev | cut -c 2- | rev)
 
 OPTIND=1
 while getopts ":ha:r:d:" opt
-do 
+do
 	echo $OPTARG # I don't know why I have to echo $OPTARG to get it assigned, but I do
 	case $opt in
 		h)
@@ -115,8 +115,8 @@ do
 			esac
 			;;
 		r)
-			fps=$OPTARG 
-			if ! [[ "$fps" =~ ^[0-9]+$ ]] && (($fps<2 || $fps>120)) 
+			fps=$OPTARG
+			if ! [[ "$fps" =~ ^[0-9]+$ ]] && (($fps<2 || $fps>120))
 			then
 				show_help
 				exit 0
@@ -125,7 +125,7 @@ do
 		d)
 			ffcom_dir="$OPTARG"
 			;;
-		\?) 
+		\?)
 			echo "Invalid option: -$OPTARG  ('genffcom -h' for help)" >&2
 			exit 1
 			;;
@@ -140,7 +140,7 @@ castnum="$1"
 
 if [ "$fullscreen" = false ] # getting the size and position of area to record - don't need that if fullscreen=true
 then
-	if (($transparentPID == 0)) 
+	if (($transparentPID == 0))
 	then
 		resizeInstructions="; then, click on a window <span color='red'>that is not maximized.</span>"
 		nextInstructions="The next dialogue will give you a chance to get ready before recording begins."
@@ -164,8 +164,8 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 		then
 			kill $transparentPID
 		fi
-		exit 1 
-	fi 
+		exit 1
+	fi
 
 	size="$(awk -F, '{print $1}' <<<"$size_form")"
 
@@ -176,9 +176,9 @@ After auto-resizing (or not), the next dialogue will give you another chance to 
 	fi
 
 	printf "Move the $win window to the area to be recorded, and resize manually if desired.
-       	
-Click OK when you've got the $win window sized and positioned correctly. 
-       	
+
+Click OK when you've got the $win window sized and positioned correctly.
+
 $nextInstructions" \
 | yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Manual Resize \
 and Position" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum   \
@@ -189,7 +189,7 @@ and Position" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST 
 		then
 			kill $transparentPID
 		fi
-		exit 1 
+		exit 1
 	fi
 
         sleep 0.2 # Just making sure the dialogue window isn't in the way
@@ -228,7 +228,7 @@ echo '#!/bin/bash
 
 printf "Click OK when ready to start recording.
 
-To Stop Recording: 
+To Stop Recording:
 Click the stop icon in the Notification Area" \
 | yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="'"$doc_dir"'/record'$castnum'".png --text="\
 <b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
