@@ -234,7 +234,7 @@ Click the stop icon in the Notification Area" \
 <b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
 (($? != 0)) && exit 1 #Cancel was clicked
 
-ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i '${DISPLAY:-\:0}'.0+'$x','$y' -c:v ffvhuff -an -y '"$ffcom_dir"'/temp.mkv & ffmpegPID=$!
+ffmpeg -f x11grab -s '$w'x'$h' -r '$fps' -i '${DISPLAY:-\:0.0}'+'$x','$y' -c:v ffvhuff -an -y '"$ffcom_dir"'/temp.mkv & ffmpegPID=$!
 if [ "$XDG_CURRENT_DESKTOP" = "Unity" -o "$XDG_CURRENT_DESKTOP" = "Pantheon"  ]
 then
         echo "Unity or Pantheon detected, switching indicators..."
