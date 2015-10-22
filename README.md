@@ -166,7 +166,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
         - Should always work as intended: [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest)
         - Most likely working right: [Download Silentcast master.zip from github.com](https://github.com/colinkeenan/silentcast/archive/master.zip)
         - Probably broken when in active development, otherwise the same as master: [Download Silentcast next.zip from github.com](https://github.com/colinkeenan/silentcast/archive/next.zip)
-    - Extract. Then, from a terminal, `cd` into the extracted directory and `./no_root_install` **Uninstall** instructions are provided in the output of the *no_root_install* script. You can also see them in the comments to the launcher. See options with `./no_root_install -h`. If installed to the default location, **uninstall** with the following commands: `rm -r ~/.silentcast` and `rm ~/.local/share/applications/no_root_silentcast.desktop` 
+    - Extract. Then, from a terminal, `cd` into the extracted directory and `./no_root_install` **Uninstall** instructions are provided in the output of the *no_root_install* script. You can also see them in the comments to the launcher. See options with `./no_root_install -h`. If installed to the default location, **uninstall** with the following commands: `rm -r ~/.silentcast` and `rm ~/.local/share/applications/no_root_silentcast.desktop`
     - See what version you've got with `silentcast -v`. [Check for a newer version](https://github.com/colinkeenan/silentcast/releases/latest)
 
 - **Any Linux Distro Full Install**
@@ -181,21 +181,21 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
 - **Arch Linux Full Install**
     - Use an AUR helper, like `yaourt -S silentcast`. This will automatically install the latest release and missing dependencies. Keep your install up to date the usual way with your AUR helper, like `yaourt -Syua`. **Uninstall** with `sudo pacman -R silentcast`
     - Without an AUR helper, just [Download silentcast.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/si/silentcast/silentcast.tar.gz), extract, and do `makepkg -si` from the extracted directory. This will do exactly the same thing as an AUR helper would do for installation, but you will have to keep track of updates yourself. **Uninstall** with `sudo pacman -R silentcast`  
-    
+
 - **Ubuntu Linux Full Install**  
-    - For 14.04 and 12.04 run the following commands to install Silentcast (If the PPA/repositories are out of date or for older versions of Ubuntu follow one of the "Any Linux Distro" instructions): 
+    - For supported releases run the following commands to install Silentcast (If the PPA/repositories are out of date or for older versions of Ubuntu follow one of the "Any Linux Distro" instructions):
      
             $ sudo add-apt-repository ppa:sethj/silentcast  
             $ sudo apt-get update
             $ sudo apt-get install silentcast  
-            
+
        Or run the following, condensed, command:  
-       
+
             $ sudo add-apt-repository ppa:sethj/silentcast && sudo apt-get update && sudo apt-get install silentcast  
-            
+
        - **Uninstall**  
        Run `sudo apt-get remove silentcast`. You can then remove the PPAs with `sudo add-apt-repository -r` like so:  
-       
+
                 $ sudo add-apt-repository -r ppa:sethj/silentcast && sudo apt-get update
 
 ###Launch Methods

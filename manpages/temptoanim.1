@@ -1,0 +1,80 @@
+.\" Manpage for temptoanim (silentcast)
+.TH man 1 "09 November 2014" "" "Linux User's Manual"
+.SH NAME 
+temptoanim \- converts temp.mkv to anim.gif
+.SH SYNOPSIS
+.BI "temptoanim [ " "-h -s# -r# -k -g -e -o type -d working_dir" " ]"
+
+.SH OPTIONS
+
+.BR  "-h" " display this help and exit"
+
+.BR "-s #"  " i.e. " "silentcast # " " - the number of instances of Silentcast that are running" 
+
+.RS 
+
+.BR "#" " must be 0, 1, or 2 (default is 0 meaning temptoanim was started outside of the Silentcast application)"
+
+.BR "0:" " tries to convert ./temp.mkv (if working_dir is also specified, it will be ignored)"
+
+.BR "1:" " tries to convert working_dir/silentcast/temp.mkv"
+
+.BR "2:" " tries to convert working_dir/silentcast/silentcast/temp.mkv"
+
+.RE
+
+.BR "-r #" " i.e. " "rate  # " " or fps (default is 8)"
+
+.RS
+
+.BR "#" " is a natural number (2 to 120) that should match the frames per second of temp.mkv for making or using png images. A rate does not need to be specified if not using png images at all, and will be ignored if specified. 
+When making anim.gif, png images are always necessary so that if a rate is not specified, 8 will be used. 
+
+temptoanim doesn't verify the actual fps in temp.mkv.
+
+.RE
+
+.BR "-k" " keep all the png images that are created. Default is to delete them unless '-o png' is used, in which case -k isn't needed."
+
+.BR "-g" " generate png images and use them to create the webm or mp4 video. No need to specifiy -g for a gif because png images are required in that cast, but for webm or mp4, the default is to use temp.mkv directly so that png images are not generated or used."
+
+.BR "-e" " existing png images will be used, so don't generate them. If " -g " and " -e " are both used, exising images will be used unless there are none, then they will be generated. The default for making anim.gif is to delete any existing png images and generate new ones from temp.mkv. For webm and mp4, the default is to use temp.mkv directly so if you want to edit frame by frame, you have to specify " "-g" " or " "-e" " for frame png images to be used in creating the video."
+
+
+.BR "-o type" " final desired output. Default is anim.gif. The recognized types are" 
+
+.RS
+
+.BR "png" " generates a series of png images: ew-???.png  ew-001.png ew-002.png .... ew-999.png If more than 999 pngs, the first ones will be overwritten"
+
+.BR "gif" " generates an animated gif named anim.gif. ew-???.png images used will be deleted
+unless " "-k" " is used."
+
+.BR "webm" " generates a compressed video named anim.webm from the uncompressed video temp.mkv unless "  "-e" " or  " "-g" " is used, then it will create anim.webm from png images. Those png images will be deleted unless " "-k" " is used."
+
+.BR "mp4" " same as webm except it will be anim.mp4 that is created.
+
+All of these outputs are many times smaller than temp.mkv,
+which is uncompressed, and sometimes hundreds of times smaller.
+
+.RE
+
+.BR "-d  working_dir" " defaults to the current directory and is where temptoanim will expect to find the silentcast or silentcast/silentcast directory"
+
+
+There are some dialogues that come up, and it's important to read
+and understand them. View /usr/share/doc/silentcast/README.md with
+a markdown viewer and get an animated gif demo made with silentcast,
+as well as a step by step guide and a list of tips.  
+
+.SH SEE ALSO 
+
+.BR "silentcast" "(1), " "genffcom" "(1)"
+
+.SH BUGS
+
+No known bugs.  
+
+.SH AUTHOR  
+
+.BR "temptoanim" " was written by Colin Keenan <colinnkeenan@gmail.com>. This manual was written by Seth Johnson <sethj0438@gmail.com>."

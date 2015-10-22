@@ -9,4 +9,8 @@ rm -r /usr/share/doc/silentcast
 echo Deleting desktop launcher from /usr/share/applications and the icon from pixmaps
 rm /usr/share/applications/silentcast.desktop
 rm /usr/share/pixmaps/silentcast.png
+echo Removing manpages
+rm /usr/local/share/man/man1/silentcast.1
+rm /usr/local/share/man/man1/genffcom.1
+rm /usr/local/share/man/man1/temptoanim.1
 echo Done uninstalling Silentcast
