@@ -1,0 +1,39 @@
+.\" Manpage for Silentcast
+
+.TH silentcast 1 "09 November 2014" "" "Linux User's Manual" 
+.SH NAME
+silentcast \- record your screen to animated .gif files
+.SH SYNOPSIS
+.BR "silentcast "  [ " -h " | " -v " ]
+.SH DESCRIPTION
+Silentcast creates a silent, uncompressed video,
+silentcast/temp.mkv, and your choice of compressed video in
+the silentcast directory: anim.gif, anim.webm, and/or anim.mp4.
+Frame by frame png images are created in order to make anim.gif,
+and can be the final output if desired so that no anim file
+will be produced. The webm and mp4 anim files can be made from
+the png images if desired which allows for frame by frame
+editing. 
+
+Silentcast runs 2 other bash scripts that are part of the
+same package: genffcom and temptoanim.
+Look at those help outputs for more information. Even better,
+view /usr/share/doc/silentcast/README.md with a markdown
+viewer and get an animated gif demo made with Silentcast, as
+well as a step by step guide and a list of tips. 
+ 
+
+.SH OPTIONS
+.BR -h " display this help and exit"
+
+.BR -v " display version and exit"
+
+.SH SEE ALSO
+.BR "genffcom"(1), " temptoanim"(1)  
+
+.SH BUGS
+No known bugs.  
+
+.SH AUTHOR
+
+Silentcast was written by Colin Keenan <colinnkeenan@gmail.com>. This manual page was written by Seth Johnson <sethj0438@gmail.com>.
