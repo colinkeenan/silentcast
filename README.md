@@ -121,6 +121,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
                 $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
         - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
        click the 32 bit or 64 bit version and let Software Center install it.
+       - Plasma 5 users will also need the `gir1.2-gtk-3.0` and `gir1.2-appindicator3-0.1` packages.
 
     - Fedora
         - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
@@ -184,7 +185,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
 
 - **Ubuntu Linux Full Install**  
     - For supported releases run the following commands to install Silentcast (If the PPA/repositories are out of date or for older versions of Ubuntu follow one of the "Any Linux Distro" instructions):
-     
+
             $ sudo add-apt-repository ppa:sethj/silentcast  
             $ sudo apt-get update
             $ sudo apt-get install silentcast  
