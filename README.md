@@ -106,15 +106,17 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
 
 #### Installing Dependencies by Distro
 ##### Arch
+- If running KDE Plasma 5, install `libappindicator-activate-gtk3` from the AUR (or from the [archlinuxcn](https://github.com/archlinuxcn/repo#arch-linux-chinese-community-repository) repo).
 - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
 - Install what you can with pacman
 ```bash
 $ sudo pacman -S bash ffmpeg imagemagick xdotool xorg-xrandr xorg-xwininfo wmctrl python-gobject python-cairo xdg-utils
 ```
 
-- Install yad from the AUR with your AUR helper or [Download yad.tar.gz from aur.archlinux.org](https://aur.archlinux.org/packages/ya/yad/yad.tar.gz), extract, and do `makepkg -si` from the extracted directory
+- Install `yad` from the AUR (or from the [archlinuxcn](https://github.com/archlinuxcn/repo#arch-linux-chinese-community-repository) repo).
 
 ##### Ubuntu
+- If running KDE Plasma 5, install the `gir1.2-gtk-3.0` and `gir1.2-appindicator3-0.1` packages.
 - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
 - Install what you can with apt-get
 
@@ -125,8 +127,6 @@ $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
 
 - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
 click the 32 bit or 64 bit version and let Software Center install it.
-- Plasma 5 users will also need the `gir1.2-gtk-3.0` and `gir1.2-appindicator3-0.1` packages.
-
 ##### Fedora
 - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
 - Make sure you have the multimedia repository, [rpmfusion](http://rpmfusion.org/Configuration)
