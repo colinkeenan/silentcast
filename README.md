@@ -121,12 +121,12 @@ $ sudo pacman -S bash ffmpeg imagemagick xdotool xorg-xrandr xorg-xwininfo wmctr
 - Install what you can with apt-get
 
 ```bash
-$ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils
+$ sudo apt-add-repository -y ppa:webupd8team/y-ppa-manager
+$ sudo apt-get update
+$ sudo apt-get install bash libav-tools imagemagick x11-xserver-utils xdotool wininfo wmctrl python-gobject python-cairo xdg-utils yad
 $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
 ```
 
-- Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
-click the 32 bit or 64 bit version and let Software Center install it.
 ##### Fedora
 - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
 - Make sure you have the multimedia repository, [rpmfusion](http://rpmfusion.org/Configuration)
