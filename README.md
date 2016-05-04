@@ -127,6 +127,7 @@ $ sudo ln -s /usr/bin/avconv /usr/bin/ffmpeg
 
 - Look for **Download "yad"** at [yad](http://www.ubuntuupdates.org/package/webupd8/trusty/main/base/yad),
 click the 32 bit or 64 bit version and let Software Center install it.
+
 ##### Fedora
 - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
 - Make sure you have the multimedia repository, [rpmfusion](http://rpmfusion.org/Configuration)
