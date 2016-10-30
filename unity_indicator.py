@@ -1,8 +1,12 @@
 #!/usr/bin/python
-
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
 import os,argparse
+
+filepath = os.path.dirname(os.path.realpath(__file__))
 
 parser = argparse.ArgumentParser()
 parser.add_argument("silentcast_number", help="The number of Silentcast instances running. \
@@ -13,9 +17,9 @@ class IndicatorSilentcast:
     def __init__(self):
         self.indicator = appindicator.Indicator.new_with_path (
                 "silentcast",
-                "stop{}".format(args.silentcast_number),
+                "{}/stop{}".format(filepath,args.silentcast_number),
                 appindicator.IndicatorCategory.APPLICATION_STATUS,
-                os.path.dirname(os.path.realpath(__file__)))
+                filepath)
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)
 
         self.menu = Gtk.Menu()
