@@ -3,6 +3,7 @@ echo Copying files...
 install -D -m755 silentcast /usr/bin/silentcast
 install -m755 genffcom /usr/bin
 install -m755 temptoanim /usr/bin
+install -D -m755 silentcast.conf /etc/silentcast.conf
 install -D -m755 transparent_window.py /usr/share/silentcast/transparent_window.py
 install -m755 unity_indicator.py /usr/share/silentcast
 install -m755 stop?.png /usr/share/silentcast

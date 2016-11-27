@@ -60,12 +60,17 @@ fi
 
 k=""          # -k to keep pngs, "" to delete pngs if they were generated
 e=""          # -e to use existing pngs, -g to generate pngs, "" to ignore pngs if webm or mp4
+
 #get defaults/current config for initial dialogue (arg_form)
 cur_dir="$( cd "$(dirname "$0")" ; pwd -P )" # current directory
-conf_dir="$HOME/.config"
-if ! [ -f $conf_dir/silentcast.conf ]
-then 
-	conf_dir="$cur_dir" # current directory
+if [ -f $cur_dir/silentcast.conf ]
+then
+	conf_dir="$cur_dir"
+elif [ -f "$HOME/.config/silentcast.conf" ]
+then
+	conf_dir="$HOME/.config"
+else
+	conf_dir=/etc
 fi
 source "$conf_dir/silentcast.conf"
 
@@ -186,8 +191,13 @@ mp4="$(awk -F, '{print $8}' <<<"$arg_form")"
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
 
-echo '
-working_dir='"$working_dir"'
+#save new settings in silentcast.conf, but if settings came from /etc then save to ~/.config directory instead
+if [ "$conf_dir" == /etc ]
+then
+	mkdir -p "$HOME/.config"
+	conf_dir="$HOME/.config"
+fi
+echo 'working_dir='"$working_dir"'
 area='"$area"' #choices are f t i e for Fullscreen, Transparent Window Interior, Interior of a Window, Entirety of a Window
 fps='"$fps"'
 anims_from='"$anims_from"' #choices are "temp.mkv" or 'ew-???.png'
