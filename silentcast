@@ -46,7 +46,7 @@ do
 done
 shift "$((OPTIND-1))" # get rid of everything just processed leaving anything else as $1 $2 etc.
 
-unset fps area_choice area ffcoms_running castnum rate arg_form silentcast_dir doc_dir working_dir tmp pngs gif webm mp4 k e
+unset fps anims_from area_choice area ffcoms_running castnum rate arg_form cur_dir conf_dir silentcast_dir doc_dir working_dir tmp pngs gif webm mp4 k e hatH hatTmp hatO hatF hatTr hatI hatE hatMkv hatPng
 
 ffcoms_running=`pgrep -f ffcom | wc -l`
 if (($ffcoms_running > 1))
@@ -58,24 +58,23 @@ else
 	let castnum=$ffcoms_running+1
 fi
 
-#defaults
 k=""          # -k to keep pngs, "" to delete pngs if they were generated
 e=""          # -e to use existing pngs, -g to generate pngs, "" to ignore pngs if webm or mp4
-anims_from="temp.mkv"
-pngs=FALSE
-gif=TRUE
-webm=FALSE
-mp4=FALSE
-fps=8
-area_choice="Fullscreen"
-area="f"
+#get defaults/current config for initial dialogue (arg_form)
+cur_dir="$( cd "$(dirname "$0")" ; pwd -P )" # current directory
+conf_dir="$HOME/.config"
+if ! [ -f $conf_dir/silentcast.conf ]
+then 
+	conf_dir="$cur_dir" # current directory
+fi
+source "$conf_dir/silentcast.conf"
+
+#find README
 doc_dir=/usr/share/doc/silentcast
 if ! [ -f $doc_dir/README.md ]
 then 
-	doc_dir="$( cd "$(dirname "$0")" ; pwd -P )" # current directory
+	doc_dir="$cur_dir" # current directory
 fi
-
-working_dir=~ # home directory
 
 if df /tmp | grep -q tmpfs && touch /tmp/foo 2>/dev/null
 then
@@ -91,21 +90,61 @@ else
 	fi
 fi
 
+#Combo boxes in the form below need to have defaults that match what was read from silentcast.conf. Defaults for combo boxes in a yad form are set by putting ^ in front of the default choice.
+#Setting ^ for the default combo boxes using hatH hatTmp hatO hatF hatTr hatI hatE hatMkv hatPng
+
+hatH="$HOME"
+hatTmp="$tmp"
+hatO="$working_dir"
+hatF="Fullscreen"
+hatTr="Transparent Window Interior"
+hatI="Interior of a Window"
+hatE="Entirety of a Window"
+hatMkv="temp.mkv"
+hatPng='ew-???.png'
+if [ "$working_dir" == "$HOME" ]
+then
+	hatH="^$HOME"
+elif [ "$working_dir" == "$tmp" ] 
+then
+	hatTmp="^$tmp" 
+else 
+	hatO="^$working_dir" 
+fi
+if [ $area = f ]
+then
+	hatF="^Fullscreen"
+elif [ $area = t ]
+then
+	hatTr="^Transparent Window Interior"
+elif [ $area = i ]
+then
+	hatI="^Interior of a Window"
+else 
+	hatE="^Entirety of a Window"
+fi
+if [ "$anims_from" == "temp.mkv" ]
+then
+	hatMkv="^temp.mkv"
+else
+	hatPng='^ew-???.png'
+fi
+
 arg_form=`yad --form --on-top --center --columns=2\
 	--title="Silentcast v$v" \
 	--window-icon="$doc_dir/record$castnum".png \
 	--text='<tt>\
-  <span background="white">                                                            </span>\n\
-  <span background="white">  For a demo, guide, and list of tips, click\
+  <span background="gray">                                                            </span>\n\
+  <span background="gray">  For a demo, guide, and list of tips, click\
 \ <a href="https://github.com/colinkeenan/silentcast/#silentcast">web README.md</a>  </span>\n\
-  <span background="white">  or install a web-browser addon for markdown and click     </span>\n\
-  <span background="white">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>        \
+  <span background="gray">  or install a web-browser addon for markdown and click     </span>\n\
+  <span background="gray">  <a href="file://'"$doc_dir"'/README.md">local README.md</a>        \
                                    </span>\n\
-  <span background="white">                                                            </span>\n\
-  <span background="white">  If creating a webm or mp4, you may want to edit first;    </span>\n\
-  <span background="white">  so, choose "Videos made from: ew-???.png" and delete      </span>\n\
-  <span background="white">  unnecessary images.                                       </span>\n\
-  <span background="white">                                                            </span>\n\
+  <span background="gray">                                                            </span>\n\
+  <span background="gray">  If creating a webm or mp4, you may want to edit first;    </span>\n\
+  <span background="gray">  so, choose "Videos made from: ew-???.png" and delete      </span>\n\
+  <span background="gray">  unnecessary images.                                       </span>\n\
+  <span background="gray">                                                            </span>\n\
   \n\
     silentcast or silencast/silentcast will be created in the \n\
     Working Directory specified below to hold the videos. \n\
@@ -120,11 +159,11 @@ arg_form=`yad --form --on-top --center --columns=2\
 	--field="ew-???.png images":CHK \
 	--field="anim.webm":CHK \
 	--field="anim.mp4":CHK \
-	"$HOME"!"$tmp"!"other" \
-	"Fullscreen"!"Transparent Window Interior"!"Interior of a Window"!"Entirety of a Window" 8 \
-	"temp.mkv"!'ew-???.png' TRUE FALSE FALSE FALSE & yadPID=$!
+	"$hatH"!"$hatTmp"!"$hatO" \
+	"$hatF"!"$hatTr"!"$hatI"!"$hatE" 8 \
+	"$hatMkv"!"$hatPng" $gif $pngs $webm $mp4 & yadPID=$!
 sleep 0.5
-xdotool key 'Tab' # making the Working Directory field highlighted in stead of a link to README.md so that
+xdotool key 'Tab' # making the Working Directory field highlighted instead of a link to README.md so that
 wait $yadPID`     # hitting enter doesn't do anything and also it's obvious the directory can be typed in
 (($? != 0)) && exit 1 #Cancel was clicked
 
@@ -147,6 +186,16 @@ mp4="$(awk -F, '{print $8}' <<<"$arg_form")"
 area=${area_choice,} # lower case first letter
 area=${area:0:1}     # area is now one of f t i e
 
+echo '
+working_dir='"$working_dir"'
+area='"$area"' #choices are f t i e for Fullscreen, Transparent Window Interior, Interior of a Window, Entirety of a Window
+fps='"$fps"'
+anims_from='"$anims_from"' #choices are "temp.mkv" or 'ew-???.png'
+gif='"$gif"'
+pngs='"$pngs"'
+webm='"$webm"'
+mp4='"$mp4"'
+'> "$conf_dir/silentcast.conf"
 
 if (($castnum == 2))
 then 
