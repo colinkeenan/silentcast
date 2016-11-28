@@ -106,7 +106,7 @@ Notice there's a stop icon ![stop1.png](stop1.png) in the Notification Area befo
 
 #### Installing Dependencies by Distro
 ##### Arch
-- If running KDE Plasma 5, install `libappindicator-activate-gtk3` from the AUR (or from the [archlinuxcn](https://github.com/archlinuxcn/repo#arch-linux-chinese-community-repository) repo).
+- If running KDE Plasma 5, install `libappindicator-gtk2` 
 - If running Gnome, install [Topicons](https://extensions.gnome.org/extension/495/topicons/)
 - Install what you can with pacman
 ```bash
