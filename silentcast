@@ -52,7 +52,7 @@ ffcoms_running=`pgrep -f ffcom | wc -l`
 if (($ffcoms_running > 1))
 then
 	echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported." \
-	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.svg" --title="Error" --text="<b>SILENTCAST ? </b>"
 	exit -1
 else
 	let castnum=$ffcoms_running+1
@@ -137,7 +137,7 @@ fi
 
 arg_form=`yad --form --on-top --center --columns=2\
 	--title="Silentcast v$v" \
-	--window-icon="$doc_dir/record$castnum".png \
+	--window-icon="$doc_dir/record$castnum".svg \
 	--text='<tt>\
   <span background="gray">                                                            </span>\n\
   <span background="gray">  For a demo, guide, and list of tips, click\
@@ -176,7 +176,7 @@ working_dir="$(awk -F, '{print $1}' <<<"$arg_form")"
 if ! [ -d "$working_dir" ]
 then
 	echo "$working_dir is not an existing Directory, so the Silentcast directory can't be created there" \
-	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.svg" --title="Error" --text="<b>SILENTCAST ? </b>"
 	exit -1
 fi
 

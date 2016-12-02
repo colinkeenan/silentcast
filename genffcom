@@ -151,7 +151,7 @@ then
 where the interior was. The next dialogue will give you a chance to get ready before \
 recording begins."
 	fi
-	size_form=`yad --form --on-top --center --height="340" --title="Auto Resize" --window-icon="$doc_dir/record$castnum".png --separator=','\
+	size_form=`yad --form --on-top --center --height="340" --title="Auto Resize" --window-icon="$doc_dir/record$castnum".svg --separator=','\
 	       	--text="<b>SILENTCAST $castnum                </b><span font='24' color='green'>3</span>\n\
 Choose one of the window sizes below or enter one on the WxH choice and click OK$resizeInstructions\n\
 	\n\
@@ -181,7 +181,7 @@ Click OK when you've got the $win window sized and positioned correctly.
 
 $nextInstructions" \
 | yad --text-info --on-top --center --width=440 --height=280 --wrap --title="Manual Resize \
-and Position" --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum   \
+and Position" --window-icon="$doc_dir/record$castnum".svg --text="<b>SILENTCAST $castnum   \
 </b><span font='24' color='green'>2</span>"
 	if (($? != 0)) #Cancel was clicked
 	then
@@ -230,7 +230,7 @@ printf "Click OK when ready to start recording.
 
 To Stop Recording:
 Click the stop icon in the Notification Area" \
-| yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="'"$doc_dir"'/record'$castnum'".png --text="\
+| yad ---text-info --on-top --center --width=440 --height=280 --wrap --title="Get Ready" --window-icon="'"$doc_dir"'/record'$castnum'".svg --text="\
 <b>SILENTCAST '$1'                </b><span font='"'"'24'"'"' color='"'"'green'"'"'>1</span>"
 (($? != 0)) && exit 1 #Cancel was clicked
 
@@ -240,7 +240,7 @@ then
         echo "Unity, Pantheon, or Plasma 5 detected. Switching indicators..."
 	python '"$py_script_dir"'/unity_indicator.py '$1'
 else
-    yad --notification --image="'"$py_script_dir"'/stop'$1'.png" --text="'$1'"
+    yad --notification --image="'"$py_script_dir"'/stop'$1'.svg" --text="'$1'"
 fi
 kill $ffmpegPID
 wait # make sure ffmpeg is killed before exit or else can get stuck here' > "$ffcom_dir"/ffcom

@@ -4,5 +4,5 @@ Comment=Silent Screencast: video record your screen and make it into an animated
 Exec=silentcast
 Type=Application
 StartupNotify=true
-Icon=/usr/share/pixmaps/silentcast.png
+Icon=silentcast
 Categories=Graphics;AudioVideo;

@@ -6,11 +6,11 @@ install -m755 temptoanim /usr/bin
 install -D -m755 silentcast.conf /etc/silentcast.conf
 install -D -m755 transparent_window.py /usr/share/silentcast/transparent_window.py
 install -m755 unity_indicator.py /usr/share/silentcast
-install -m755 stop?.png /usr/share/silentcast
-install -D -m755 silentcast.png /usr/share/pixmaps/silentcast.png
+install -m755 stop?.svg /usr/share/silentcast
+install -D -m755 silentcast.svg /usr/share/pixmaps/silentcast.svg
 install -D -m755 silentcast.desktop /usr/share/applications/silentcast.desktop
 install -D -m755 README.md /usr/share/doc/silentcast/README.md
-install -m755 *png /usr/share/doc/silentcast
+install -m755 *svg /usr/share/doc/silentcast
 install -m755 *gif /usr/share/doc/silentcast
 install -D -m755 manpages/silentcast.1 /usr/share/man/man1/silentcast.1
 install -m755 manpages/genffcom.1 /usr/share/man/man1/

@@ -102,7 +102,7 @@ check_for_temp() {
 	if ! [ -f temp.mkv ]
 	then
 		echo "temp.mkv not found, so can't generate anything from it" \
-		| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" \
+		| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".svg --title="Error" \
 		--text="<b>SILENTCAST $castnum </b>"
 		exit -1
 	fi
@@ -112,7 +112,7 @@ check_for_pngs() {
 	if ! [ -f ew-[0-9][0-9][0-9].png ] 
 	then
 		echo "ew-???.png not found, so can't convert them to webm or mp4, use -g to generate pngs" \
-		| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png \
+		| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".svg \
 		--title="Error" --text="<b>SILENTCAST $castnum </b>"
 		exit -1
 	fi
@@ -120,7 +120,7 @@ check_for_pngs() {
 
 mem_error() {
 	echo "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images." |\
-		yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".png --title="Error" \
+		yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record$castnum".svg --title="Error" \
 		--text="<b>SILENTCAST $castnum </b>"
 	(($? != 0)) && exit 1 #Cancel was clicked
 }
@@ -140,14 +140,14 @@ generate_pngs() {
 	find -maxdepth 1 -regex '\.\/ew-[0-9][0-9][0-9]\.png' -delete
 	check_for_temp
 	ffmpeg -i temp.mkv -r $fps ew-%03d.png \
-		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png --text="<b>SILENTCAST $castnum </b> \n\
+		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".svg --text="<b>SILENTCAST $castnum </b> \n\
 	Creating images from temp.mkv" --pulsate --auto-close
 
 	xdotool key 'F5' # in testing, Dolphin used by KDE needs this sometimes
 }
 
 edit_pngs() {
-        cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".png \
+        cut=`yad --entry --on-top --center --window-icon="$doc_dir/record$castnum".svg \
 		--title="Prepare images before converting to animated gif or video" \
 		--text="<b>SILENTCAST $castnum </b> \n\
 	Manually delete or otherwise manipulate the images and click OK,\n\
@@ -179,27 +179,27 @@ edit_pngs() {
 make_webm_from_pngs() {
 	ffmpeg -r $fps -i $silentcast_dir/ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k \
 		$silentcast_dir/anim.webm \
-		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
+		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".svg \
 		--text="<b>SILENTCAST $castnum </b> \nCreating anim.webm from ew-???.png" --pulsate --auto-close
 }
 
 make_mp4_from_pngs() {
 	ffmpeg -r $fps -i $silentcast_dir/ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
 		$silentcast_dir/anim.mp4 \
-		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
+		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".svg \
 		--text="<b>SILENTCAST $castnum </b> \nCreating anim.mp4 from ew-???.png" --pulsate --auto-close
 }
 
 make_webm_from_temp() {
 	ffmpeg -i $silentcast_dir/temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k $silentcast_dir/anim.webm \
-		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
+		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".svg \
 		--text="<b>SILENTCAST $castnum </b> \nCreating anim.webm from temp.mkv" --pulsate --auto-close
 }
 
 make_mp4_from_temp() {
 	# -pix_fmt yuv420p was suggested by ffmpeg itself for max compatibility and -vf ... is because dim have to be even
 	ffmpeg -i $silentcast_dir/temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" $silentcast_dir/anim.mp4 \
-		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".png \
+		| yad --progress --on-top --center --window-icon="$doc_dir/record$castnum".svg \
 		--text="<b>SILENTCAST $castnum </b> \nCreating anim.mp4 from temp.mkv" --pulsate --auto-close
 }
 
@@ -305,7 +305,7 @@ fi
 if ! [ -d $working_dir/ ]
 then
 	echo "$working_dir is not an existing directory, so the silentcast directory can't be there" \
-	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.png" --title="Error" --text="<b>SILENTCAST ? </b>"
+	| yad --text-info --wrap --on-top --center --window-icon="$doc_dir/record.svg" --title="Error" --text="<b>SILENTCAST ? </b>"
 	exit -1
 fi
 
@@ -335,7 +335,7 @@ case $otype in
 
 			# try to make anim.gif from pngs
 			convert -adjoin -delay "$((total_cut + 1))"x"$fps" -layers optimize ew-[0-9][0-9][0-9].png anim.gif | \
-				yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".png \
+				yad --progress --on-top --center --title="convert" --window-icon="$doc_dir/record$castnum".svg \
 				--text="<b>SILENTCAST $castnum </b> \n\
 				Replacing images with anim.gif... (clicking Close below doesn't stop convert, \
 				so don't)" --pulsate --auto-close
