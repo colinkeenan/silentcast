@@ -1,6 +1,6 @@
 #!/bin/bash
 
-v=2.3
+v=2.5
 show_version() {
 	echo Silentcast v$v
 }
