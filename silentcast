@@ -48,7 +48,7 @@ shift "$((OPTIND-1))" # get rid of everything just processed leaving anything el
 
 unset fps anims_from area_choice area ffcoms_running castnum rate arg_form cur_dir conf_dir silentcast_dir doc_dir working_dir tmp pngs gif webm mp4 k e hatH hatTmp hatO hatF hatTr hatI hatE hatMkv hatPng
 
-ffcoms_running=`pgrep -f ffcom | wc -l`
+ffcoms_running=`pgrep -f ffcom | wc -w`
 if (($ffcoms_running > 1))
 then
 	echo "You are already doing a recording of a recording. Further nesting of silentcasts is not supported." \
