@@ -207,6 +207,12 @@ and Position" --window-icon="$doc_dir/record$castnum".svg --text="<b>SILENTCAST 
 		t=$(echo $extents | cut -d ',' -f 3)  # height of title bar
 		bb=$(echo $extents | cut -d ',' -f 4) # height of bottom border
 
+		isnumber='^[0-9]+$'
+		if ! [[ $bl =~ $isnumber ]] ; then bl=0 ; fi
+		if ! [[ $br =~ $isnumber ]] ; then br=0 ; fi
+		if ! [[ $t =~ $isnumber ]] ; then t=0 ; fi
+		if ! [[ $bb =~ $isnumber ]] ; then bb=0 ; fi
+
 		let x=$x-$bl
 		let y=$y-$t
 		let w=$w+$bl+$br
