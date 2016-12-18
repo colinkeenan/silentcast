@@ -17,7 +17,7 @@ class IndicatorSilentcast:
     def __init__(self):
         self.indicator = appindicator.Indicator.new_with_path (
                 "silentcast",
-                "{}/stop{}".format(filepath,args.silentcast_number),
+                "{}/stop{}.svg".format(filepath,args.silentcast_number),
                 appindicator.IndicatorCategory.APPLICATION_STATUS,
                 filepath)
         self.indicator.set_status (appindicator.IndicatorStatus.ACTIVE)
