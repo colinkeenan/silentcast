@@ -21,7 +21,7 @@ Then, just open this file with Chrome. You'll probably want to make Google Chrom
 
 ##Demos
 
-Notice there's a stop icon ![stop1.svg](stop1.svg) in the Notification Area before I even start Silentcast, then a 2nd stop icon ![stop2.svg](stop2.svg) appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
+Notice there's a stop icon ![stop1](https://cdn.rawgit.com/colinkeenan/silentcast/48a850f1/stop1.svg) in the Notification Area before I even start Silentcast, then a 2nd stop icon ![stop2](https://cdn.rawgit.com/colinkeenan/silentcast/48a850f1/stop2.svg) appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
 
 
 ###Fullscreen: How to use Silentcast to record Gimp
