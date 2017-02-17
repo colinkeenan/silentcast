@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import cairo
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import os,argparse,re                  # I added this so I could show the pid and Resize window keybinding in the title
 
