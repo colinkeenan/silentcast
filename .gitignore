@@ -6,7 +6,6 @@
 *.log.*
 *.sig
 pkg/
-src/
 *~
 *.svg
 PKGBUILD

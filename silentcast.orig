@@ -1,7 +1,11 @@
 #!/bin/bash
 
+<<<<<<< HEAD
+v=2.5
+=======
 export PATH=bin:/usr/bin
 v=2.6
+>>>>>>> next
 show_version() {
 	echo Silentcast v$v
 }
