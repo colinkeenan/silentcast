@@ -5,11 +5,12 @@ CC=gcc
 DEBUG=-g
 OPT=-O0
 WARN=-Wall
+VERS=-std=gnu99
 vpath %.c lib:src
  
 PTHREAD=-pthread
  
-CCFLAGS=$(DEBUG) $(OPT) $(WARN) $(PTHREAD) -pipe 
+CCFLAGS=$(VERS) $(DEBUG) $(OPT) $(WARN) $(PTHREAD) -pipe
  
 GTKX11LIB = `pkg-config --cflags --libs x11 gtk+-x11-3.0`
 SCLIB = -I./lib
