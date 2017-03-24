@@ -93,11 +93,6 @@ void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, 
   conf_file = fopen (filename, "r");
   if (conf_file == NULL) {
     perror ("Using default configuration because error: ");
-    char *homedir = getenv ("HOME");
-    if (homedir) {
-      gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
-      free (homedir);
-    } else gtk_entry_buffer_set_text (entry_buffer, "/", -1);
   } else {
 #define GBOOLEAN(A) !strcmp (A, "TRUE") ? TRUE : FALSE
     while ((getline(&line, &len, conf_file)) != -1) {
@@ -142,8 +137,18 @@ void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, 
         if (var_val) free (var_val);
       }
     }
+    //set working dir to home dir if not valid
+    DIR* dir = opendir (gtk_entry_buffer_get_text (entry_buffer));
+    if (!dir) {
+      char homedir[PATH_MAX] = { 0 };
+      strcpy (homedir, getenv ("HOME"));
+      if (strlen(homedir) > 2) gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
+      else gtk_entry_buffer_set_text (entry_buffer, "/", -1);
+    }
+    //close and free everything
     if (line) free (line);
-    fclose (conf_file);
+    if (conf_file) fclose (conf_file);
+    if (dir) closedir (dir);
   }
 }
 
