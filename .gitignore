@@ -10,3 +10,4 @@ pkg/
 *.svg
 PKGBUILD
 silentcast.install
+*.swx
