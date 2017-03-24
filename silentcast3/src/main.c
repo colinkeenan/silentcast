@@ -53,12 +53,12 @@ static void set_rect_around_active_window (GdkRectangle *rect, GdkRectangle *p_a
   } else fprintf (stderr, "Error: can't draw green rectangle around the active window because either width or height was zero.\n");
 }
 
-static void set_rect_around_center_fourth (GdkRectangle *rect, GdkRectangle *monitor_geometry)
+static void set_rect_around_center_fourth (GdkRectangle *rect, GdkRectangle *p_surface_rect)
 {
-  rect->width = monitor_geometry->width / 2;
-  rect->height = monitor_geometry->height / 2;
-  rect->x = monitor_geometry->width / 4;
-  rect->y = monitor_geometry->height / 4;
+  rect->width = p_surface_rect->width / 2;
+  rect->height = p_surface_rect->height / 2;
+  rect->x = p_surface_rect->width / 4;
+  rect->y = p_surface_rect->height / 4;
 }
 
 static void set_rect_to_previous (GdkRectangle *rect, double previous[2])
@@ -89,7 +89,7 @@ draw_cb (GtkWidget *widget,
   return FALSE;
 }
 
-static void clear_surface (cairo_surface_t *surface) 
+static void clear_surface (GtkWidget *widget, cairo_surface_t *surface, gboolean surface_became_fullscreen) 
 {
   cairo_t *cr;
 
@@ -98,6 +98,17 @@ static void clear_surface (cairo_surface_t *surface)
   cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
   /* set color to translucent black */
   cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.7);
+
+  if (surface_became_fullscreen) {
+    /* Save geometry of the surface so draw_rect will have it.
+     * Since the surface widget is fullscreen, the geometry
+     * should be the same as would be gotten from gdk_monitor_get_geometry 
+     * but that function is only available in gtk3 3.22 which most
+     * linux users don't have in March 2017
+     */
+    gdk_cairo_get_clip_rectangle (cr, P("p_surface_rect"));
+  }
+
   cairo_paint (cr);
   cairo_destroy (cr);
 }
@@ -128,9 +139,23 @@ static void draw_text (cairo_t *cr, int tx, int ty, GtkWidget *widget, char *tex
 
 void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) 
 {
+  gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
+  clear_surface (widget, surface, *p_surface_became_fullscreen);
+
+  if (*p_surface_became_fullscreen) {
+    *p_surface_became_fullscreen = FALSE; //only do this once after becoming fullscreen, not on every draw
+    //set the initial size and position of the rectangle that will be drawn on the surface
+    if (!strcmp (P("area"), "e") || !strcmp (P("area"), "i"))
+      set_rect_around_active_window (P("p_area_rect"), P("p_actv_win"), P("p_extents"), P("p_include_extents")); 
+    else if (!strcmp (P("area"), "c"))
+      set_rect_around_center_fourth (P("p_area_rect"), P("p_surface_rect"));
+    else
+      set_rect_to_previous (P("p_area_rect"), P("previous"));
+  }
+
   //don't let the box move past the lower right corner (or go larger than the monitor width or height)
-  int mon_width = 0, mon_height = 0;
-  gtk_window_get_default_size (GTK_WINDOW(widget), &mon_width, &mon_height);
+  GdkRectangle *p_surface_rect = P("p_surface_rect");
+  int mon_width = p_surface_rect->width, mon_height = p_surface_rect->height;
   if (p_area_rect->x + p_area_rect->width > mon_width) { 
     if (p_area_rect->width >= mon_width) { p_area_rect->x = 0; p_area_rect->width = mon_width; }
     else p_area_rect->x = mon_width - p_area_rect->width;
@@ -139,13 +164,12 @@ void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *s
     if (p_area_rect->height >= mon_height) { p_area_rect->y = 0; p_area_rect->height = mon_height; }
     else p_area_rect->y = mon_height - p_area_rect->height;
   }
+
   double rleft = (double) p_area_rect->x;
   double rupper = (double) p_area_rect->y;
   double rwidth = (double) p_area_rect->width;
   double rheight = (double) p_area_rect->height;
 
-  /* only want one rectangle on the screen at a time, so clear it first */
-  clear_surface (surface);
   gtk_widget_queue_draw (widget); 
 
   cairo_t *cr;
@@ -566,7 +590,7 @@ static void setup_widget_data_pointers (GtkWidget *widget)
   Window xwin; 
   Window *xwin_children; 
   ssize_t n; 
-  static GdkRectangle monitor_geometry = { 0, 0, 0, 0 }, actv_win = { 0, 0, 0, 0 }, extents = { 0, 0, 0, 0 };
+  static GdkRectangle actv_win = { 0, 0, 0, 0 }, extents = { 0, 0, 0, 0 };
   if (!SC_get_active_windows_and_geometry (&xwin, &xwin_children, &n, &actv_win, &extents, &active_window)) {
     fprintf (stderr, "No active-window information available due to X11 error.\n");
     //completely exit the application because can't even draw the fullscreen surface for the rectangle if can't get the 
@@ -578,12 +602,6 @@ static void setup_widget_data_pointers (GtkWidget *widget)
   }
   if (xwin_children) XFree (xwin_children);
   
-  //set widget to request fullscreen geometry (for some reason, have to explicitly set the size)
-  gdk_monitor_get_geometry (gdk_display_get_monitor_at_window (gdk_display_get_default (), active_window), &monitor_geometry);
-  gtk_window_set_default_size (GTK_WINDOW(widget), monitor_geometry.width, monitor_geometry.height);
-  gtk_widget_set_size_request (widget, monitor_geometry.width, monitor_geometry.height); 
-  gtk_window_fullscreen (GTK_WINDOW (widget)); 
-
   /*need to keep a pointer to the active-window in case it's to be resized with the rectangle*/
   P_SET(active_window);
 
@@ -593,9 +611,9 @@ static void setup_widget_data_pointers (GtkWidget *widget)
   int *p_dx = &dx, *p_dy = &dy, *p_dw = &dw, *p_dh = &dh;
   P_SET(p_dx); P_SET(p_dy); P_SET(p_dw); P_SET(p_dh);
   static GdkRectangle area_rect = { 130, 130, 260, 260 }, *p_area_rect = &area_rect; P_SET(p_area_rect);
-  static GdkRectangle *p_monitor_geometry = &monitor_geometry; P_SET(p_monitor_geometry);
   static GdkRectangle *p_actv_win = &actv_win; P_SET(p_actv_win);
   static GdkRectangle *p_extents = &extents; P_SET(p_extents);
+  static gboolean surface_became_fullscreen = FALSE, *p_surface_became_fullscreen = &surface_became_fullscreen; P_SET(p_surface_became_fullscreen);
 
   static gboolean include_extents = TRUE, *p_include_extents = &include_extents;
   P_SET(p_include_extents);
@@ -625,14 +643,17 @@ configure_surface_cb (GtkWidget *widget,
   //the translucent fullscreen drawing surface
   static cairo_surface_t *surface = NULL;
   
+  static int surface_w = 0, surface_h = 0;
+  gtk_window_get_size (GTK_WINDOW (widget), &surface_w, &surface_h);
   surface = gdk_window_create_similar_surface (gtk_widget_get_window (widget),
                                                CAIRO_CONTENT_COLOR_ALPHA,
-                                               gtk_widget_get_allocated_width (widget),
-                                               gtk_widget_get_allocated_height (widget));
+                                               surface_w,
+                                               surface_h);
   P_SET(surface);
 
-  /* Initialize the surface to translucent black and draw the initial rectangle */
-  draw_rect (widget, P("p_area_rect"), surface);
+  //set a place to store the surface geometry
+  static GdkRectangle surface_rect = { 0, 0 ,0, 0 }, *p_surface_rect = &surface_rect; 
+  P_SET(p_surface_rect);
 
   /* configure event is handled, no need for further processing. */
   return TRUE;
@@ -672,6 +693,15 @@ gboolean on_surface_widget_destroy (GtkWidget *widget,
   return FALSE; //keep processing the destroy signal
 }
 
+static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, gpointer data)
+{
+  gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
+  if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) *p_surface_became_fullscreen = TRUE;
+
+  return FALSE; //go ahead and make the widget fullscreen
+}
+
+//map-event callback (the widget is visible)
 static void
 activate (GtkApplication *app,
           gpointer        data)
@@ -683,19 +713,13 @@ activate (GtkApplication *app,
   gtk_widget_add_events (widget, GDK_SCROLL_MASK);
   gtk_window_set_title (GTK_WINDOW (widget), "Silentcast");
 
-  //set the initial size and position of the rectangle that will be drawn on the surface
-  if (!strcmp (P("area"), "e") || !strcmp (P("area"), "i"))
-    set_rect_around_active_window (P("p_area_rect"), P("p_actv_win"), P("p_extents"), P("p_include_extents")); 
-  else if (!strcmp (P("area"), "c"))
-    set_rect_around_center_fourth (P("p_area_rect"), P("p_monitor_geometry"));
-  else
-    set_rect_to_previous (P("p_area_rect"), P("previous"));
-
   //connect signals to functions
   g_signal_connect (widget, "draw",
                     G_CALLBACK (draw_cb), NULL);
   g_signal_connect (widget, "configure-event", 
                     G_CALLBACK (configure_surface_cb), NULL); //surface gets defined in this configure event
+  g_signal_connect (widget, "window-state-event", 
+                    G_CALLBACK (window_state_cb), NULL); //just listening for fullscreen and setting a boolean
   g_signal_connect (widget, "motion-notify-event",
                     G_CALLBACK (motion_notify_event_cb), NULL); //mouse drag events
   g_signal_connect (widget, "button-press-event",
@@ -708,6 +732,7 @@ activate (GtkApplication *app,
       G_CALLBACK (on_surface_widget_destroy), app);
   
   gtk_widget_show_all (widget);
+  gtk_window_fullscreen (GTK_WINDOW (widget)); 
 }
 
 int
