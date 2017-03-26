@@ -412,11 +412,11 @@ static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *f
   snprintf (char_h, 5, "%d", rect->height);
   strcat (ffcom_string, char_w); strcat (ffcom_string, "x"); strcat (ffcom_string, char_h); 
   snprintf (char_fps, 5, "%d", *fps);
-  strcat (ffcom_string, " -r "); strcat (ffcom_string, char_fps); strcat (ffcom_string, " ");
+  strcat (ffcom_string, " -r "); strcat (ffcom_string, char_fps);
   strcat (ffcom_string, " -i "); strcat (ffcom_string, gdk_display_get_name(gdk_display_get_default ()));
   strcat (ffcom_string, "+"); strcat (ffcom_string, char_x); strcat (ffcom_string, ","); strcat (ffcom_string, char_y);
-  strcat (ffcom_string, " -c:v ffvhuff -an -y ");
-  strcat (ffcom_string, gtk_entry_buffer_get_text (working_dir)); strcat (ffcom_string, "/silentcast/temp.mkv");
+  strcat (ffcom_string, " -c:v ffvhuff -an -y '");
+  strcat (ffcom_string, gtk_entry_buffer_get_text (working_dir)); strcat (ffcom_string, "/silentcast/temp.mkv'");
   return gtk_entry_buffer_new (ffcom_string, -1);
 }
 
@@ -447,23 +447,19 @@ static void run_ffcom (GtkWidget *widget)
   char silentcast_dir[PATH_MAX];
   strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
   strcat (silentcast_dir, "/silentcast");
-  char mkdir_p[PATH_MAX + 10];
-  strcpy (mkdir_p, "mkdir -p ");
-  strcat (mkdir_p, silentcast_dir); 
-  char *output = NULL;
-  if (!g_spawn_command_line_sync (mkdir_p, &output, NULL, NULL, &err)) {
+  gsize bytes_written = 0;
+  //g_mkdir_with_parents uses special encoding so translate from Gtk's utf8, and directories need execute
+  //permission to be able to enter, so need 7 on the users permissions (and don't care about other permissions)
+  g_mkdir_with_parents (g_filename_from_utf8 (silentcast_dir, -1, NULL, &bytes_written, &err), 0700);
+  if (err) {
     fprintf (stderr, "Error: %s\n", err->message);
     g_error_free (err);
-  } else if (output) {
-    printf ("%s:\n%s\n", mkdir_p, output);
-    g_free (output);
-  }
-  //Run the ffmpeg command
-  err = NULL;
-  get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir"));
-  if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
-    fprintf (stderr, "Error: %s\n", err->message);
-    g_error_free (err);
+  } else {
+    get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir"));
+    if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
+      fprintf (stderr, "Error: %s\n", err->message);
+      g_error_free (err);
+    }
   }
 }
 
