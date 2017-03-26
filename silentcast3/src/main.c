@@ -193,7 +193,7 @@ void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *s
    F1 About Mouse Controls|Configuration|Preferences\n\
    F2 Set recording area with number keys & resize active window checkbox\n\
    F3 View the ffmpeg command that will record the rectangle area\n\
-  ESC Quit, q Quit, F11 Toggle Fullscreen, ENTER Begin Recording");
+  ESC Quit, q Quit, F11 Toggle Fullscreen, F4 Begin Recording");
 
   draw_text (cr, rleft, rupper + rheight + 10, widget, text);
 
@@ -405,7 +405,7 @@ static void show_f2_widget (GtkApplication *app, GtkWidget *widget)
 static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) 
 {
   char char_x[5], char_y[5], char_w[5], char_h[5], char_fps[5];
-  strcpy (ffcom_string, "export FFREPORT=file=ffcom.log:level=32;ffmpeg -f x11grab -s ");
+  strcpy (ffcom_string, "/usr/bin/ffmpeg -f x11grab -s ");
   snprintf (char_x, 5, "%d", rect->x);
   snprintf (char_y, 5, "%d", rect->y);
   snprintf (char_w, 5, "%d", rect->width);
@@ -434,37 +434,30 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
 }
 
-/* Pressing Return triggers this to make the uncompressed recording to silentcast/temp.mkv */
+/* Pressing F4 triggers this to make the uncompressed recording to silentcast/temp.mkv 
+ * The ffmpeg command will save a log in ffcom.log because the appropriate environment 
+ * variable was set in setup_widget_data_pointers
+ */
 static void run_ffcom (GtkWidget *widget) 
 {
-  char *ffcom_string = P("ffcom_string");
-  char ffcom_with_pid[PATH_MAX + 215];
   GError *err = NULL;
-  char *output = NULL;
 
   gtk_window_iconify (GTK_WINDOW(widget)); //get translucent surface out of the way while recording
-  get_ffcom(ffcom_string, P("p_area_rect"), P("p_fps"), P("working_dir"));
-  strcpy (ffcom_with_pid, "'");
-  strcat (ffcom_with_pid, ffcom_string);
-  strcat (ffcom_with_pid, " &;export ffmpegPID=$!"); //used in the kill command that will stop ffmpeg
-  strcat (ffcom_with_pid, "'");
-  //this isn't going to work. have to https://developer.gnome.org/glib/stable/glib-Spawning-Processes.html#g-spawn-sync
-  //and setup the environment with https://developer.gnome.org/glib/stable/glib-Miscellaneous-Utility-Functions.html#g-environ-getenv
-  //and the following environ_setenv (get the env array, change and set it to be used in g_spawn_sync)
-  if (!g_spawn_command_line_sync (ffcom_with_pid, &output, NULL, NULL, &err)) {
+  get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir"));
+  if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
     fprintf (stderr, "Error: %s\n", err->message);
     g_error_free (err);
-  } else if (output) {
-    printf ("\nOutput was:\n'%s'", output);
-    g_free (output);
-  } else printf ("\nThere was no error or output.\n");
+  }
 }
 
 /* clicking the iconified (minimized) silentcast icon to bring it back fullscreen triggers this to kill ffmpeg */
 static void kill_ffcom(GtkWidget *widget) 
 {
-  GError *error = NULL;
-  g_spawn_command_line_sync ("kill $ffmpegPID", NULL, NULL, NULL, &error);
+  GError *err = NULL;
+  if (!g_spawn_command_line_sync ("pkill -f ffmpeg", NULL, NULL, NULL, &err)) {
+    fprintf (stderr, "Error: %s\n", err->message);
+    g_error_free (err);
+  }
 }
 
 static void toggle_fullscreen_area (GtkWidget *surface_widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) {
@@ -625,6 +618,9 @@ static void tran_setup(GtkWidget *widget)
 
 static void setup_widget_data_pointers (GtkWidget *widget) 
 {
+  //only safe place to change the environment for spawned ffmpeg (using a simple function) is on startup
+  g_setenv ("FFREPORT", "file=ffcom.log:level=32", TRUE);
+
   //get active window information including geometry that will be used to draw the green rectangle
   static GdkWindow *active_window = NULL;
   Window xwin; 
