@@ -443,6 +443,23 @@ static void run_ffcom (GtkWidget *widget)
   GError *err = NULL;
 
   gtk_window_iconify (GTK_WINDOW(widget)); //get translucent surface out of the way while recording
+  //Before running the ffmpeg command, make working directory/silentcast if it doesn't exist
+  char silentcast_dir[PATH_MAX];
+  strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
+  strcat (silentcast_dir, "/silentcast");
+  char mkdir_p[PATH_MAX + 10];
+  strcpy (mkdir_p, "mkdir -p ");
+  strcat (mkdir_p, silentcast_dir); 
+  char *output = NULL;
+  if (!g_spawn_command_line_sync (mkdir_p, &output, NULL, NULL, &err)) {
+    fprintf (stderr, "Error: %s\n", err->message);
+    g_error_free (err);
+  } else if (output) {
+    printf ("%s:\n%s\n", mkdir_p, output);
+    g_free (output);
+  }
+  //Run the ffmpeg command
+  err = NULL;
   get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir"));
   if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
     fprintf (stderr, "Error: %s\n", err->message);

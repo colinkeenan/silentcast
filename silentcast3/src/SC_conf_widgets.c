@@ -217,14 +217,10 @@ static void change_w_dir_cb (GtkWidget *change_w_dir, gpointer data)
     GTK_WINDOW(gtk_widget_get_toplevel(change_w_dir)), action, ("Cancel"), GTK_RESPONSE_CANCEL, ("Open"), GTK_RESPONSE_ACCEPT, NULL);
   int res = gtk_dialog_run (GTK_DIALOG (get_working_dir));
   if (res == GTK_RESPONSE_ACCEPT) {
-    char *diruri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (get_working_dir)); //this gives an uri which needs to be converted
-      if (diruri) {
-      char *dir = g_filename_from_uri (diruri, NULL, NULL); //convert uri to filename
-      free (diruri);
-      if (dir) {
-        gtk_entry_buffer_set_text (P("working_dir"), dir, -1); 
-        free (dir);
-      }
+    char *dir = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (get_working_dir));
+    if (dir) {
+      gtk_entry_buffer_set_text (P("working_dir"), dir, -1); 
+      free (dir);
     }
   } 
   gtk_widget_destroy (get_working_dir);
