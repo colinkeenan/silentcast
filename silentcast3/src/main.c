@@ -402,11 +402,10 @@ static void show_f2_widget (GtkApplication *app, GtkWidget *widget)
   gtk_widget_show_all(f2_widget);
 }
 
-static GtkEntryBuffer* get_ffcom (GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) 
+static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) 
 {
-  char ffcom_string[PATH_MAX + 128];
   char char_x[5], char_y[5], char_w[5], char_h[5], char_fps[5];
-  strcpy (ffcom_string, "ffmpeg -f x11grab -s ");
+  strcpy (ffcom_string, "export FFREPORT=file=ffcom.log:level=32;ffmpeg -f x11grab -s ");
   snprintf (char_x, 5, "%d", rect->x);
   snprintf (char_y, 5, "%d", rect->y);
   snprintf (char_w, 5, "%d", rect->width);
@@ -428,11 +427,44 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gtk_window_set_transient_for (GTK_WINDOW(f3_widget), GTK_WINDOW(widget));
   gtk_window_set_title (GTK_WINDOW(f3_widget), "Silentcast F3");
 
-  GtkWidget *ffcom_entry = gtk_entry_new_with_buffer (get_ffcom(P("p_area_rect"), P("p_fps"), P("working_dir")));
+  GtkWidget *ffcom_entry = gtk_entry_new_with_buffer (get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir")));
   gtk_editable_set_editable (GTK_EDITABLE(ffcom_entry), FALSE);
   gtk_container_add (GTK_CONTAINER(f3_widget), ffcom_entry);
   gtk_widget_show_all(f3_widget);
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
+}
+
+/* Pressing Return triggers this to make the uncompressed recording to silentcast/temp.mkv */
+static void run_ffcom (GtkWidget *widget) 
+{
+  char *ffcom_string = P("ffcom_string");
+  char ffcom_with_pid[PATH_MAX + 215];
+  GError *err = NULL;
+  char *output = NULL;
+
+  gtk_window_iconify (GTK_WINDOW(widget)); //get translucent surface out of the way while recording
+  get_ffcom(ffcom_string, P("p_area_rect"), P("p_fps"), P("working_dir"));
+  strcpy (ffcom_with_pid, "'");
+  strcat (ffcom_with_pid, ffcom_string);
+  strcat (ffcom_with_pid, " &;export ffmpegPID=$!"); //used in the kill command that will stop ffmpeg
+  strcat (ffcom_with_pid, "'");
+  //this isn't going to work. have to https://developer.gnome.org/glib/stable/glib-Spawning-Processes.html#g-spawn-sync
+  //and setup the environment with https://developer.gnome.org/glib/stable/glib-Miscellaneous-Utility-Functions.html#g-environ-getenv
+  //and the following environ_setenv (get the env array, change and set it to be used in g_spawn_sync)
+  if (!g_spawn_command_line_sync (ffcom_with_pid, &output, NULL, NULL, &err)) {
+    fprintf (stderr, "Error: %s\n", err->message);
+    g_error_free (err);
+  } else if (output) {
+    printf ("\nOutput was:\n'%s'", output);
+    g_free (output);
+  } else printf ("\nThere was no error or output.\n");
+}
+
+/* clicking the iconified (minimized) silentcast icon to bring it back fullscreen triggers this to kill ffmpeg */
+static void kill_ffcom(GtkWidget *widget) 
+{
+  GError *error = NULL;
+  g_spawn_command_line_sync ("kill $ffmpegPID", NULL, NULL, NULL, &error);
 }
 
 static void toggle_fullscreen_area (GtkWidget *surface_widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) {
@@ -551,19 +583,27 @@ static gboolean key_event_cb (GtkWidget *widget,
 {
   cairo_surface_t *surface = P("surface");
 
-  if (event->keyval == GDK_KEY_F1) 
+  if (event->keyval == GDK_KEY_F1) {
     show_f1_widget (GTK_APPLICATION(data), widget);
-  else if (event->keyval == GDK_KEY_F2)
+    return TRUE;
+  } else if (event->keyval == GDK_KEY_F2) {
     show_f2_widget (GTK_APPLICATION(data), widget);
-  else if (event->keyval == GDK_KEY_F3)
+    return TRUE;
+  } else if (event->keyval == GDK_KEY_F3) {
     show_f3_widget (GTK_APPLICATION(data), widget);
-  else if (event->keyval == GDK_KEY_F11) {
+    return TRUE;
+  } else if (event->keyval == GDK_KEY_F4) {
+    run_ffcom (widget);
+    return TRUE;
+  } else if (event->keyval == GDK_KEY_F11) {
     GdkRectangle *p_area_rect = P("p_area_rect");
     toggle_fullscreen_area (widget, p_area_rect, surface);
-  } else if (event->keyval == GDK_KEY_Escape || event->keyval == GDK_KEY_q)
+    return TRUE;
+  } else if (event->keyval == GDK_KEY_Escape || event->keyval == GDK_KEY_q) {
     gtk_widget_destroy (widget); 
-
-  return TRUE;
+    return TRUE;
+  }
+  return FALSE; //allow further processing of the keypress if it's not anything silentcast is listening for
 }
 
 /* tran_setup copied from 
@@ -632,6 +672,12 @@ static void setup_widget_data_pointers (GtkWidget *widget)
                   *p_anims_from_temp = &anims_from_temp, *p_gif = &gif, *p_pngs = &pngs, *p_webm = &webm, *p_mp4 = &mp4; 
   get_conf (working_dir, area, p_fps, p_anims_from_temp, p_gif, p_pngs, p_webm, p_mp4);
   P_SET(working_dir); P_SET(area); P_SET(p_fps); P_SET(p_anims_from_temp); P_SET(p_gif); P_SET(p_pngs); P_SET(p_webm); P_SET(p_mp4);
+
+  /*variable for storing ffcom*/
+  char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
+
+  static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
+
 }
 
 /* Create a new surface in widget's window to store rectangle */
@@ -696,9 +742,17 @@ gboolean on_surface_widget_destroy (GtkWidget *widget,
 static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, gpointer data)
 {
   gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
-  if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) *p_surface_became_fullscreen = TRUE;
+  gboolean *p_surface_became_iconified = P("p_surface_became_iconified");
 
-  return FALSE; //go ahead and make the widget fullscreen
+  if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) 
+    *p_surface_became_iconified = TRUE;
+  else if (*p_surface_became_iconified) {
+    kill_ffcom(widget);
+    *p_surface_became_iconified = FALSE;
+  } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
+    *p_surface_became_fullscreen = TRUE;
+
+  return FALSE; //go ahead and change the window state
 }
 
 //map-event callback (the widget is visible)

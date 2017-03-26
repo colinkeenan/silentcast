@@ -141,9 +141,9 @@ void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, 
     DIR* dir = opendir (gtk_entry_buffer_get_text (entry_buffer));
     if (!dir) {
       char homedir[PATH_MAX] = { 0 };
-      strcpy (homedir, getenv ("HOME"));
+      strcpy (homedir, g_get_home_dir());
       if (strlen(homedir) > 2) gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
-      else gtk_entry_buffer_set_text (entry_buffer, "/", -1);
+      else gtk_entry_buffer_set_text (entry_buffer, "/tmp", -1);
     }
     //close and free everything
     if (line) free (line);

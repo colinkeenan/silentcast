@@ -51,7 +51,7 @@ draw_cb	src/main.c	/^draw_cb (GtkWidget *widget,$/;"	f	file:
 draw_rect	src/main.c	/^void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) $/;"	f
 draw_text	src/main.c	/^static void draw_text (cairo_t *cr, int tx, int ty, GtkWidget *widget, char *text)$/;"	f	file:
 get_conf	src/SC_conf_widgets.c	/^void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, $/;"	f
-get_ffcom	src/main.c	/^static GtkEntryBuffer* get_ffcom (GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) $/;"	f	file:
+get_ffcom	src/main.c	/^static GtkEntryBuffer* get_ffcom (GtkWidget *widget, GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) $/;"	f	file:
 get_focus_window	lib/SC_X11_get_active_window.c	/^static int get_focus_window (Display* d, Window *w) {$/;"	f	file:
 get_h	src/SC_conf_widgets.c	/^double get_h(double a) $/;"	f
 get_presets	src/SC_conf_widgets.c	/^void get_presets (double presets[PRESET_N], double previous[2]) $/;"	f
@@ -59,6 +59,7 @@ get_top_window	lib/SC_X11_get_active_window.c	/^static int get_top_window (Displ
 get_w	src/SC_conf_widgets.c	/^double get_w(double a) $/;"	f
 handle_error	lib/SC_X11_get_active_window.c	/^static int handle_error (Display* display, XErrorEvent* error) {$/;"	f	file:
 key_event_cb	src/main.c	/^static gboolean key_event_cb (GtkWidget *widget,$/;"	f	file:
+kill_ffcom	src/main.c	/^static void kill_ffcom(GtkWidget *widget) $/;"	f	file:
 main	src/main.c	/^main (int    argc,$/;"	f
 motion_notify_event_cb	src/main.c	/^motion_notify_event_cb (GtkWidget      *widget,$/;"	f	file:
 on_active_win_radiobutt_changed	src/SC_conf_widgets.c	/^static void on_active_win_radiobutt_changed (GtkWidget *radiobutt, gpointer data)$/;"	f	file:
@@ -75,6 +76,7 @@ on_value_changed_y	src/main.c	/^static gboolean on_value_changed_y (GtkSpinButto
 on_w_spinbutt_changed	src/SC_conf_widgets.c	/^static void on_w_spinbutt_changed (GtkWidget *spin, gpointer data)$/;"	f	file:
 position_rect	src/main.c	/^static void position_rect (int x, int y, GdkRectangle *p_area_rect) {$/;"	f	file:
 resize_rect	src/main.c	/^static void resize_rect (int right, int lower, GdkRectangle *p_area_rect) {$/;"	f	file:
+run_ffcom	src/main.c	/^static void run_ffcom (GtkWidget *widget) $/;"	f	file:
 save	src/SC_conf_widgets.c	/^static void save (GtkWidget *save, gpointer data)$/;"	f	file:
 scroll_event_cb	src/main.c	/^static gboolean scroll_event_cb (GtkWidget       *widget,$/;"	f	file:
 scroll_resize_to_preset	src/main.c	/^static void scroll_resize_to_preset (GdkScrollDirection direction, GdkRectangle *p_area_rect, double presets[PRESET_N]) {$/;"	f	file:
