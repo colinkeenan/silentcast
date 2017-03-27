@@ -33,6 +33,7 @@
  */
 #include "SC_X11_get_active_window.h" 
 #include "SC_conf_widgets.h"
+#include <glib/gstdio.h> //for some reason, g_chdir isn't included with gtk+ even though related glib functions are
 
 #define P_SET(A) g_object_set_data (G_OBJECT(widget), #A, A); // preprocessor changes #A to "A"
 
@@ -399,7 +400,7 @@ static void show_f2_widget (GtkApplication *app, GtkWidget *widget)
   gtk_widget_show_all(f2_widget);
 }
 
-static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) 
+static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *fps) 
 {
   char char_x[5], char_y[5], char_w[5], char_h[5], char_fps[5];
   strcpy (ffcom_string, "/usr/bin/ffmpeg -f x11grab -s ");
@@ -412,8 +413,7 @@ static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *f
   strcat (ffcom_string, " -r "); strcat (ffcom_string, char_fps);
   strcat (ffcom_string, " -i "); strcat (ffcom_string, gdk_display_get_name(gdk_display_get_default ()));
   strcat (ffcom_string, "+"); strcat (ffcom_string, char_x); strcat (ffcom_string, ","); strcat (ffcom_string, char_y);
-  strcat (ffcom_string, " -c:v ffvhuff -an -y '");
-  strcat (ffcom_string, gtk_entry_buffer_get_text (working_dir)); strcat (ffcom_string, "/silentcast/temp.mkv'");
+  strcat (ffcom_string, " -c:v ffvhuff -an -y temp.mkv"); //decided to cd into the directory instead of specifying path here
   return gtk_entry_buffer_new (ffcom_string, -1);
 }
 
@@ -424,9 +424,13 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gtk_window_set_transient_for (GTK_WINDOW(f3_widget), GTK_WINDOW(widget));
   gtk_window_set_title (GTK_WINDOW(f3_widget), "Silentcast F3");
 
-  GtkWidget *ffcom_entry = gtk_entry_new_with_buffer (get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir")));
+  GtkWidget *working_dir_label = gtk_label_new (gtk_entry_buffer_get_text(P("working_dir")));
+  GtkWidget *ffcom_entry = gtk_entry_new_with_buffer (get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps")));
+  GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 8);
+  gtk_container_add (GTK_CONTAINER(box), working_dir_label);
   gtk_editable_set_editable (GTK_EDITABLE(ffcom_entry), FALSE);
-  gtk_container_add (GTK_CONTAINER(f3_widget), ffcom_entry);
+  gtk_container_add (GTK_CONTAINER(box), ffcom_entry);
+  gtk_container_add (GTK_CONTAINER(f3_widget), box);
   gtk_widget_show_all(f3_widget);
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
 }
@@ -445,14 +449,17 @@ static void run_ffcom (GtkWidget *widget)
   strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
   strcat (silentcast_dir, "/silentcast");
   gsize bytes_written = 0;
-  //g_mkdir_with_parents uses special encoding so translate from Gtk's utf8, and directories need execute
+  //g_mkdir_with_parents uses special encoding so translate from Gtk's utf8
   //permission to be able to enter, so need 7 on the users permissions (and don't care about other permissions)
-  g_mkdir_with_parents (g_filename_from_utf8 (silentcast_dir, -1, NULL, &bytes_written, &err), 0700);
+  char *glib_encoded_silentcast_dir = g_filename_from_utf8 (silentcast_dir, -1, NULL, &bytes_written, &err);
   if (err) {
     fprintf (stderr, "Error: %s\n", err->message);
     g_error_free (err);
-  } else {
-    get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"), P("working_dir"));
+  } else {//need execute on user's permissions or else can't open directory (7 = read/write/execute)
+    g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700);
+    g_chdir (glib_encoded_silentcast_dir); //so ffmpeg will store the log in silentcast dir and won't need to specify path in ffmpeg command
+    g_free (glib_encoded_silentcast_dir);
+    get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"));
     if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
       fprintf (stderr, "Error: %s\n", err->message);
       g_error_free (err);
@@ -468,6 +475,9 @@ static void kill_ffcom(GtkWidget *widget)
     fprintf (stderr, "Error: %s\n", err->message);
     g_error_free (err);
   }
+  char *cur_dir = P("cur_dir");
+  g_chdir (cur_dir); //go back to initial directory after running and killing ffmpeg
+  g_free (cur_dir);
 }
 
 static void toggle_fullscreen_area (GtkWidget *surface_widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) {
@@ -681,6 +691,9 @@ static void setup_widget_data_pointers (GtkWidget *widget)
 
   /*variable for storing ffcom*/
   char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
+
+  /*current directory*/ 
+  char *cur_dir = g_get_current_dir (); P_SET(cur_dir);
 
   static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
 
