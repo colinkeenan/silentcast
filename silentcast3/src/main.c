@@ -72,6 +72,7 @@ static void set_rect_to_previous (GdkRectangle *rect, double previous[2])
   rect->height = (int) rint (h);
 }
 
+void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface);
 /* Redraw the screen from the surface. Note that the ::draw
  * signal receives a ready-to-be-used cairo_t that is already
  * clipped to only draw the exposed areas of the widget
@@ -81,6 +82,18 @@ draw_cb (GtkWidget *widget,
          cairo_t   *cr,
          gpointer   data)
 {
+  gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
+  if (*p_surface_became_fullscreen) {
+    /* Save geometry of the surface so draw_rect will have it.
+     * Since the surface widget is fullscreen, the geometry
+     * should be the same as would be gotten from gdk_monitor_get_geometry 
+     * but that function is only available in gtk3 3.22 which most
+     * linux users don't have in March 2017
+     */
+    gdk_cairo_get_clip_rectangle (cr, P("p_surface_rect"));
+    draw_rect (widget, P("p_area_rect"), P("surface")); //this won't be infinite loop because it sets ...fullscreen = FALSE
+  }
+
   /* set compositing operation to replace target with source */
   cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
   cairo_set_source_surface (cr, P("surface"), 0, 0);
@@ -89,7 +102,7 @@ draw_cb (GtkWidget *widget,
   return FALSE;
 }
 
-static void clear_surface (GtkWidget *widget, cairo_surface_t *surface, gboolean surface_became_fullscreen) 
+static void clear_surface (GtkWidget *widget, cairo_surface_t *surface) 
 {
   cairo_t *cr;
 
@@ -98,16 +111,6 @@ static void clear_surface (GtkWidget *widget, cairo_surface_t *surface, gboolean
   cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
   /* set color to translucent black */
   cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.7);
-
-  if (surface_became_fullscreen) {
-    /* Save geometry of the surface so draw_rect will have it.
-     * Since the surface widget is fullscreen, the geometry
-     * should be the same as would be gotten from gdk_monitor_get_geometry 
-     * but that function is only available in gtk3 3.22 which most
-     * linux users don't have in March 2017
-     */
-    gdk_cairo_get_clip_rectangle (cr, P("p_surface_rect"));
-  }
 
   cairo_paint (cr);
   cairo_destroy (cr);
@@ -140,7 +143,7 @@ static void draw_text (cairo_t *cr, int tx, int ty, GtkWidget *widget, char *tex
 void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) 
 {
   gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
-  clear_surface (widget, surface, *p_surface_became_fullscreen);
+  clear_surface (widget, surface);
 
   if (*p_surface_became_fullscreen) {
     *p_surface_became_fullscreen = FALSE; //only do this once after becoming fullscreen, not on every draw
@@ -697,17 +700,15 @@ configure_surface_cb (GtkWidget *widget,
 
   //the translucent fullscreen drawing surface
   static cairo_surface_t *surface = NULL;
-  
-  static int surface_w = 0, surface_h = 0;
-  gtk_window_get_size (GTK_WINDOW (widget), &surface_w, &surface_h);
-  surface = gdk_window_create_similar_surface (gtk_widget_get_window (widget),
-                                               CAIRO_CONTENT_COLOR_ALPHA,
-                                               surface_w,
-                                               surface_h);
-  P_SET(surface);
-
   //set a place to store the surface geometry
   static GdkRectangle surface_rect = { 0, 0 ,0, 0 }, *p_surface_rect = &surface_rect; 
+
+  gtk_window_get_size (GTK_WINDOW (widget), &surface_rect.width, &surface_rect.height);
+  surface = gdk_window_create_similar_surface (gtk_widget_get_window (widget),
+                                               CAIRO_CONTENT_COLOR_ALPHA,
+                                               surface_rect.width,
+                                               surface_rect.height);
+  P_SET(surface);
   P_SET(p_surface_rect);
 
   /* configure event is handled, no need for further processing. */
@@ -764,6 +765,16 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
   return FALSE; //go ahead and change the window state
 }
 
+static gboolean event_after_cb (GtkWidget *widget, GdkEventWindowState *event, gpointer data) {
+  gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
+
+  if (*p_surface_became_fullscreen) {
+    gtk_widget_queue_draw (widget); //when draw_cb is called after this, I think it will save fullscreen geometry
+  }
+
+  return FALSE;
+}
+
 //map-event callback (the widget is visible)
 static void
 activate (GtkApplication *app,
@@ -780,9 +791,13 @@ activate (GtkApplication *app,
   g_signal_connect (widget, "draw",
                     G_CALLBACK (draw_cb), NULL);
   g_signal_connect (widget, "configure-event", 
-                    G_CALLBACK (configure_surface_cb), NULL); //surface gets defined in this configure event
+                    G_CALLBACK (configure_surface_cb), NULL); //surface gets defined in this configure event and it's only place
+                                                              //can setup drawing something on startup
   g_signal_connect (widget, "window-state-event", 
-                    G_CALLBACK (window_state_cb), NULL); //just listening for fullscreen and setting a boolean
+                    G_CALLBACK (window_state_cb), NULL); //set boolean on fullscreen, triggering getting fullscreen geometry, and 
+                                                        //trigger kill_ffmpeg on coming out of iconify 
+  g_signal_connect (widget, "event-after",
+                    G_CALLBACK (event_after_cb), NULL); //seeing if it works to draw the rectangle after fullscreen
   g_signal_connect (widget, "motion-notify-event",
                     G_CALLBACK (motion_notify_event_cb), NULL); //mouse drag events
   g_signal_connect (widget, "button-press-event",
