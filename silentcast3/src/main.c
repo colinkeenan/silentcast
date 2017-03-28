@@ -114,10 +114,12 @@ static void draw_text (cairo_t *cr, int tx, int ty, GtkWidget *widget, char *tex
 void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) 
 {
   clear_surface (widget, surface);
+  gtk_widget_queue_draw (widget);
 
-  //don't let the box move past the lower right corner (or go larger than the monitor width or height)
   GdkRectangle *p_surface_rect = P("p_surface_rect");
   int mon_width = p_surface_rect->width, mon_height = p_surface_rect->height;
+
+  //don't let the box move past the lower right corner (or go larger than the monitor width or height)
   if (p_area_rect->x + p_area_rect->width > mon_width) { 
     if (p_area_rect->width >= mon_width) { p_area_rect->x = 0; p_area_rect->width = mon_width; }
     else p_area_rect->x = mon_width - p_area_rect->width;
@@ -127,12 +129,17 @@ void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *s
     else p_area_rect->y = mon_height - p_area_rect->height;
   }
 
+  //don't let the box move past the upper left corner (0,0) this check is necessary on multi-monitor setups
+  if (p_area_rect->x < 0) p_area_rect->x = 0;
+  if (p_area_rect->width >= mon_width) p_area_rect->width = mon_width;
+  if (p_area_rect->y < 0) p_area_rect->y = 0;
+  if (p_area_rect->height >= mon_height) p_area_rect->height = mon_height;
+
+  //cairo deals with double not int
   double rleft = (double) p_area_rect->x;
   double rupper = (double) p_area_rect->y;
   double rwidth = (double) p_area_rect->width;
   double rheight = (double) p_area_rect->height;
-
-  gtk_widget_queue_draw (widget); 
 
   cairo_t *cr;
   char char_rleft[5], char_rupper[5], char_rwidth[5], char_rheight[5], text[512];
@@ -170,9 +177,12 @@ void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *s
   cairo_destroy (cr);
   gtk_widget_queue_draw_area (widget, rleft, rupper, rwidth, rheight);
 
-  /* resize the active-window if checked in the f2_widget */
+  /* resize the active-window if checked in the f2_widget,
+   * taking into account that the rectangle coordinates are relative to the suface which is only on one monitor (so 0,0 at top left corner)
+   * and the active window position is relative to the screen which may contain multiple monitors
+   */
   if (*((gboolean *)P("p_should_resize_active"))) {
-    int ax = p_area_rect->x, ay = p_area_rect->y, aw = p_area_rect->width, ah = p_area_rect->height;
+    int ax = p_area_rect->x + p_surface_rect->x, ay = p_area_rect->y + p_surface_rect->y, aw = p_area_rect->width, ah = p_area_rect->height;
     if (*((gboolean *)P("p_include_extents"))) {
       int *p_dx = P("p_dx"), *p_dy = P("p_dy"), *p_dw = P("p_dw"), *p_dh = P("p_dh");
       int dx = *p_dx, dy = *p_dy, dw = *p_dw, dh = *p_dh;
@@ -196,7 +206,18 @@ static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)
      * but that function is only available in gtk3 3.22 which most
      * linux users don't have in March 2017
      */
-    gdk_cairo_get_clip_rectangle (cr, P("p_surface_rect"));
+    GdkRectangle *p_surface_rect = P("p_surface_rect");
+    gdk_cairo_get_clip_rectangle (cr, p_surface_rect);
+    gtk_window_get_position (GTK_WINDOW(widget), &p_surface_rect->x, &p_surface_rect->y);
+
+    //now need to subtract the surface_rect position from active_win and extents so that active_win
+    //and extents will be relative to the surface they are drawn on
+    GdkRectangle *p_area_rect = P("p_area_rect"), *p_extents = P("p_extents");
+    p_area_rect->x = p_area_rect->x - p_surface_rect->x;
+    p_area_rect->y = p_area_rect->y - p_surface_rect->y;
+    p_extents->x = p_extents->x - p_surface_rect->x;
+    p_extents->y = p_extents->y - p_surface_rect->y;
+
     //set initial rectangle geometry based on the "area" letter read from silentcast.conf
     //strcmp is 0 when they match, so !strcmp is TRUE when they match
     if (!strcmp (P("area"), "e") || !strcmp (P("area"), "i"))
@@ -400,12 +421,13 @@ static void show_f2_widget (GtkApplication *app, GtkWidget *widget)
   gtk_widget_show_all(f2_widget);
 }
 
-static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int *fps) 
+static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int mon_x, int mon_y, int *fps) 
 {
   char char_x[5], char_y[5], char_w[5], char_h[5], char_fps[5];
   strcpy (ffcom_string, "/usr/bin/ffmpeg -f x11grab -s ");
-  snprintf (char_x, 5, "%d", rect->x);
-  snprintf (char_y, 5, "%d", rect->y);
+  //there can be multiple monitors on the same screen
+  snprintf (char_x, 5, "%d", rect->x + mon_x); //rect->x is relative to the monitor, so have to add mon_x which is relative to screen
+  snprintf (char_y, 5, "%d", rect->y + mon_y); //rect->y is relative to the monitor, so have to add mon_y which is relative to screen
   snprintf (char_w, 5, "%d", rect->width);
   snprintf (char_h, 5, "%d", rect->height);
   strcat (ffcom_string, char_w); strcat (ffcom_string, "x"); strcat (ffcom_string, char_h); 
@@ -424,8 +446,9 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gtk_window_set_transient_for (GTK_WINDOW(f3_widget), GTK_WINDOW(widget));
   gtk_window_set_title (GTK_WINDOW(f3_widget), "Silentcast F3");
 
+  GdkRectangle *mon_rect = P("p_surface_rect");
   GtkWidget *working_dir_label = gtk_label_new (gtk_entry_buffer_get_text(P("working_dir")));
-  GtkWidget *ffcom_entry = gtk_entry_new_with_buffer (get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps")));
+  GtkWidget *ffcom_entry = gtk_entry_new_with_buffer (get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps")));
   GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 8);
   gtk_container_add (GTK_CONTAINER(box), working_dir_label);
   gtk_editable_set_editable (GTK_EDITABLE(ffcom_entry), FALSE);
@@ -459,7 +482,8 @@ static void run_ffcom (GtkWidget *widget)
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700);
     g_chdir (glib_encoded_silentcast_dir); //so ffmpeg will store the log in silentcast dir and won't need to specify path in ffmpeg command
     g_free (glib_encoded_silentcast_dir);
-    get_ffcom(P("ffcom_string"), P("p_area_rect"), P("p_fps"));
+    GdkRectangle *mon_rect = P("p_surface_rect");
+    get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
     if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
       fprintf (stderr, "Error: %s\n", err->message);
       g_error_free (err);
@@ -657,6 +681,8 @@ static void setup_widget_data_pointers (GtkWidget *widget)
     gtk_widget_destroy (widget); 
   }
   if (xwin_children) XFree (xwin_children);
+  //at this point, actv_win and extents contain the geometry relative to the screen which can contain many monitors
+  //when the monitor geometry is known (in the draw_cb after going fullscreen), need to subtract the monitor position
   
   /*need to keep a pointer to the active-window in case it's to be resized with the rectangle*/
   P_SET(active_window);
@@ -711,6 +737,7 @@ configure_surface_cb (GtkWidget *widget,
   static GdkRectangle surface_rect = { 0, 0 ,0, 0 }, *p_surface_rect = &surface_rect; 
 
   gtk_window_get_size (GTK_WINDOW (widget), &surface_rect.width, &surface_rect.height);
+  gtk_window_get_position (GTK_WINDOW(widget), &surface_rect.x, &surface_rect.y);
   surface = gdk_window_create_similar_surface (gtk_widget_get_window (widget),
                                                CAIRO_CONTENT_COLOR_ALPHA,
                                                surface_rect.width,
