@@ -37,7 +37,7 @@
 
 #define P_SET(A) g_object_set_data (G_OBJECT(widget), #A, A); // preprocessor changes #A to "A"
 
-static void set_rect_around_active_window (GdkRectangle *rect, GdkRectangle *p_actv_win, 
+static void set_rect_around_active_window (GtkWidget *widget, GdkRectangle *rect, GdkRectangle *p_actv_win, 
     GdkRectangle *p_extents, gboolean *p_include_extents) {
 
   if (p_extents->width && p_extents->height && 
@@ -51,7 +51,7 @@ static void set_rect_around_active_window (GdkRectangle *rect, GdkRectangle *p_a
     rect->height = p_actv_win->height;
     rect->x = p_actv_win->x;
     rect->y = p_actv_win->y;
-  } else fprintf (stderr, "Error: can't draw green rectangle around the active window because either width or height was zero.\n");
+  } else show_error (widget, "Error: can't draw green rectangle around the active window because either width or height was zero.");
 }
 
 static void set_rect_around_center_fourth (GdkRectangle *rect, GdkRectangle *p_surface_rect)
@@ -221,7 +221,7 @@ static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)
     //set initial rectangle geometry based on the "area" letter read from silentcast.conf
     //strcmp is 0 when they match, so !strcmp is TRUE when they match
     if (!strcmp (P("area"), "e") || !strcmp (P("area"), "i"))
-      set_rect_around_active_window (P("p_area_rect"), P("p_actv_win"), P("p_extents"), P("p_include_extents")); 
+      set_rect_around_active_window (widget, P("p_area_rect"), P("p_actv_win"), P("p_extents"), P("p_include_extents")); 
     else if (!strcmp (P("area"), "c"))
       set_rect_around_center_fourth (P("p_area_rect"), P("p_surface_rect"));
     else
@@ -476,7 +476,11 @@ static void run_ffcom (GtkWidget *widget)
   //permission to be able to enter, so need 7 on the users permissions (and don't care about other permissions)
   char *glib_encoded_silentcast_dir = g_filename_from_utf8 (silentcast_dir, -1, NULL, &bytes_written, &err);
   if (err) {
-    fprintf (stderr, "Error: %s\n", err->message);
+    char err_message[1200];
+    strcpy (err_message, "Error getting glib encoded silentcast directory: ");
+    strcat (err_message, err->message);
+    fprintf (stderr, "%s", err_message);
+    show_error (widget, err_message);
     g_error_free (err);
   } else {//need execute on user's permissions or else can't open directory (7 = read/write/execute)
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700);
@@ -485,7 +489,11 @@ static void run_ffcom (GtkWidget *widget)
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
     if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
-      fprintf (stderr, "Error: %s\n", err->message);
+      char err_message[1200];
+      strcpy (err_message, "Error trying to spawn the ffmpeg command: ");
+      strcat (err_message, err->message);
+      fprintf (stderr, "%s", err_message);
+      show_error (widget, err_message);
       g_error_free (err);
     }
   }
@@ -496,7 +504,11 @@ static void kill_ffcom(GtkWidget *widget)
 {
   GError *err = NULL;
   if (!g_spawn_command_line_sync ("pkill -f ffmpeg", NULL, NULL, NULL, &err)) {
-    fprintf (stderr, "Error: %s\n", err->message);
+    char err_message[1200];
+    strcpy (err_message, "Error trying to spawn kill -f ffmpeg: ");
+    strcat (err_message, err->message);
+    fprintf (stderr, "%s", err_message);
+    show_error (widget, err_message);
     g_error_free (err);
   }
   char *cur_dir = P("cur_dir");
@@ -552,7 +564,7 @@ button_press_event_cb (GtkWidget      *widget,
   } else if (event->button == GDK_BUTTON_MIDDLE) { // middle click
     gboolean *p_include_extents = P("p_include_extents");
     *p_include_extents = !*p_include_extents;
-    set_rect_around_active_window (p_area_rect, P("p_actv_win"), P("p_extents"), p_include_extents); 
+    set_rect_around_active_window (widget, p_area_rect, P("p_actv_win"), P("p_extents"), p_include_extents); 
     draw_rect (widget, p_area_rect, surface);
   }
 
@@ -672,14 +684,8 @@ static void tran_setup(GtkWidget *widget)
   } 
 }
 
-static void setup_widget_data_pointers (GtkWidget *widget) 
+static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app) 
 {
-  //only safe place to change the environment for spawned ffmpeg (using a simple function) is on startup
-  g_setenv ("FFREPORT", "file=ffcom.log:level=32", TRUE);
-
-  // create a pointer to a gboolean to track the key press events
-  static gboolean key_pressed = FALSE, *p_key_pressed = &key_pressed; P_SET(p_key_pressed);
-
   //get active window information including geometry that will be used to draw the green rectangle
   static GdkWindow *active_window = NULL;
   Window xwin; 
@@ -687,57 +693,60 @@ static void setup_widget_data_pointers (GtkWidget *widget)
   ssize_t n; 
   static GdkRectangle actv_win = { 0, 0, 0, 0 }, extents = { 0, 0, 0, 0 };
   if (!SC_get_active_windows_and_geometry (&xwin, &xwin_children, &n, &actv_win, &extents, &active_window)) {
-    fprintf (stderr, "No active-window information available due to X11 error.\n");
-    //completely exit the application because can't even draw the fullscreen surface for the rectangle if can't get the 
-    //monitor_geometry, and can't get the right monitor without the active window
-    //Instead though, should put up a dialog explaining that the active window can't be found then use the
-    //dialog itself as the active window.
+    show_error (widget, "No active-window information available due to X11 error. Maybe your window manager crashed.");
+    //completely exit the application because there's probably not a working X11 window manager running
     if (xwin_children) XFree (xwin_children);
-    gtk_widget_destroy (widget); 
+    g_application_quit (G_APPLICATION(app));
+  } else {
+    if (xwin_children) XFree (xwin_children);
+    //at this point, actv_win and extents contain the geometry relative to the screen which can contain many monitors
+    //when the monitor geometry is known (in the draw_cb after going fullscreen), need to subtract the monitor position
+    
+    /*need to keep a pointer to the active-window in case it's to be resized with the rectangle*/
+    P_SET(active_window);
+
+    //only safe place to change the environment for spawned ffmpeg (using a simple function) is on startup
+    g_setenv ("FFREPORT", "file=ffcom.log:level=32", TRUE);
+
+    // create a pointer to a gboolean to track the key press events
+    static gboolean key_pressed = FALSE, *p_key_pressed = &key_pressed; P_SET(p_key_pressed);
+
+    /*rectangle geometry*/
+    static int dx = 0, dy = 0, dw = 0, dh = 0;
+    dx = extents.x - actv_win.x; dy = extents.y - actv_win.y; dw = extents.width - actv_win.width; dh = extents.height - actv_win.height;
+    int *p_dx = &dx, *p_dy = &dy, *p_dw = &dw, *p_dh = &dh;
+    P_SET(p_dx); P_SET(p_dy); P_SET(p_dw); P_SET(p_dh);
+    static GdkRectangle area_rect = { 130, 130, 260, 260 }, *p_area_rect = &area_rect; P_SET(p_area_rect);
+    static GdkRectangle *p_actv_win = &actv_win; P_SET(p_actv_win);
+    static GdkRectangle *p_extents = &extents; P_SET(p_extents);
+    static gboolean surface_became_fullscreen = FALSE, *p_surface_became_fullscreen = &surface_became_fullscreen; P_SET(p_surface_became_fullscreen);
+
+    static gboolean include_extents = TRUE, *p_include_extents = &include_extents;
+    P_SET(p_include_extents);
+
+    static double presets[PRESET_N], previous[2]; get_presets (widget, presets, previous); P_SET(presets); P_SET(previous);
+
+    /*should resize active-window boolean*/
+    static gboolean should_resize_active = FALSE, *p_should_resize_active = &should_resize_active; P_SET(p_should_resize_active);
+
+    /*variables read from silentcast.conf*/
+    static GtkEntryBuffer *working_dir = NULL;
+    working_dir = gtk_entry_buffer_new (NULL, -1);  
+    static char area[] = "e"; // i e c p for Interior, Entirety, Center, Previous
+    static unsigned int fps = 8, *p_fps = &fps;
+    static gboolean anims_from_temp = TRUE, gif = TRUE, pngs = FALSE, webm = FALSE, mp4 = FALSE,
+                    *p_anims_from_temp = &anims_from_temp, *p_gif = &gif, *p_pngs = &pngs, *p_webm = &webm, *p_mp4 = &mp4; 
+    get_conf (widget, working_dir, area, p_fps, p_anims_from_temp, p_gif, p_pngs, p_webm, p_mp4);
+    P_SET(working_dir); P_SET(area); P_SET(p_fps); P_SET(p_anims_from_temp); P_SET(p_gif); P_SET(p_pngs); P_SET(p_webm); P_SET(p_mp4);
+
+    /*variable for storing ffcom*/
+    char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
+
+    /*current directory*/ 
+    char *cur_dir = g_get_current_dir (); P_SET(cur_dir);
+
+    static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
   }
-  if (xwin_children) XFree (xwin_children);
-  //at this point, actv_win and extents contain the geometry relative to the screen which can contain many monitors
-  //when the monitor geometry is known (in the draw_cb after going fullscreen), need to subtract the monitor position
-  
-  /*need to keep a pointer to the active-window in case it's to be resized with the rectangle*/
-  P_SET(active_window);
-
-  /*rectangle geometry*/
-  static int dx = 0, dy = 0, dw = 0, dh = 0;
-  dx = extents.x - actv_win.x; dy = extents.y - actv_win.y; dw = extents.width - actv_win.width; dh = extents.height - actv_win.height;
-  int *p_dx = &dx, *p_dy = &dy, *p_dw = &dw, *p_dh = &dh;
-  P_SET(p_dx); P_SET(p_dy); P_SET(p_dw); P_SET(p_dh);
-  static GdkRectangle area_rect = { 130, 130, 260, 260 }, *p_area_rect = &area_rect; P_SET(p_area_rect);
-  static GdkRectangle *p_actv_win = &actv_win; P_SET(p_actv_win);
-  static GdkRectangle *p_extents = &extents; P_SET(p_extents);
-  static gboolean surface_became_fullscreen = FALSE, *p_surface_became_fullscreen = &surface_became_fullscreen; P_SET(p_surface_became_fullscreen);
-
-  static gboolean include_extents = TRUE, *p_include_extents = &include_extents;
-  P_SET(p_include_extents);
-
-  static double presets[PRESET_N], previous[2]; get_presets (presets, previous); P_SET(presets); P_SET(previous);
-
-  /*should resize active-window boolean*/
-  static gboolean should_resize_active = FALSE, *p_should_resize_active = &should_resize_active; P_SET(p_should_resize_active);
-
-  /*variables read from silentcast.conf*/
-  static GtkEntryBuffer *working_dir = NULL;
-  working_dir = gtk_entry_buffer_new (NULL, -1);  
-  static char area[] = "e"; // i e c p for Interior, Entirety, Center, Previous
-  static unsigned int fps = 8, *p_fps = &fps;
-  static gboolean anims_from_temp = TRUE, gif = TRUE, pngs = FALSE, webm = FALSE, mp4 = FALSE,
-                  *p_anims_from_temp = &anims_from_temp, *p_gif = &gif, *p_pngs = &pngs, *p_webm = &webm, *p_mp4 = &mp4; 
-  get_conf (working_dir, area, p_fps, p_anims_from_temp, p_gif, p_pngs, p_webm, p_mp4);
-  P_SET(working_dir); P_SET(area); P_SET(p_fps); P_SET(p_anims_from_temp); P_SET(p_gif); P_SET(p_pngs); P_SET(p_webm); P_SET(p_mp4);
-
-  /*variable for storing ffcom*/
-  char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
-
-  /*current directory*/ 
-  char *cur_dir = g_get_current_dir (); P_SET(cur_dir);
-
-  static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
-
 }
 
 /* Create a new surface in widget's window to store rectangle */
@@ -764,10 +773,10 @@ configure_surface_cb (GtkWidget *widget,
   return TRUE;
 }
 
-static void write_previous (GdkRectangle previous)
+static void write_previous (GtkWidget *widget, GdkRectangle previous)
 {
   double presets[PRESET_N], prepre[2], pre[PRESET_N + 2];
-  get_presets (presets, prepre);
+  get_presets (widget, presets, prepre);
   for (int i=0; i<PRESET_N; i++) pre[i] = presets[i]; 
   pre[PRESET_N] = (double) previous.x + (double) previous.y / 100000; 
   pre[PRESET_N + 1] = (double) previous.width + (double) previous.height / 100000;
@@ -792,7 +801,7 @@ gboolean on_surface_widget_destroy (GtkWidget *widget,
   if (surface) cairo_surface_destroy (surface);
   if (active_window ) g_clear_object (&active_window);
   GdkRectangle *rect = P("p_area_rect");
-  write_previous (*rect);
+  write_previous (widget, *rect);
   g_application_quit (G_APPLICATION(data));
 
   return FALSE; //keep processing the destroy signal
@@ -827,13 +836,12 @@ static gboolean event_after_cb (GtkWidget *widget, GdkEventWindowState *event, g
 }
 
 //map-event callback (the widget is visible)
-static void
-activate (GtkApplication *app,
-          gpointer        data)
+static void activate (GtkApplication *app,
+                      gpointer        data)
 {
   GtkWidget *widget = gtk_application_window_new (app);
 
-  setup_widget_data_pointers (widget);
+  setup_widget_data_pointers (widget, app);
   tran_setup (widget);
   gtk_widget_add_events (widget, GDK_SCROLL_MASK);
   gtk_window_set_title (GTK_WINDOW (widget), "Silentcast");

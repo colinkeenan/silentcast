@@ -35,9 +35,12 @@
 #define ROW_SPACING 8
 #define BGN_SCTN "<span font_family=\"serif\"><big>"
 #define END_SCTN "</big></span>"
-void get_presets (double presets[PRESET_N], double previous[2]);
 
-void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
+void show_error (GtkWidget *widget, char *err_message);
+
+void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]);
+
+void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
     gboolean *p_gif, gboolean *p_pngs, gboolean *p_webm, gboolean *p_mp4); 
 
 double get_w(double a);

@@ -29,6 +29,28 @@
  */
 #include "SC_conf_widgets.h"
 
+void show_error (GtkWidget *widget, char *err_message) {
+  GtkWidget *dialog = 
+    gtk_message_dialog_new (GTK_WINDOW(widget), 
+        GTK_DIALOG_DESTROY_WITH_PARENT, 
+        GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s", err_message);
+  gtk_dialog_run (GTK_DIALOG (dialog));
+  gtk_widget_destroy (dialog);
+}
+
+void show_perror (GtkWidget *widget, char *message) {
+  perror (message);
+
+  char str_err[1024] = { 0 }; 
+  char err_message[1200] = { 0 };
+
+  strcpy (err_message, message);
+  strcat (err_message, ": ");
+  strerror_r (errno, str_err, 1024);
+  strcat (err_message, str_err);
+  show_error (widget, err_message);
+}
+
 static int compare_doubles (const void *a, const void *b)
 {
   const double *da = (const double *) a;
@@ -37,7 +59,7 @@ static int compare_doubles (const void *a, const void *b)
   return (*da > *db) - (*da < *db);
 }
 
-void get_presets (double presets[PRESET_N], double previous[2]) 
+void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]) 
 {
   double read_preset;
   FILE *presets_file;
@@ -48,7 +70,11 @@ void get_presets (double presets[PRESET_N], double previous[2])
 
   presets_file = fopen (filename, "r");
   if (presets_file == NULL) {
-    perror ("Using default list of sizes for middle-click drag because of the following error");
+    char message[PATH_MAX + 100] = { 0 };
+    strcpy (message, "<");
+    strcat (message, filename);
+    strcat (message, "> Using default list of sizes for middle-click drag");
+    show_perror (widget, message);
     for (i = 0; i < PRESET_N; i++) presets[i] = preset_defaults[i]; 
     previous[0] = 0; previous[1] = 0;  
   } else { 
@@ -58,7 +84,7 @@ void get_presets (double presets[PRESET_N], double previous[2])
         if (i < PRESET_N) presets[i] = read_preset;
         else previous [i - PRESET_N] = read_preset;
       } else if (errno != 0) {
-        perror ("fscanf:");
+        show_perror (widget, "fscanf");
         break;
       } else if (ret == EOF) {
         break;
@@ -82,7 +108,7 @@ static void write_presets (double presets[PATH_MAX])
   g_file_set_contents (filename, contents, -1, NULL);
 }
 
-void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
+void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
     gboolean *p_gif, gboolean *p_pngs, gboolean *p_webm, gboolean *p_mp4) 
 {
   FILE *conf_file;
@@ -92,7 +118,11 @@ void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, 
 
   conf_file = fopen (filename, "r");
   if (conf_file == NULL) {
-    perror ("Using default configuration because error: ");
+    char message[PATH_MAX + 100] = { 0 };
+    strcpy (message, "<");
+    strcat (message, filename);
+    strcat (message, "> Using default configuration");
+    show_perror (widget, message);
   } else {
 #define GBOOLEAN(A) !strcmp (A, "TRUE") ? TRUE : FALSE
     while ((getline(&line, &len, conf_file)) != -1) {
