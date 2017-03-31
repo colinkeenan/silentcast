@@ -162,7 +162,7 @@ void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *s
    F1 About Mouse Controls|Configuration|Preferences\n\
    F2 Set recording area with number keys & resize active window checkbox\n\
    F3 View the ffmpeg command that will record the rectangle area\n\
-  ESC Quit, q Quit, F11 Toggle Fullscreen, F4 Begin Recording");
+  ESC Quit, q Quit, F11 Toggle Fullscreen, RETURN Begin Recording");
 
   draw_text (cr, rleft, rupper + rheight + 10, widget, text);
 
@@ -458,7 +458,7 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
 }
 
-/* Pressing F4 triggers this to make the uncompressed recording to silentcast/temp.mkv 
+/* Pressing RETURN triggers this to make the uncompressed recording to silentcast/temp.mkv 
  * The ffmpeg command will save a log in ffcom.log because the appropriate environment 
  * variable was set in setup_widget_data_pointers
  */
@@ -614,11 +614,23 @@ motion_notify_event_cb (GtkWidget      *widget,
   return TRUE;
 }
 
-static gboolean key_event_cb (GtkWidget *widget,
+// Need to keep track of both key press and key release to distinguish unwanted terminal Return from others.
+// The terminal Return that started the app won't have a key press event.
+static gboolean key_press_event_cb (GtkWidget *widget,
+                            GdkEventKey *event,
+                                gpointer data)
+{
+  gboolean *p_key_pressed = P("p_key_pressed");
+  *p_key_pressed = TRUE;
+  return FALSE; //continue processing event
+}
+
+static gboolean key_release_event_cb (GtkWidget *widget,
                             GdkEventKey *event,
                                 gpointer data)
 {
   cairo_surface_t *surface = P("surface");
+  gboolean *p_key_pressed = P("p_key_pressed");
 
   if (event->keyval == GDK_KEY_F1) {
     show_f1_widget (GTK_APPLICATION(data), widget);
@@ -629,7 +641,7 @@ static gboolean key_event_cb (GtkWidget *widget,
   } else if (event->keyval == GDK_KEY_F3) {
     show_f3_widget (GTK_APPLICATION(data), widget);
     return TRUE;
-  } else if (event->keyval == GDK_KEY_F4) {
+  } else if (*p_key_pressed && event->keyval == GDK_KEY_Return) {
     run_ffcom (widget);
     return TRUE;
   } else if (event->keyval == GDK_KEY_F11) {
@@ -664,6 +676,9 @@ static void setup_widget_data_pointers (GtkWidget *widget)
 {
   //only safe place to change the environment for spawned ffmpeg (using a simple function) is on startup
   g_setenv ("FFREPORT", "file=ffcom.log:level=32", TRUE);
+
+  // create a pointer to a gboolean to track the key press events
+  static gboolean key_pressed = FALSE, *p_key_pressed = &key_pressed; P_SET(p_key_pressed);
 
   //get active window information including geometry that will be used to draw the green rectangle
   static GdkWindow *active_window = NULL;
@@ -827,21 +842,22 @@ activate (GtkApplication *app,
   g_signal_connect (widget, "draw",
                     G_CALLBACK (draw_cb), NULL);
   g_signal_connect (widget, "configure-event", 
-                    G_CALLBACK (configure_surface_cb), NULL); //surface gets defined in this configure event and it's only place
-                                                              //can setup drawing something on startup
+                    G_CALLBACK (configure_surface_cb), NULL); //surface gets defined in this configure event
   g_signal_connect (widget, "window-state-event", 
                     G_CALLBACK (window_state_cb), NULL); //set boolean on fullscreen, triggering getting fullscreen geometry, and 
                                                         //trigger kill_ffmpeg on coming out of iconify 
   g_signal_connect (widget, "event-after",
-                    G_CALLBACK (event_after_cb), NULL); //seeing if it works to draw the rectangle after fullscreen
+                    G_CALLBACK (event_after_cb), NULL); //trigger draw_queue after going fullscreen so draw_cb can get monitor geometry
   g_signal_connect (widget, "motion-notify-event",
                     G_CALLBACK (motion_notify_event_cb), NULL); //mouse drag events
   g_signal_connect (widget, "button-press-event",
                     G_CALLBACK (button_press_event_cb), NULL); //mouse click events
   g_signal_connect (widget, "scroll-event",
                     G_CALLBACK (scroll_event_cb), NULL); //mouse scroll
+  g_signal_connect (widget, "key-press-event", 
+                    G_CALLBACK (key_press_event_cb), NULL); //need to track key press to ignore terminal Return that started the app
   g_signal_connect (widget, "key-release-event", 
-                    G_CALLBACK (key_event_cb), app); //keyboard events
+                    G_CALLBACK (key_release_event_cb), app); //keyboard events (terminal Return has key release, but not key press)
   g_signal_connect (widget, "destroy", 
       G_CALLBACK (on_surface_widget_destroy), app);
   

@@ -4,23 +4,23 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-ABOUT_ATTACH	src/SC_conf_widgets.c	524;"	d	file:
+ABOUT_ATTACH	src/SC_conf_widgets.c	520;"	d	file:
 BGN_SCTN	src/SC_conf_widgets.h	36;"	d
 COL_SPACING	src/SC_conf_widgets.h	34;"	d
-CONFIG_ATTACH	src/SC_conf_widgets.c	539;"	d	file:
+CONFIG_ATTACH	src/SC_conf_widgets.c	535;"	d	file:
 D_ERR	lib/SC_X11_get_active_window.h	32;"	d
 END_SCTN	src/SC_conf_widgets.h	37;"	d
-F2_ATCH	src/main.c	394;"	d	file:
+F2_ATCH	src/main.c	413;"	d	file:
 FOCUS_ERR1	lib/SC_X11_get_active_window.h	33;"	d
 FOCUS_ERR2	lib/SC_X11_get_active_window.h	34;"	d
-FONT	src/main.c	118;"	d	file:
+FONT	src/main.c	92;"	d	file:
 GBOOLEAN	src/SC_conf_widgets.c	97;"	d	file:
 P	src/SC_conf_widgets.h	32;"	d
 PF1	src/SC_conf_widgets.h	31;"	d
-PF1_SET	src/SC_conf_widgets.c	374;"	d	file:
+PF1_SET	src/SC_conf_widgets.c	370;"	d	file:
 PRESET_N	src/SC_conf_widgets.h	33;"	d
-PRFS_ATCH	src/SC_conf_widgets.c	553;"	d	file:
-P_SET	src/main.c	37;"	d	file:
+PRFS_ATCH	src/SC_conf_widgets.c	549;"	d	file:
+P_SET	src/main.c	38;"	d	file:
 ROW_SPACING	src/SC_conf_widgets.h	35;"	d
 SC_X11_E0	lib/SC_X11_get_active_window.h	42;"	d
 SC_X11_E1	lib/SC_X11_get_active_window.h	38;"	d
@@ -36,29 +36,31 @@ SC_get_active_X11window	lib/SC_X11_get_active_window.c	/^SC_get_active_X11window
 SC_get_active_gdkwindow	lib/SC_X11_get_active_window.c	/^SC_get_active_gdkwindow (Window aw, Window *aw_children, ssize_t n, GdkWindow* *gdkwindow) {$/;"	f
 SC_get_active_windows_and_geometry	lib/SC_X11_get_active_window.c	/^SC_get_active_windows_and_geometry (Window *aw, Window* *aw_children, ssize_t *n, $/;"	f
 SC_get_geometry_for	lib/SC_X11_get_active_window.c	/^SC_get_geometry_for (Window aw, Window *aw_children, ssize_t n, GdkRectangle *win_rect, GdkRectangle *extents, GdkWindow* *dwindow) {$/;"	f
-SET	src/SC_conf_widgets.c	343;"	d	file:
-T	src/SC_conf_widgets.c	233;"	d	file:
+SET	src/SC_conf_widgets.c	339;"	d	file:
+T	src/SC_conf_widgets.c	229;"	d	file:
 TOP_ERR	lib/SC_X11_get_active_window.h	35;"	d
 UKN_ERR	lib/SC_X11_get_active_window.h	36;"	d
 activate	src/main.c	/^activate (GtkApplication *app,$/;"	f	file:
 button_press_event_cb	src/main.c	/^button_press_event_cb (GtkWidget      *widget,$/;"	f	file:
 change_w_dir_cb	src/SC_conf_widgets.c	/^static void change_w_dir_cb (GtkWidget *change_w_dir, gpointer data) $/;"	f	file:
-clear_surface	src/main.c	/^static void clear_surface (GtkWidget *widget, cairo_surface_t *surface, gboolean surface_became_fullscreen) $/;"	f	file:
+clear_surface	src/main.c	/^static void clear_surface (GtkWidget *widget, cairo_surface_t *surface) $/;"	f	file:
 compare_doubles	src/SC_conf_widgets.c	/^static int compare_doubles (const void *a, const void *b)$/;"	f	file:
 configure_surface_cb	src/main.c	/^configure_surface_cb (GtkWidget *widget,$/;"	f	file:
 drag_resize_to_preset	src/main.c	/^static void drag_resize_to_preset (double right, double lower, double presets[PRESET_N], GdkRectangle *p_area_rect) $/;"	f	file:
-draw_cb	src/main.c	/^draw_cb (GtkWidget *widget,$/;"	f	file:
+draw_cb	src/main.c	/^static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)$/;"	f	file:
 draw_rect	src/main.c	/^void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) $/;"	f
 draw_text	src/main.c	/^static void draw_text (cairo_t *cr, int tx, int ty, GtkWidget *widget, char *text)$/;"	f	file:
+event_after_cb	src/main.c	/^static gboolean event_after_cb (GtkWidget *widget, GdkEventWindowState *event, gpointer data) {$/;"	f	file:
 get_conf	src/SC_conf_widgets.c	/^void get_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, $/;"	f
-get_ffcom	src/main.c	/^static GtkEntryBuffer* get_ffcom (GtkWidget *widget, GdkRectangle *rect, int *fps, GtkEntryBuffer *working_dir) $/;"	f	file:
+get_ffcom	src/main.c	/^static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int mon_x, int mon_y, int *fps) $/;"	f	file:
 get_focus_window	lib/SC_X11_get_active_window.c	/^static int get_focus_window (Display* d, Window *w) {$/;"	f	file:
 get_h	src/SC_conf_widgets.c	/^double get_h(double a) $/;"	f
 get_presets	src/SC_conf_widgets.c	/^void get_presets (double presets[PRESET_N], double previous[2]) $/;"	f
 get_top_window	lib/SC_X11_get_active_window.c	/^static int get_top_window (Display* d, Window start, Window *w, Window* *w_children, ssize_t *n) {$/;"	f	file:
 get_w	src/SC_conf_widgets.c	/^double get_w(double a) $/;"	f
 handle_error	lib/SC_X11_get_active_window.c	/^static int handle_error (Display* display, XErrorEvent* error) {$/;"	f	file:
-key_event_cb	src/main.c	/^static gboolean key_event_cb (GtkWidget *widget,$/;"	f	file:
+key_press_event_cb	src/main.c	/^static gboolean key_press_event_cb (GtkWidget *widget,$/;"	f	file:
+key_release_event_cb	src/main.c	/^static gboolean key_release_event_cb (GtkWidget *widget,$/;"	f	file:
 kill_ffcom	src/main.c	/^static void kill_ffcom(GtkWidget *widget) $/;"	f	file:
 main	src/main.c	/^main (int    argc,$/;"	f
 motion_notify_event_cb	src/main.c	/^motion_notify_event_cb (GtkWidget      *widget,$/;"	f	file:

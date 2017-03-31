@@ -1,0 +1,10 @@
+[Desktop Entry]
+Categories=Graphics;AudioVideo;
+Comment=Silent Screencast: video record your screen and make it into an animated gif
+Exec=$HOME/github/silentcast/silentcast3/silentcast
+Icon=silentcast
+Name=Silentcast
+Path=/home/colin/github/silentcast/silentcast3
+StartupNotify=true
+Terminal=false
+Type=Application
