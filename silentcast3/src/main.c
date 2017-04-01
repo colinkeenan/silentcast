@@ -212,11 +212,15 @@ static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)
 
     //now need to subtract the surface_rect position from active_win and extents so that active_win
     //and extents will be relative to the surface they are drawn on
-    GdkRectangle *p_area_rect = P("p_area_rect"), *p_extents = P("p_extents");
-    p_area_rect->x = p_area_rect->x - p_surface_rect->x;
-    p_area_rect->y = p_area_rect->y - p_surface_rect->y;
+    GdkRectangle *p_actv_win = P("p_actv_win"), *p_extents = P("p_extents");
+    p_actv_win->x = p_actv_win->x - p_surface_rect->x;
+    p_actv_win->y = p_actv_win->y - p_surface_rect->y;
     p_extents->x = p_extents->x - p_surface_rect->x;
     p_extents->y = p_extents->y - p_surface_rect->y;
+
+    //if the "area" letter is "e" or "i", but the active window is fullscreen or larger, change the "area" letter to "c"
+    if (!strcmp (P("area"), "e") || !strcmp (P("area"), "i")) 
+      if (p_actv_win->width >= p_surface_rect->width && p_actv_win->height >= p_surface_rect->height) strcpy (P("area"), "c");
 
     //set initial rectangle geometry based on the "area" letter read from silentcast.conf
     //strcmp is 0 when they match, so !strcmp is TRUE when they match
