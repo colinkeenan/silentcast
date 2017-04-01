@@ -458,6 +458,15 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
 }
 
+static void show_err_message (GtkWidget *widget, char *message, char *errmessage)
+{
+  char err_message[1200];
+  strcpy (err_message, message);
+  strcat (err_message, errmessage);
+  fprintf (stderr, "%s", err_message);
+  show_error (widget, err_message);
+}
+
 /* Pressing RETURN triggers this to make the uncompressed recording to silentcast/temp.mkv 
  * The ffmpeg command will save a log in ffcom.log because the appropriate environment 
  * variable was set in setup_widget_data_pointers
@@ -476,26 +485,22 @@ static void run_ffcom (GtkWidget *widget)
   //permission to be able to enter, so need 7 on the users permissions (and don't care about other permissions)
   char *glib_encoded_silentcast_dir = g_filename_from_utf8 (silentcast_dir, -1, NULL, &bytes_written, &err);
   if (err) {
-    char err_message[1200];
-    strcpy (err_message, "Error getting glib encoded silentcast directory: ");
-    strcat (err_message, err->message);
-    fprintf (stderr, "%s", err_message);
-    show_error (widget, err_message);
+    show_err_message (widget, "Error getting glib encoded silentcast directory: ", err->message);
     g_error_free (err);
   } else {//need execute on user's permissions or else can't open directory (7 = read/write/execute)
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700);
-    g_chdir (glib_encoded_silentcast_dir); //so ffmpeg will store the log in silentcast dir and won't need to specify path in ffmpeg command
-    g_free (glib_encoded_silentcast_dir);
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
-    if (!g_spawn_command_line_async (P("ffcom_string"), &err)) {
-      char err_message[1200];
-      strcpy (err_message, "Error trying to spawn the ffmpeg command: ");
-      strcat (err_message, err->message);
-      fprintf (stderr, "%s", err_message);
-      show_error (widget, err_message);
+    int argc = 0, *p_ffcom_pid = P("p_ffcom_pid");
+    char **argv = NULL;
+    if (!g_shell_parse_argv (P("ffcom_string"), &argc, &argv, &err)) {
+      show_err_message (widget, "Error trying to parse the ffmpeg command: ", err->message);
+      g_error_free (err);
+    } else if (!g_spawn_async (glib_encoded_silentcast_dir, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, p_ffcom_pid, &err)) {
+      show_err_message (widget, "Error trying to spawn the ffmpeg command: ", err->message);
       g_error_free (err);
     }
+    g_free (glib_encoded_silentcast_dir);
   }
 }
 
@@ -503,17 +508,15 @@ static void run_ffcom (GtkWidget *widget)
 static void kill_ffcom(GtkWidget *widget) 
 {
   GError *err = NULL;
-  if (!g_spawn_command_line_sync ("pkill -f ffmpeg", NULL, NULL, NULL, &err)) {
-    char err_message[1200];
-    strcpy (err_message, "Error trying to spawn kill -f ffmpeg: ");
-    strcat (err_message, err->message);
-    fprintf (stderr, "%s", err_message);
-    show_error (widget, err_message);
+  int *p_ffcom_pid = P("p_ffcom_pid");
+  char kill_ffcom[13], char_ffcom_pid[8]; //pid will be at most 7 digits long and /0 to terminate the string makes 8
+  snprintf (char_ffcom_pid, 8, "%d", *p_ffcom_pid);
+  strcpy (kill_ffcom, "kill ");
+  strcat (kill_ffcom, char_ffcom_pid);
+  if (!g_spawn_command_line_sync (kill_ffcom, NULL, NULL, NULL, &err)) {
+    show_err_message (widget, "Error trying to kill ffmpeg command: ", err->message);
     g_error_free (err);
   }
-  char *cur_dir = P("cur_dir");
-  g_chdir (cur_dir); //go back to initial directory after running and killing ffmpeg
-  g_free (cur_dir);
 }
 
 static void toggle_fullscreen_area (GtkWidget *surface_widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) {
@@ -740,12 +743,17 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     P_SET(working_dir); P_SET(area); P_SET(p_fps); P_SET(p_anims_from_temp); P_SET(p_gif); P_SET(p_pngs); P_SET(p_webm); P_SET(p_mp4);
 
     /*variable for storing ffcom*/
-    char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
+    static char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
+
+    /*variable for the ffcom pid*/
+    static int ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);
+
+    /*need to track when surface becomes iconified and not iconified to kill ffmpeg*/
+    static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
 
     /*current directory*/ 
     char *cur_dir = g_get_current_dir (); P_SET(cur_dir);
 
-    static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
   }
 }
 
