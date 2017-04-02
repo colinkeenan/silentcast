@@ -21,6 +21,8 @@
  *  getting and setting configuration, and define macros. 
  *
  */
+#ifndef SC_CONF_WIDGETS_H
+#define SC_CONF_WIDGETS_H
 
 #include <gtk/gtkx.h>
 #include <stdlib.h>
@@ -47,3 +49,5 @@ double get_w(double a);
 double get_h(double a);
 
 void show_f1_widget (GtkApplication *app, GtkWidget *widget);
+
+#endif //SC_CONF_WIDGETS_H

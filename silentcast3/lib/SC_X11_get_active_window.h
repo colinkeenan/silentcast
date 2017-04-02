@@ -21,6 +21,9 @@
  *  and SC_get_active_windows_and_geometry (...)
  */
 
+#ifndef SC_X11_GET_ACTIVE_WINDOW_H
+#define SC_X11_GET_ACTIVE_WINDOW_H
+
 #include <gtk/gtkx.h>
 
 #define SC_X11_ERROR0 "                                      \n"
@@ -49,3 +52,4 @@ void SC_get_geometry_for (Window aw, Window *aw_children, ssize_t n, GdkRectangl
 
 gboolean SC_get_active_windows_and_geometry (Window *aw, Window* *aw_children, ssize_t *n, GdkRectangle *win_rect, GdkRectangle *extents, GdkWindow* *gdkwindow); 
 
+#endif //SC_X11_GET_ACTIVE_WINDOW_H

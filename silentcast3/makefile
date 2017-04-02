@@ -1,5 +1,5 @@
 TARGET=silentcast
-OBJS=    main.o SC_X11_get_active_window.o SC_conf_widgets.o
+OBJS=    main.o SC_X11_get_active_window.o SC_conf_widgets.o SC_temptoanim.o
  
 CC=gcc
 DEBUG=-g

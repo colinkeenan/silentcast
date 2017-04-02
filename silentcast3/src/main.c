@@ -33,7 +33,6 @@
  */
 #include "SC_X11_get_active_window.h" 
 #include "SC_conf_widgets.h"
-#include <glib/gstdio.h> //for some reason, g_chdir isn't included with gtk+ even though related glib functions are
 
 #define P_SET(A) g_object_set_data (G_OBJECT(widget), #A, A); // preprocessor changes #A to "A"
 
@@ -715,7 +714,7 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     //only safe place to change the environment for spawned ffmpeg (using a simple function) is on startup
     g_setenv ("FFREPORT", "file=ffcom.log:level=32", TRUE);
 
-    // create a pointer to a gboolean to track the key press events
+    //create a pointer to a gboolean to track the key press events (needed to avoid reacting to Return pressed in terminal on starting app)
     static gboolean key_pressed = FALSE, *p_key_pressed = &key_pressed; P_SET(p_key_pressed);
 
     /*rectangle geometry*/
