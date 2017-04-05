@@ -29,16 +29,7 @@
  */
 #include "SC_conf_widgets.h"
 
-void show_error (GtkWidget *widget, char *err_message) {
-  GtkWidget *dialog = 
-    gtk_message_dialog_new (GTK_WINDOW(widget), 
-        GTK_DIALOG_DESTROY_WITH_PARENT, 
-        GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s", err_message);
-  gtk_dialog_run (GTK_DIALOG (dialog));
-  gtk_widget_destroy (dialog);
-}
-
-void show_perror (GtkWidget *widget, char *message) {
+static void show_perror (GtkWidget *widget, char *message) {
   perror (message);
 
   char str_err[1024] = { 0 }; 
@@ -48,7 +39,12 @@ void show_perror (GtkWidget *widget, char *message) {
   strcat (err_message, ": ");
   strerror_r (errno, str_err, 1024);
   strcat (err_message, str_err);
-  show_error (widget, err_message);
+  GtkWidget *dialog = 
+    gtk_message_dialog_new (GTK_WINDOW(widget), 
+        GTK_DIALOG_DESTROY_WITH_PARENT, 
+        GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s", err_message);
+  gtk_dialog_run (GTK_DIALOG (dialog));
+  gtk_widget_destroy (dialog);
 }
 
 static int compare_doubles (const void *a, const void *b)

@@ -38,8 +38,6 @@
 #define BGN_SCTN "<span font_family=\"serif\"><big>"
 #define END_SCTN "</big></span>"
 
-void show_error (GtkWidget *widget, char *err_message);
-
 void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]);
 
 void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 

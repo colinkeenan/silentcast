@@ -33,6 +33,7 @@
  */
 #include "SC_X11_get_active_window.h" 
 #include "SC_conf_widgets.h"
+#include "SC_temptoanim.h"
 
 #define P_SET(A) g_object_set_data (G_OBJECT(widget), #A, A); // preprocessor changes #A to "A"
 
@@ -50,7 +51,7 @@ static void set_rect_around_active_window (GtkWidget *widget, GdkRectangle *rect
     rect->height = p_actv_win->height;
     rect->x = p_actv_win->x;
     rect->y = p_actv_win->y;
-  } else show_error (widget, "Error: can't draw green rectangle around the active window because either width or height was zero.");
+  } else SC_show_error (widget, "Error: can't draw green rectangle around the active window because either width or height was zero.");
 }
 
 static void set_rect_around_center_fourth (GdkRectangle *rect, GdkRectangle *p_surface_rect)
@@ -110,7 +111,7 @@ static void draw_text (cairo_t *cr, int tx, int ty, GtkWidget *widget, char *tex
   g_clear_object (&layout);
 }
 
-void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) 
+static void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) 
 {
   clear_surface (widget, surface);
   gtk_widget_queue_draw (widget);
@@ -438,7 +439,7 @@ static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int mo
   strcat (ffcom_string, " -r "); strcat (ffcom_string, char_fps);
   strcat (ffcom_string, " -i "); strcat (ffcom_string, gdk_display_get_name(gdk_display_get_default ()));
   strcat (ffcom_string, "+"); strcat (ffcom_string, char_x); strcat (ffcom_string, ","); strcat (ffcom_string, char_y);
-  strcat (ffcom_string, " -c:v ffvhuff -an -y temp.mkv"); //decided to cd into the directory instead of specifying path here
+  strcat (ffcom_string, " -c:v ffvhuff -an -y temp.mkv"); //decided to specify working directory on spawn instead of putting it here
   return gtk_entry_buffer_new (ffcom_string, -1);
 }
 
@@ -461,48 +462,23 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
 }
 
-static void show_err_message (GtkWidget *widget, char *message, char *errmessage)
-{
-  char err_message[1200];
-  strcpy (err_message, message);
-  strcat (err_message, errmessage);
-  fprintf (stderr, "%s", err_message);
-  show_error (widget, err_message);
-}
-
 /* Pressing RETURN triggers this to make the uncompressed recording to silentcast/temp.mkv 
  * The ffmpeg command will save a log in ffcom.log because the appropriate environment 
  * variable was set in setup_widget_data_pointers
  */
 static void run_ffcom (GtkWidget *widget) 
 {
-  GError *err = NULL;
-
   gtk_window_iconify (GTK_WINDOW(widget)); //get translucent surface out of the way while recording
   //Before running the ffmpeg command, make working directory/silentcast if it doesn't exist
   char silentcast_dir[PATH_MAX];
   strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
   strcat (silentcast_dir, "/silentcast");
-  gsize bytes_written = 0;
-  //g_mkdir_with_parents uses special encoding so translate from Gtk's utf8
-  //permission to be able to enter, so need 7 on the users permissions (and don't care about other permissions)
-  char *glib_encoded_silentcast_dir = g_filename_from_utf8 (silentcast_dir, -1, NULL, &bytes_written, &err);
-  if (err) {
-    show_err_message (widget, "Error getting glib encoded silentcast directory: ", err->message);
-    g_error_free (err);
-  } else {//need execute on user's permissions or else can't open directory (7 = read/write/execute)
-    g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700);
+  char *glib_encoded_silentcast_dir = NULL;
+  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+    g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700); //can't enter a directory unless it has execute privilage, so 700 instead of 600
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
-    int argc = 0, *p_ffcom_pid = P("p_ffcom_pid");
-    char **argv = NULL;
-    if (!g_shell_parse_argv (P("ffcom_string"), &argc, &argv, &err)) {
-      show_err_message (widget, "Error trying to parse the ffmpeg command: ", err->message);
-      g_error_free (err);
-    } else if (!g_spawn_async (glib_encoded_silentcast_dir, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, p_ffcom_pid, &err)) {
-      show_err_message (widget, "Error trying to spawn the ffmpeg command: ", err->message);
-      g_error_free (err);
-    }
+    SC_spawn (widget, glib_encoded_silentcast_dir, P("ffcom_string"), P("p_ffcom_pid"));
     g_free (glib_encoded_silentcast_dir);
   }
 }
@@ -517,7 +493,7 @@ static void kill_ffcom(GtkWidget *widget)
   strcpy (kill_ffcom, "kill ");
   strcat (kill_ffcom, char_ffcom_pid);
   if (!g_spawn_command_line_sync (kill_ffcom, NULL, NULL, NULL, &err)) {
-    show_err_message (widget, "Error trying to kill ffmpeg command: ", err->message);
+    SC_show_err_message (widget, "Error trying to kill ffmpeg command: ", err->message);
     g_error_free (err);
   }
 }
@@ -699,7 +675,7 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
   ssize_t n; 
   static GdkRectangle actv_win = { 0, 0, 0, 0 }, extents = { 0, 0, 0, 0 };
   if (!SC_get_active_windows_and_geometry (&xwin, &xwin_children, &n, &actv_win, &extents, &active_window)) {
-    show_error (widget, "No active-window information available due to X11 error. Maybe your window manager crashed.");
+    SC_show_error (widget, "No active-window information available due to X11 error. Maybe your window manager crashed.");
     //completely exit the application because there's probably not a working X11 window manager running
     if (xwin_children) XFree (xwin_children);
     g_application_quit (G_APPLICATION(app));
@@ -745,8 +721,8 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     get_conf (widget, working_dir, area, p_fps, p_anims_from_temp, p_gif, p_pngs, p_webm, p_mp4);
     P_SET(working_dir); P_SET(area); P_SET(p_fps); P_SET(p_anims_from_temp); P_SET(p_gif); P_SET(p_pngs); P_SET(p_webm); P_SET(p_mp4);
 
-    /*variable for storing ffcom*/
-    static char ffcom_string[PATH_MAX + 200]; P_SET(ffcom_string);
+    /*variable for storing ffmpeg command to make uncompressed recording of the selected region of the screen*/
+    static char ffcom_string[200]; P_SET(ffcom_string);
 
     /*variable for the ffcom pid*/
     static int ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);

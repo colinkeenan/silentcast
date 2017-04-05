@@ -21,5 +21,19 @@
  *
  */
 
-#include "SC_conf_widgets.h" //need includes and macros from this
+#ifndef SC_TEMPTOANIM_H
+#define SC_TEMPTOANIM_H
 
+#include <gtk/gtkx.h>
+#include <string.h>
+#include <errno.h>
+#include <glob.h>
+#include <glib.h>
+#include <glib/gstdio.h>
+
+void SC_show_error (GtkWidget *widget, char *err_message);
+void SC_show_err_message (GtkWidget *widget, char *message, char *errmessage);
+gboolean SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX], char *glib_filename);
+void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid);
+
+#endif //SC_TEMPTOANIM_H
