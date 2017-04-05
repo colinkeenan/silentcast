@@ -17,7 +17,8 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  *  
  * 
- *  Description: definitions of the global funtions in SC_temptoanim.c 
+ *  Description: includes needed and headers of the global funtions in 
+ *               SC_temptoanim.c 
  *
  */
 
@@ -35,5 +36,6 @@ void SC_show_error (GtkWidget *widget, char *err_message);
 void SC_show_err_message (GtkWidget *widget, char *message, char *errmessage);
 gboolean SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX], char *glib_filename);
 void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid);
+void SC_kill_pid (GtkWidget *widget, int pid);
 
 #endif //SC_TEMPTOANIM_H

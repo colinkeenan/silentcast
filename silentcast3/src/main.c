@@ -37,6 +37,142 @@
 
 #define P_SET(A) g_object_set_data (G_OBJECT(widget), #A, A); // preprocessor changes #A to "A"
 
+static void show_perror (GtkWidget *widget, char *message) {
+  perror (message);
+
+  char str_err[1024] = { 0 }; 
+  char err_message[1200] = { 0 };
+
+  strcpy (err_message, message);
+  strcat (err_message, ": ");
+  strerror_r (errno, str_err, 1024);
+  strcat (err_message, str_err);
+  GtkWidget *dialog = 
+    gtk_message_dialog_new (GTK_WINDOW(widget), 
+        GTK_DIALOG_DESTROY_WITH_PARENT, 
+        GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s", err_message);
+  gtk_dialog_run (GTK_DIALOG (dialog));
+  gtk_widget_destroy (dialog);
+}
+
+static int compare_doubles (const void *a, const void *b)
+{
+  const double *da = (const double *) a;
+  const double *db = (const double *) b;
+
+  return (*da > *db) - (*da < *db);
+}
+
+static void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]) 
+{
+  double read_preset;
+  FILE *presets_file;
+  unsigned int i=0;
+  char *filename = "silentcast_presets";
+  double preset_defaults[PRESET_N] = {8.00008, 16.00016, 32.00032, 48.00048, 64.00064, 96.00096, 128.00128, 
+    256.00144, 427.00240, 569.00320, 640.00360, 853.00480, 1280.00720, 1360.00765, 1920.01080, 2880.01620};
+
+  presets_file = fopen (filename, "r");
+  if (presets_file == NULL) {
+    char message[PATH_MAX + 100] = { 0 };
+    strcpy (message, "<");
+    strcat (message, filename);
+    strcat (message, "> Using default list of sizes for middle-click drag");
+    show_perror (widget, message);
+    for (i = 0; i < PRESET_N; i++) presets[i] = preset_defaults[i]; 
+    previous[0] = 0; previous[1] = 0;  
+  } else { 
+    for (i = 0; i < PRESET_N + 2; i++) {
+      int ret = fscanf (presets_file, "%lf", &read_preset);
+      if (ret == 1){
+        if (i < PRESET_N) presets[i] = read_preset;
+        else previous [i - PRESET_N] = read_preset;
+      } else if (errno != 0) {
+        show_perror (widget, "fscanf");
+        break;
+      } else if (ret == EOF) {
+        break;
+      }
+    }
+    fclose (presets_file); 
+  }
+  qsort (presets, PRESET_N, sizeof (double), compare_doubles);
+}
+
+static void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
+    gboolean *p_gif, gboolean *p_pngs, gboolean *p_webm, gboolean *p_mp4) 
+{
+  FILE *conf_file;
+  char *line = NULL, *var_name = NULL, *var_val = NULL;
+  long unsigned int len = 0;
+  char *filename = "silentcast.conf";
+
+  conf_file = fopen (filename, "r");
+  if (conf_file == NULL) {
+    char message[PATH_MAX + 100] = { 0 };
+    strcpy (message, "<");
+    strcat (message, filename);
+    strcat (message, "> Using default configuration");
+    show_perror (widget, message);
+  } else {
+#define GBOOLEAN(A) !strcmp (A, "TRUE") ? TRUE : FALSE
+    while ((getline(&line, &len, conf_file)) != -1) {
+      char *substr = NULL;
+
+      /* nul terminate line at newline */
+      substr = strchr (line, '\n'); if (substr) *substr = '\0';
+      
+      if (strlen (line) > 1) {
+        /* split at = */
+        substr = strchr (line, '=');
+        if (substr) { //substr points to equals sign
+          *substr = '\0'; //nul terminate line at the equals sign
+          var_val = strdup (substr + 1); //var_val starts 1 after where equals sign was
+          var_name = strdup (line); //since nul at =, line is var_name
+
+          //strcmp is 0 when the strings match, so strcmp is only true if they don't match
+          if (strcmp (var_name, "working_dir")) { 
+            //only nul terminate var_val at space or # when var_name is not working_dir because working_dir may contain those characters
+            substr = strchr (var_val, ' '); if (substr) *substr = '\0';
+            substr = strchr (var_val, '#'); if (substr) *substr = '\0';
+          }
+          if (!strcmp (var_name, "working_dir")) {
+            gtk_entry_buffer_set_text (entry_buffer, var_val, -1);
+          } else if (!strcmp (var_name, "area")) {
+            strcpy(area, var_val);
+          } else if (!strcmp (var_name, "fps")) {
+            *p_fps = *var_val - '0';
+          } else if (!strcmp (var_name, "anims_from")) {
+            *p_anims_from_temp = !strcmp (var_val, "temp.mkv") ? TRUE : FALSE;
+          } else if (!strcmp (var_name, "gif")) {
+            *p_gif = GBOOLEAN(var_val);
+          } else if (!strcmp (var_name, "pngs")) {
+            *p_pngs = GBOOLEAN(var_val);
+          } else if (!strcmp (var_name, "webm")) {
+            *p_webm = GBOOLEAN(var_val);
+          } else if (!strcmp (var_name, "mp4")) {
+            *p_mp4 = GBOOLEAN(var_val);
+          } 
+        }
+        if (var_name) free (var_name);
+        if (var_val) free (var_val);
+      }
+    }
+    //set working dir to home dir if not valid
+    DIR* dir = opendir (gtk_entry_buffer_get_text (entry_buffer));
+    if (!dir) {
+      char homedir[PATH_MAX] = { 0 };
+      strcpy (homedir, g_get_home_dir());
+      if (strlen(homedir) > 2) gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
+      else gtk_entry_buffer_set_text (entry_buffer, "/tmp", -1);
+    }
+    //close and free everything
+    if (line) free (line);
+    if (conf_file) fclose (conf_file);
+    if (dir) closedir (dir);
+  }
+}
+
 static void set_rect_around_active_window (GtkWidget *widget, GdkRectangle *rect, GdkRectangle *p_actv_win, 
     GdkRectangle *p_extents, gboolean *p_include_extents) {
 
@@ -271,8 +407,8 @@ static void drag_resize_to_preset (double right, double lower, double presets[PR
 
   p_area_rect->x = (int) rleft;
   p_area_rect->y = (int) rupper;
-  p_area_rect->width = (int) get_w (presets[i]);
-  p_area_rect->height = (int) get_h (presets[i]);
+  p_area_rect->width = (int) SC_get_w (presets[i]);
+  p_area_rect->height = (int) SC_get_h (presets[i]);
 }
 
 static void scroll_resize_to_preset (GdkScrollDirection direction, GdkRectangle *p_area_rect, double presets[PRESET_N]) {
@@ -291,8 +427,8 @@ static void scroll_resize_to_preset (GdkScrollDirection direction, GdkRectangle 
       while (i < PRESET_N - 1 && !(presets[i] > widthheight)) i++;
     }
 
-    p_area_rect->width = (int) get_w (presets[i]);
-    p_area_rect->height = (int) get_h (presets[i]);
+    p_area_rect->width = (int) SC_get_w (presets[i]);
+    p_area_rect->height = (int) SC_get_h (presets[i]);
   }
 }
 
@@ -483,21 +619,6 @@ static void run_ffcom (GtkWidget *widget)
   }
 }
 
-/* clicking the iconified (minimized) silentcast icon to bring it back fullscreen triggers this to kill ffmpeg */
-static void kill_ffcom(GtkWidget *widget) 
-{
-  GError *err = NULL;
-  int *p_ffcom_pid = P("p_ffcom_pid");
-  char kill_ffcom[13], char_ffcom_pid[8]; //pid will be at most 7 digits long and /0 to terminate the string makes 8
-  snprintf (char_ffcom_pid, 8, "%d", *p_ffcom_pid);
-  strcpy (kill_ffcom, "kill ");
-  strcat (kill_ffcom, char_ffcom_pid);
-  if (!g_spawn_command_line_sync (kill_ffcom, NULL, NULL, NULL, &err)) {
-    SC_show_err_message (widget, "Error trying to kill ffmpeg command: ", err->message);
-    g_error_free (err);
-  }
-}
-
 static void toggle_fullscreen_area (GtkWidget *surface_widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) {
   static gboolean area_is_fullscreen = FALSE;
   area_is_fullscreen = !area_is_fullscreen;
@@ -627,7 +748,7 @@ static gboolean key_release_event_cb (GtkWidget *widget,
   gboolean *p_key_pressed = P("p_key_pressed");
 
   if (event->keyval == GDK_KEY_F1) {
-    show_f1_widget (GTK_APPLICATION(data), widget);
+    SC_show_f1_widget (GTK_APPLICATION(data), widget);
     return TRUE;
   } else if (event->keyval == GDK_KEY_F2) {
     show_f2_widget (GTK_APPLICATION(data), widget);
@@ -802,7 +923,8 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
   if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) 
     *p_surface_became_iconified = TRUE;
   else if (*p_surface_became_iconified) {
-    kill_ffcom(widget);
+    int *p_ffcom_pid = P("p_ffcom_pid");
+    SC_kill_pid (widget, *p_ffcom_pid);
     *p_surface_became_iconified = FALSE;
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;

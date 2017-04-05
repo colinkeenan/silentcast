@@ -29,68 +29,6 @@
  */
 #include "SC_conf_widgets.h"
 
-static void show_perror (GtkWidget *widget, char *message) {
-  perror (message);
-
-  char str_err[1024] = { 0 }; 
-  char err_message[1200] = { 0 };
-
-  strcpy (err_message, message);
-  strcat (err_message, ": ");
-  strerror_r (errno, str_err, 1024);
-  strcat (err_message, str_err);
-  GtkWidget *dialog = 
-    gtk_message_dialog_new (GTK_WINDOW(widget), 
-        GTK_DIALOG_DESTROY_WITH_PARENT, 
-        GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s", err_message);
-  gtk_dialog_run (GTK_DIALOG (dialog));
-  gtk_widget_destroy (dialog);
-}
-
-static int compare_doubles (const void *a, const void *b)
-{
-  const double *da = (const double *) a;
-  const double *db = (const double *) b;
-
-  return (*da > *db) - (*da < *db);
-}
-
-void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]) 
-{
-  double read_preset;
-  FILE *presets_file;
-  unsigned int i=0;
-  char *filename = "silentcast_presets";
-  double preset_defaults[PRESET_N] = {8.00008, 16.00016, 32.00032, 48.00048, 64.00064, 96.00096, 128.00128, 
-    256.00144, 427.00240, 569.00320, 640.00360, 853.00480, 1280.00720, 1360.00765, 1920.01080, 2880.01620};
-
-  presets_file = fopen (filename, "r");
-  if (presets_file == NULL) {
-    char message[PATH_MAX + 100] = { 0 };
-    strcpy (message, "<");
-    strcat (message, filename);
-    strcat (message, "> Using default list of sizes for middle-click drag");
-    show_perror (widget, message);
-    for (i = 0; i < PRESET_N; i++) presets[i] = preset_defaults[i]; 
-    previous[0] = 0; previous[1] = 0;  
-  } else { 
-    for (i = 0; i < PRESET_N + 2; i++) {
-      int ret = fscanf (presets_file, "%lf", &read_preset);
-      if (ret == 1){
-        if (i < PRESET_N) presets[i] = read_preset;
-        else previous [i - PRESET_N] = read_preset;
-      } else if (errno != 0) {
-        show_perror (widget, "fscanf");
-        break;
-      } else if (ret == EOF) {
-        break;
-      }
-    }
-    fclose (presets_file); 
-  }
-  qsort (presets, PRESET_N, sizeof (double), compare_doubles);
-}
-
 static void write_presets (double presets[PATH_MAX])
 {
   char *filename = "silentcast_presets", contents[PRESET_N * 12], char_preset[11];
@@ -102,80 +40,6 @@ static void write_presets (double presets[PATH_MAX])
     strcat (contents, char_preset);
   }
   g_file_set_contents (filename, contents, -1, NULL);
-}
-
-void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
-    gboolean *p_gif, gboolean *p_pngs, gboolean *p_webm, gboolean *p_mp4) 
-{
-  FILE *conf_file;
-  char *line = NULL, *var_name = NULL, *var_val = NULL;
-  long unsigned int len = 0;
-  char *filename = "silentcast.conf";
-
-  conf_file = fopen (filename, "r");
-  if (conf_file == NULL) {
-    char message[PATH_MAX + 100] = { 0 };
-    strcpy (message, "<");
-    strcat (message, filename);
-    strcat (message, "> Using default configuration");
-    show_perror (widget, message);
-  } else {
-#define GBOOLEAN(A) !strcmp (A, "TRUE") ? TRUE : FALSE
-    while ((getline(&line, &len, conf_file)) != -1) {
-      char *substr = NULL;
-
-      /* nul terminate line at newline */
-      substr = strchr (line, '\n'); if (substr) *substr = '\0';
-      
-      if (strlen (line) > 1) {
-        /* split at = */
-        substr = strchr (line, '=');
-        if (substr) { //substr points to equals sign
-          *substr = '\0'; //nul terminate line at the equals sign
-          var_val = strdup (substr + 1); //var_val starts 1 after where equals sign was
-          var_name = strdup (line); //since nul at =, line is var_name
-
-          //strcmp is 0 when the strings match, so strcmp is only true if they don't match
-          if (strcmp (var_name, "working_dir")) { 
-            //only nul terminate var_val at space or # when var_name is not working_dir because working_dir may contain those characters
-            substr = strchr (var_val, ' '); if (substr) *substr = '\0';
-            substr = strchr (var_val, '#'); if (substr) *substr = '\0';
-          }
-          if (!strcmp (var_name, "working_dir")) {
-            gtk_entry_buffer_set_text (entry_buffer, var_val, -1);
-          } else if (!strcmp (var_name, "area")) {
-            strcpy(area, var_val);
-          } else if (!strcmp (var_name, "fps")) {
-            *p_fps = *var_val - '0';
-          } else if (!strcmp (var_name, "anims_from")) {
-            *p_anims_from_temp = !strcmp (var_val, "temp.mkv") ? TRUE : FALSE;
-          } else if (!strcmp (var_name, "gif")) {
-            *p_gif = GBOOLEAN(var_val);
-          } else if (!strcmp (var_name, "pngs")) {
-            *p_pngs = GBOOLEAN(var_val);
-          } else if (!strcmp (var_name, "webm")) {
-            *p_webm = GBOOLEAN(var_val);
-          } else if (!strcmp (var_name, "mp4")) {
-            *p_mp4 = GBOOLEAN(var_val);
-          } 
-        }
-        if (var_name) free (var_name);
-        if (var_val) free (var_val);
-      }
-    }
-    //set working dir to home dir if not valid
-    DIR* dir = opendir (gtk_entry_buffer_get_text (entry_buffer));
-    if (!dir) {
-      char homedir[PATH_MAX] = { 0 };
-      strcpy (homedir, g_get_home_dir());
-      if (strlen(homedir) > 2) gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
-      else gtk_entry_buffer_set_text (entry_buffer, "/tmp", -1);
-    }
-    //close and free everything
-    if (line) free (line);
-    if (conf_file) fclose (conf_file);
-    if (dir) closedir (dir);
-  }
 }
 
 static void write_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int fps, gboolean anims_from_temp, 
@@ -348,14 +212,14 @@ static void on_h_spinbutt_changed (GtkWidget *spin, gpointer data)
   presets[i] = width + height_fraction;
 }
 
-double get_w(double a) 
+double SC_get_w (double a) 
 {
   double w;
   modf (a, &w);
   return w;
 }
 
-double get_h(double a) 
+double SC_get_h (double a) 
 {
   double w, h;
   h = 100000 * modf (a, &w);
@@ -395,7 +259,7 @@ static void update_area_prefs (GtkWidget *widget, GtkWidget *f1_widget)
  */
 #define PF1_SET(A) g_object_set_data (G_OBJECT(f1_widget), #A, A); // preprocessor changes #A to "A"
 
-void show_f1_widget (GtkApplication *app, GtkWidget *widget)
+void SC_show_f1_widget (GtkApplication *app, GtkWidget *widget)
 {
   GtkWidget *f1_widget = gtk_application_window_new (app);
   gtk_window_set_transient_for (GTK_WINDOW(f1_widget), GTK_WINDOW(widget));
@@ -476,14 +340,14 @@ void show_f1_widget (GtkApplication *app, GtkWidget *widget)
   static int j[PRESET_N];
   for (int i = 0; i < PRESET_N; i++) j[i] = i; //array of indexes to pass i as gpointer data
   for (int i = 0; i < PRESET_N; i++) {
-    adjstmnt_w[i] = gtk_adjustment_new (get_w (presets[i]), 0.0, 9999.0, 1.0, 5.0, 0.0);
+    adjstmnt_w[i] = gtk_adjustment_new (SC_get_w (presets[i]), 0.0, 9999.0, 1.0, 5.0, 0.0);
     w_spinbutt[i] = gtk_spin_button_new (adjstmnt_w[i], 1.0, 0);
     g_signal_connect (w_spinbutt[i], "value-changed", 
        G_CALLBACK(on_w_spinbutt_changed), &j[i]);
   }
   GtkAdjustment *adjstmnt_h[PRESET_N];
   for (int i = 0; i < PRESET_N; i++) {
-    adjstmnt_h[i] = gtk_adjustment_new (get_h (presets[i]), 0.0, 9999.0, 1.0, 5.0, 0.0);
+    adjstmnt_h[i] = gtk_adjustment_new (SC_get_h (presets[i]), 0.0, 9999.0, 1.0, 5.0, 0.0);
     h_spinbutt[i] = gtk_spin_button_new (adjstmnt_h[i], 1.0, 0);
     g_signal_connect (h_spinbutt[i], "value-changed", 
        G_CALLBACK(on_h_spinbutt_changed), &j[i]);

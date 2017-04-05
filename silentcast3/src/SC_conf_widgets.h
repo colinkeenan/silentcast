@@ -38,14 +38,9 @@
 #define BGN_SCTN "<span font_family=\"serif\"><big>"
 #define END_SCTN "</big></span>"
 
-void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]);
+double SC_get_w(double a);
+double SC_get_h(double a);
 
-void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
-    gboolean *p_gif, gboolean *p_pngs, gboolean *p_webm, gboolean *p_mp4); 
-
-double get_w(double a);
-double get_h(double a);
-
-void show_f1_widget (GtkApplication *app, GtkWidget *widget);
+void SC_show_f1_widget (GtkApplication *app, GtkWidget *widget);
 
 #endif //SC_CONF_WIDGETS_H

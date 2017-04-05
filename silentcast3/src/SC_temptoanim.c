@@ -24,7 +24,9 @@
 
 
 /*pointers defined in main.c: P("working_dir") P("area") P("p_fps") P("p_anims_from_temp") P("p_gif") P("p_pngs") P("p_webm") P("p_mp4")
+ *
  * Translating variables from old bash version of temptoanim:
+ *
  * anims_from: was defined but never actually used in bash temptoanim
  *
  * otype: "png" if *p_pngs && !(*p_gif || *p_webm || *p_mp4), "gif" if *p_gif, "webm" if *p_webm, "mp4" if *p_mp4 
@@ -116,7 +118,7 @@ static gboolean get_pngs_glob (GtkWidget *widget, glob_t *p_pngs_glob) //should 
 {
   //glob returns 0 if successful so tests as true when there's an error
   if (glob ("ew-???.png", 0, globerr, p_pngs_glob))  { //not using any flags, that's what the 0 is
-    SC_show_error (widget, "Error: ew-???.png not found, so can't convert them to animated gif, webm, or mp4");
+    SC_show_error (widget, "Error: ew-???.png not found");
     return FALSE;
   }
   return TRUE;
@@ -163,6 +165,32 @@ void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commands
   }
 }
 
+void SC_kill_pid (GtkWidget *widget, int pid) 
+{
+  GError *err = NULL;
+  char kill_com[13], char_pid[8]; //pid will be at most 7 digits long and /0 to terminate the string makes 8
+  snprintf (char_pid, 8, "%d", pid);
+  strcpy (kill_com, "kill ");
+  strcat (kill_com, char_pid);
+  if (!g_spawn_command_line_sync (kill_com, NULL, NULL, NULL, &err)) {
+    SC_show_err_message (widget, "Error trying to kill ffmpeg command: ", err->message);
+    g_error_free (err);
+  }
+}
+
+static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int ff_gen_pngs_pid) 
+{
+  int ret = 0;
+  GtkWidget *dialog = 
+    gtk_message_dialog_new (GTK_WINDOW(widget), 
+        GTK_DIALOG_DESTROY_WITH_PARENT, 
+        GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "Generating pngs from temp.mkv");
+  gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
+  ret = gtk_dialog_run (GTK_DIALOG (dialog));
+  if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, ff_gen_pngs_pid);
+  gtk_widget_destroy (dialog);
+}
+
 static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *p_pngs_glob, int fps)
 {
   delete_pngs (widget, p_pngs_glob); //before generating new pngs, delete any existing ones
@@ -178,8 +206,8 @@ static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glo
       strcat (ff_gen_pngs, " ew-%03d.png");
       //spawn it
       SC_spawn (widget, glib_encoded_silentcast_dir, ff_gen_pngs, p_ff_gen_pngs_pid); 
+      show_genpngs_dialog (widget, silentcast_dir, *p_ff_gen_pngs_pid);
       g_free (glib_encoded_silentcast_dir);
-      //need to put up a dialog showing pngs being created with option to cancel (which would kill *p_ff_gen_pngs_pid)
     }
   }
 }
