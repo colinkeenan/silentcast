@@ -126,14 +126,18 @@ static gboolean get_pngs_glob (GtkWidget *widget, glob_t *p_pngs_glob) //should 
 
 static void delete_pngs (GtkWidget *widget, glob_t *p_pngs_glob, int group)
 {
+  if (group == 1) { //don't need to do anything if group is 1 because that means keep everything
     for (int i=0; i<p_pngs_glob->gl_pathc; i++) { 
       char *glib_encoded_filename = NULL;
       if (SC_get_glib_filename (widget, p_pngs_glob->gl_pathv[i], glib_encoded_filename)) {
-        if (i % group != 1) g_remove (glib_encoded_filename); //keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3
+        //keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3
+        //also, 0 = don't keep any
+        if (group == 0 || i % group != 1) g_remove (glib_encoded_filename); 
         g_free (glib_encoded_filename);
       } 
     }
     globfree (p_pngs_glob);
+  }
 }
 
 static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean pngs, glob_t *p_pngs_glob)
@@ -145,7 +149,7 @@ static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX]
         "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.") 
       && !pngs) {
     //if anim.gif was made and pngs aren't a desired output, delete them
-    delete_pngs (widget, p_pngs_glob, 1); //1 means delete them all
+    delete_pngs (widget, p_pngs_glob, 0); //0 means delete them all
     return TRUE;
   } else return FALSE;
 }
@@ -193,20 +197,20 @@ static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX
 
 static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *p_pngs_glob, int fps)
 {
-  delete_pngs (widget, p_pngs_glob, 1); //before generating new pngs, delete any existing ones
+  delete_pngs (widget, p_pngs_glob, 0); //before generating new pngs, delete any existing ones (0 means keep none)
   if (temp_exists (widget, silentcast_dir)) {
     char *glib_encoded_silentcast_dir = NULL;
     if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
       char ff_gen_pngs[200];
-      int *p_ff_gen_pngs_pid = NULL;
       char char_fps[5]; snprintf (char_fps, 5, "%d", fps);
       //construct the command to generate pngs: ffmpeg -i -temp.mkv -r fps ew-%03d.png
       strcpy (ff_gen_pngs, "/usr/bin/ffmpeg -i temp.mkv -r ");
       strcat (ff_gen_pngs, char_fps);
       strcat (ff_gen_pngs, " ew-%03d.png");
       //spawn it
-      SC_spawn (widget, glib_encoded_silentcast_dir, ff_gen_pngs, p_ff_gen_pngs_pid); 
-      show_genpngs_dialog (widget, silentcast_dir, *p_ff_gen_pngs_pid);
+      int ff_gen_pngs_pid = 0;
+      SC_spawn (widget, glib_encoded_silentcast_dir, ff_gen_pngs, &ff_gen_pngs_pid); 
+      show_genpngs_dialog (widget, silentcast_dir, ff_gen_pngs_pid);
       g_free (glib_encoded_silentcast_dir);
     }
   }
@@ -219,27 +223,64 @@ static gboolean on_value_changed_group (GtkSpinButton *group_spnbutt, gpointer d
   return TRUE;
 }
 
+static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int convert_com_pid) 
+{
+  int ret = 0;
+  GtkWidget *dialog = 
+    gtk_message_dialog_new (GTK_WINDOW(widget), 
+        GTK_DIALOG_DESTROY_WITH_PARENT, 
+        GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "Generating anim.gif from pngs");
+  gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
+  ret = gtk_dialog_run (GTK_DIALOG (dialog));
+  if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, convert_com_pid);
+  gtk_widget_destroy (dialog);
+}
+
+struct data_struct {
+  char *silentcast_dir;
+  glob_t *p_pngs_glob;
+  int *p_group;
+  int *p_fps;
+};
+
 static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
-  int* *data_array = data;
-  int *p_group = data_array[0], group = *p_group;
-  int *p_fps = data_array[1], fps = *p_fps;
+  struct data_struct *p_data_struct = data; 
+  char *silentcast_dir = p_data_struct->silentcast_dir;
+  glob_t *p_pngs_glob = p_data_struct->p_pngs_glob;
+  int *p_group = p_data_struct->p_group, group = *p_group;
+  int *p_fps = p_data_struct->p_fps, fps = *p_fps;
   char convert_com[100], delay[5];
+  GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
 
-  //convert -adjoin -delay (group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
-  strcpy (convert_com, "convert -adjoin -delay ");
-  snprintf (delay, 5, "%d", group * fps);
-  strcat (convert_com, delay);
-  strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
+  delete_pngs (widget, p_pngs_glob, group); //delete all but 1 out of every group number of pngs
 
-  //have to get silentcast_dir into this callback so can get glib_encoded_silentcast_dir and spawn convert_com
+  char *glib_encoded_silentcast_dir = NULL;
+  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+    //construct convert_com: convert -adjoin -delay (group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
+    strcpy (convert_com, "convert -adjoin -delay ");
+    snprintf (delay, 5, "%d", group * fps);
+    strcat (convert_com, delay);
+    strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
+    //spawn it
+    int convert_com_pid = 0;
+    SC_spawn (widget, glib_encoded_silentcast_dir, convert_com, &convert_com_pid); 
+    show_make_anim_dialog (widget, silentcast_dir, convert_com_pid);
+    g_free (glib_encoded_silentcast_dir);
+  }
   return TRUE;
 }
 
-static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *p_pngs_glob, int *p_fps, GtkApplication *app)
+static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *p_pngs_glob, int *p_fps)
 {
   static int group = 1; //in delete_pngs, keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3
   int *p_group = &group;
-  int* data[2] = { p_group, p_fps };
+  struct data_struct data_struct = {
+    .silentcast_dir = silentcast_dir,
+    .p_pngs_glob = p_pngs_glob,
+    .p_group = p_group,
+    .p_fps = p_fps
+  };
+  struct data_struct *p_data_struct = &data_struct;
   GtkWidget *group_spnbutt = NULL;
   group_spnbutt = gtk_spin_button_new_with_range (1, 8, 1); 
   g_signal_connect (group_spnbutt, "value-changed", 
@@ -248,9 +289,9 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
   gtk_widget_set_halign (group_spinbutt_label, GTK_ALIGN_END);
   GtkWidget *done= gtk_button_new_with_label ("Done");
   g_signal_connect (done, "clicked", 
-     G_CALLBACK(make_anim_gif_cb), data);
+     G_CALLBACK(make_anim_gif_cb), p_data_struct);
 
-  GtkWidget *edit_pngs_widget = gtk_application_window_new (app);
+  GtkWidget *edit_pngs_widget = gtk_application_window_new (gtk_window_get_application (GTK_WINDOW(widget)));
   gtk_window_set_transient_for (GTK_WINDOW(edit_pngs_widget), GTK_WINDOW(widget));
   gtk_window_set_title (GTK_WINDOW(edit_pngs_widget), "Silentcast Edit Pngs");
   GtkWidget *edit_pngs = gtk_grid_new ();
