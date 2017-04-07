@@ -126,13 +126,15 @@ static gboolean get_pngs_glob (GtkWidget *widget, glob_t *p_pngs_glob) //should 
 
 static void delete_pngs (GtkWidget *widget, glob_t *p_pngs_glob, int group)
 {
-  if (group == 1) { //don't need to do anything if group is 1 because that means keep everything
+  if (group != 1) { //don't need to do anything if group is 1 because that means keep everything
     for (int i=0; i<p_pngs_glob->gl_pathc; i++) { 
       char *glib_encoded_filename = NULL;
       if (SC_get_glib_filename (widget, p_pngs_glob->gl_pathv[i], glib_encoded_filename)) {
-        //keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3
-        //also, 0 = don't keep any
-        if (group == 0 || i % group != 1) g_remove (glib_encoded_filename); 
+        //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
+        //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
+        //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
+        //keep when i == 1 or when i % group == 1. Delete when i != 1 && i%group != 1)
+        if (group == 0 || (i % group != 1 && i != 1)) g_remove (glib_encoded_filename); 
         g_free (glib_encoded_filename);
       } 
     }
@@ -243,6 +245,7 @@ struct data_struct {
   int *p_fps;
 };
 
+//executed when done button is pressed from edit_pngs
 static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   struct data_struct *p_data_struct = data; 
   char *silentcast_dir = p_data_struct->silentcast_dir;
