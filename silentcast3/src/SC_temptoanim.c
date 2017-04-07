@@ -225,6 +225,7 @@ static gboolean on_value_changed_group (GtkSpinButton *group_spnbutt, gpointer d
   return TRUE;
 }
 
+//run from make_anim_gif_cb (which is run from clicking done button from edit_pngs)
 static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int convert_com_pid) 
 {
   int ret = 0;
@@ -234,34 +235,38 @@ static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_M
         GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "Generating anim.gif from pngs");
   gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
   ret = gtk_dialog_run (GTK_DIALOG (dialog));
+  //if cancel was clicked, send a kill signal to the convert command
   if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, convert_com_pid);
   gtk_widget_destroy (dialog);
 }
 
-struct data_struct {
+struct SC_anim_data {
   char *silentcast_dir;
   glob_t *p_pngs_glob;
   int *p_group;
+  int *p_total_group;
   int *p_fps;
 };
 
-//executed when done button is pressed from edit_pngs
+//executed when done button is clicked from edit_pngs
 static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
-  struct data_struct *p_data_struct = data; 
-  char *silentcast_dir = p_data_struct->silentcast_dir;
-  glob_t *p_pngs_glob = p_data_struct->p_pngs_glob;
-  int *p_group = p_data_struct->p_group, group = *p_group;
-  int *p_fps = p_data_struct->p_fps, fps = *p_fps;
+  struct SC_anim_data *p_SC_anim_data = data; 
+  char *silentcast_dir = p_SC_anim_data->silentcast_dir;
+  glob_t *p_pngs_glob = p_SC_anim_data->p_pngs_glob;
+  int *p_group = p_SC_anim_data->p_group, group = *p_group;
+  int *p_total_group = p_SC_anim_data->p_total_group;
+  int *p_fps = p_SC_anim_data->p_fps, fps = *p_fps;
   char convert_com[100], delay[5];
   GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
 
-  delete_pngs (widget, p_pngs_glob, group); //delete all but 1 out of every group number of pngs
+  delete_pngs (widget, p_pngs_glob, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
 
   char *glib_encoded_silentcast_dir = NULL;
   if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
-    //construct convert_com: convert -adjoin -delay (group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
+    //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
+    *p_total_group = *p_total_group + group;
     strcpy (convert_com, "convert -adjoin -delay ");
-    snprintf (delay, 5, "%d", group * fps);
+    snprintf (delay, 5, "%d", *p_total_group * fps);
     strcat (convert_com, delay);
     strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
     //spawn it
@@ -277,13 +282,16 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
 {
   static int group = 1; //in delete_pngs, keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3
   int *p_group = &group;
-  struct data_struct data_struct = {
+  static int total_group = 0; //user may edit pngs many times, choosing many groups in a row. need total for calculating delay in make_anim_gif
+  int *p_total_group = &total_group;
+  struct SC_anim_data SC_anim_data = {
     .silentcast_dir = silentcast_dir,
     .p_pngs_glob = p_pngs_glob,
     .p_group = p_group,
+    .p_total_group = p_total_group,
     .p_fps = p_fps
   };
-  struct data_struct *p_data_struct = &data_struct;
+  struct SC_anim_data *p_SC_anim_data = &SC_anim_data;
   GtkWidget *group_spnbutt = NULL;
   group_spnbutt = gtk_spin_button_new_with_range (1, 8, 1); 
   g_signal_connect (group_spnbutt, "value-changed", 
@@ -292,7 +300,7 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
   gtk_widget_set_halign (group_spinbutt_label, GTK_ALIGN_END);
   GtkWidget *done= gtk_button_new_with_label ("Done");
   g_signal_connect (done, "clicked", 
-     G_CALLBACK(make_anim_gif_cb), p_data_struct);
+     G_CALLBACK(make_anim_gif_cb), p_SC_anim_data);
 
   GtkWidget *edit_pngs_widget = gtk_application_window_new (gtk_window_get_application (GTK_WINDOW(widget)));
   gtk_window_set_transient_for (GTK_WINDOW(edit_pngs_widget), GTK_WINDOW(widget));
