@@ -225,18 +225,17 @@ static gboolean on_value_changed_group (GtkSpinButton *group_spnbutt, gpointer d
   return TRUE;
 }
 
-//run from make_anim_gif_cb (which is run from clicking done button from edit_pngs)
-static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int convert_com_pid) 
+static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int pid, char *message) 
 {
   int ret = 0;
   GtkWidget *dialog = 
     gtk_message_dialog_new (GTK_WINDOW(widget), 
         GTK_DIALOG_DESTROY_WITH_PARENT, 
-        GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "Generating anim.gif from pngs");
+        GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "%s", message);
   gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
   ret = gtk_dialog_run (GTK_DIALOG (dialog));
-  //if cancel was clicked, send a kill signal to the convert command
-  if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, convert_com_pid);
+  //if cancel was clicked, send a kill signal to the command
+  if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, pid);
   gtk_widget_destroy (dialog);
 }
 
@@ -272,7 +271,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
     //spawn it
     int convert_com_pid = 0;
     SC_spawn (widget, glib_encoded_silentcast_dir, convert_com, &convert_com_pid); 
-    show_make_anim_dialog (widget, silentcast_dir, convert_com_pid);
+    show_make_anim_dialog (widget, silentcast_dir, convert_com_pid, "making anim.gif from pngs");
     g_free (glib_encoded_silentcast_dir);
   }
   return TRUE;
@@ -296,7 +295,7 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
   group_spnbutt = gtk_spin_button_new_with_range (1, 8, 1); 
   g_signal_connect (group_spnbutt, "value-changed", 
      G_CALLBACK(on_value_changed_group), p_group);
-  GtkWidget *group_spinbutt_label = gtk_label_new ("Delete pngs, keeping 1 out of every"); 
+  GtkWidget *group_spinbutt_label = gtk_label_new ("Prune pngs, keeping 1 out of every"); 
   gtk_widget_set_halign (group_spinbutt_label, GTK_ALIGN_END);
   GtkWidget *done= gtk_button_new_with_label ("Done");
   g_signal_connect (done, "clicked", 
@@ -310,7 +309,56 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
 #define EDPNGS_ATCH(A,C,R,W) gtk_grid_attach (GTK_GRID(edit_pngs), A, C, R, W, 1) 
   EDPNGS_ATCH(group_spinbutt_label, 0, 0, 1); EDPNGS_ATCH(group_spnbutt, 1, 0, 1);
   EDPNGS_ATCH(gtk_label_new ("You can also manipulate the images manually in the file browser or other application."), 0, 1, 4);
-  EDPNGS_ATCH(gtk_label_new ("Clicking done will try to make anim.gif from the remaining pngs."), 0, 2, 4);
+  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 2, 4);
                                                                                                       EDPNGS_ATCH(done, 4, 3, 1);
   gtk_widget_show_all(edit_pngs_widget);
 }
+
+static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps, gboolean webm)
+{
+  char ff_make_movie_com[100], char_fps[4], message[35];
+  char *glib_encoded_silentcast_dir = NULL;
+  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+    //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm
+    //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
+    strcpy (ff_make_movie_com, "ffmpeg -r ");
+    snprintf (char_fps, 4, "%d", *p_fps);
+    strcat (ff_make_movie_com, char_fps);
+    if (webm) {
+      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm");
+      strcpy (message, "Creating anim.webm from ew-???.png");
+    } else {
+      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" anim.mp4");
+      strcpy (message, "Creating anim.mp4 from ew-???.png");
+    }
+    //spawn it
+    int ff_make_movie_com_pid = 0;
+    SC_spawn (widget, glib_encoded_silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid); 
+    show_make_anim_dialog (widget, silentcast_dir, ff_make_movie_com_pid, message);
+    g_free (glib_encoded_silentcast_dir);
+  }
+}
+
+static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean webm)
+{
+  char ff_make_movie_com[100], message[35];
+  char *glib_encoded_silentcast_dir = NULL;
+  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+    //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
+    //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
+    strcpy (ff_make_movie_com, "ffmpeg -i temp.mkv ");
+    if (webm) {
+      strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm");
+      strcpy (message, "Creating anim.webm from temp.mkv");
+    } else {
+      strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" anim.mp4");
+      strcpy (message, "Creating anim.mp4 from temp.mkv");
+    }
+    //spawn it
+    int ff_make_movie_com_pid = 0;
+    SC_spawn (widget, glib_encoded_silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid); 
+    show_make_anim_dialog (widget, silentcast_dir, ff_make_movie_com_pid, message);
+    g_free (glib_encoded_silentcast_dir);
+  }
+}
+
