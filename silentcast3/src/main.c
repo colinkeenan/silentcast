@@ -609,8 +609,8 @@ static void run_ffcom (GtkWidget *widget)
   char silentcast_dir[PATH_MAX];
   strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
   strcat (silentcast_dir, "/silentcast");
-  char *glib_encoded_silentcast_dir = NULL;
-  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700); //can't enter a directory unless it has execute privilage, so 700 instead of 600
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
@@ -922,10 +922,30 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
 
   if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) 
     *p_surface_became_iconified = TRUE;
-  else if (*p_surface_became_iconified) {
+
+  else if (*p_surface_became_iconified) { //changed to not iconified so stop ffmpeg and launch temptoanim, showing the default filemanager
+    *p_surface_became_iconified = FALSE;
+    //stop ffcom
     int *p_ffcom_pid = P("p_ffcom_pid");
     SC_kill_pid (widget, *p_ffcom_pid);
-    *p_surface_became_iconified = FALSE;
+    //try to open silentcast_dir in the default file manager
+    char silentcast_dir[PATH_MAX];
+    strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
+    strcat (silentcast_dir, "/silentcast");
+    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+    if (glib_encoded_silentcast_dir) {
+      //trying to open the default filemanager and don't care about errors
+      char *silentcast_dir_uri = g_filename_to_uri (glib_encoded_silentcast_dir, NULL, NULL);
+      g_free (glib_encoded_silentcast_dir);
+      if (silentcast_dir_uri) {
+        g_app_info_launch_default_for_uri (silentcast_dir_uri, NULL, NULL);
+        g_free (silentcast_dir_uri);
+      }
+    }
+    int *p_fps = P("p_fps");
+    gboolean *p_anims_from_temp = P("p_anims_from_temp"), *p_gif = P("p_gif"), *p_webm = P("p_webm"), *p_mp4 = P("p_mp4");
+    //launch temptoanim
+    SC_generate_outputs (widget, silentcast_dir, p_fps, *p_anims_from_temp, *p_gif, *p_webm, *p_mp4);
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;
 

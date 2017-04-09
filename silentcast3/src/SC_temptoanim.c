@@ -70,23 +70,23 @@ static void show_file_err (GtkWidget *widget, char filename[PATH_MAX], char *err
   SC_show_error (widget, err_message);
 }
 
-gboolean SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX], char *glib_filename)
+char* SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX])
 {
+  char *glib_filename;
   GError *err = NULL;
   gsize bytes_written = 0;
   glib_filename = g_filename_from_utf8 (filename, -1, NULL, &bytes_written, &err);
   if (err) {
     SC_show_err_message (widget, "Error getting glib encoded filename: ", err->message);
     g_error_free (err);
-    return FALSE;
   }
-  return TRUE;
+  return glib_filename;
 }
 
 static gboolean is_file (GtkWidget *widget, char filename[PATH_MAX], char *errmessage)
 {
-  char *glib_encoded_filename = NULL;
-  if (!SC_get_glib_filename (widget, filename, glib_encoded_filename)) return FALSE;
+  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (!glib_encoded_filename) return FALSE;
   else if (!g_file_test (glib_encoded_filename, G_FILE_TEST_IS_REGULAR)) {
     show_file_err (widget, filename, errmessage);
     g_free (glib_encoded_filename);
@@ -134,8 +134,8 @@ static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int g
     glob_t *glob_pngs = NULL;
     get_pngs_glob (widget, silentcast_dir, glob_pngs, FALSE); //FALSE means don't show errors
     for (int i=0; i<glob_pngs->gl_pathc; i++) { //nothing will happen if there's no pngs since gl_pathc will be 0
-      char *glib_encoded_filename = NULL;
-      if (SC_get_glib_filename (widget, glob_pngs->gl_pathv[i], glib_encoded_filename)) {
+      char *glib_encoded_filename = SC_get_glib_filename (widget, glob_pngs->gl_pathv[i]);
+      if (glib_encoded_filename) {
         //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
         //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
         //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
@@ -208,8 +208,8 @@ static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int
 {
   delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
   if (temp_exists (widget, silentcast_dir)) {
-    char *glib_encoded_silentcast_dir = NULL;
-    if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+    if (glib_encoded_silentcast_dir) {
       char ff_gen_pngs[200];
       char char_fps[5]; snprintf (char_fps, 5, "%d", fps);
       //construct the command to generate pngs: ffmpeg -i -temp.mkv -r fps ew-%03d.png
@@ -265,8 +265,8 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
 
   delete_pngs (widget, silentcast_dir, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
 
-  char *glib_encoded_silentcast_dir = NULL;
-  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
     //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
     *p_total_group = *p_total_group + group;
     strcpy (convert_com, "convert -adjoin -delay ");
@@ -321,8 +321,8 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
 static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps, gboolean webm)
 {
   char ff_make_movie_com[100], char_fps[4], message[35];
-  char *glib_encoded_silentcast_dir = NULL;
-  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
     //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm
     //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
     strcpy (ff_make_movie_com, "ffmpeg -r ");
@@ -346,8 +346,8 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
 static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean webm)
 {
   char ff_make_movie_com[100], message[35];
-  char *glib_encoded_silentcast_dir = NULL;
-  if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
     //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
     //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
     strcpy (ff_make_movie_com, "ffmpeg -i temp.mkv ");

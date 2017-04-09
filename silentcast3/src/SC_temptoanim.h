@@ -34,7 +34,7 @@
 
 void SC_show_error (GtkWidget *widget, char *err_message);
 void SC_show_err_message (GtkWidget *widget, char *message, char *errmessage);
-gboolean SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX], char *glib_filename);
+char* SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX]);
 void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid);
 void SC_kill_pid (GtkWidget *widget, int pid);
 void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps,
