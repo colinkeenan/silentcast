@@ -114,22 +114,28 @@ static int globerr(const char *path, int eerrno)
 	return 0;	/* let glob() keep going */
 }
 
-static gboolean get_pngs_glob (GtkWidget *widget, glob_t *p_pngs_glob) //should use globfree (p_pngs_glob) when done with it
+static gboolean get_pngs_glob (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *glob_pngs, gboolean show_errors) 
+//should use globfree (glob_pngs) when done with it
 {
+  char pattern[PATH_MAX];
+  strcat (pattern, silentcast_dir);
+  strcat (pattern, "ew-???.png"); 
   //glob returns 0 if successful so tests as true when there's an error
-  if (glob ("ew-???.png", 0, globerr, p_pngs_glob))  { //not using any flags, that's what the 0 is
-    SC_show_error (widget, "Error: ew-???.png not found");
+  if (glob (pattern, 0, globerr, glob_pngs))  { //not using any flags, that's what the 0 is
+    if (show_errors) SC_show_error (widget, "Error trying to expand ew-???.png");
     return FALSE;
   }
   return TRUE;
 }
 
-static void delete_pngs (GtkWidget *widget, glob_t *p_pngs_glob, int group)
+static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int group)
 {
   if (group != 1) { //don't need to do anything if group is 1 because that means keep everything
-    for (int i=0; i<p_pngs_glob->gl_pathc; i++) { 
+    glob_t *glob_pngs = NULL;
+    get_pngs_glob (widget, silentcast_dir, glob_pngs, FALSE); //FALSE means don't show errors
+    for (int i=0; i<glob_pngs->gl_pathc; i++) { //nothing will happen if there's no pngs since gl_pathc will be 0
       char *glib_encoded_filename = NULL;
-      if (SC_get_glib_filename (widget, p_pngs_glob->gl_pathv[i], glib_encoded_filename)) {
+      if (SC_get_glib_filename (widget, glob_pngs->gl_pathv[i], glib_encoded_filename)) {
         //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
         //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
         //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
@@ -138,20 +144,21 @@ static void delete_pngs (GtkWidget *widget, glob_t *p_pngs_glob, int group)
         g_free (glib_encoded_filename);
       } 
     }
-    globfree (p_pngs_glob);
+    globfree (glob_pngs);
   }
 }
 
-static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean pngs, glob_t *p_pngs_glob)
+static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean anims_from_temp)
 {
   char filename[PATH_MAX];
   strcpy (filename, silentcast_dir);
   strcat (filename, "/anim.gif");
-  if (is_file (widget, filename, 
-        "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.") 
-      && !pngs) {
-    //if anim.gif was made and pngs aren't a desired output, delete them
-    delete_pngs (widget, p_pngs_glob, 0); //0 means delete them all
+  char warning[] = 
+    "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.";
+
+  if (is_file (widget, filename, warning) ) {
+    //if anim.gif was made and pngs aren't needed to make a movie, delete pngs
+    if (anims_from_temp) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
     return TRUE;
   } else return FALSE;
 }
@@ -197,9 +204,9 @@ static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX
   gtk_widget_destroy (dialog);
 }
 
-static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *p_pngs_glob, int fps)
+static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps)
 {
-  delete_pngs (widget, p_pngs_glob, 0); //before generating new pngs, delete any existing ones (0 means keep none)
+  delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
   if (temp_exists (widget, silentcast_dir)) {
     char *glib_encoded_silentcast_dir = NULL;
     if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
@@ -241,7 +248,6 @@ static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_M
 
 struct SC_anim_data {
   char *silentcast_dir;
-  glob_t *p_pngs_glob;
   int *p_group;
   int *p_total_group;
   int *p_fps;
@@ -251,14 +257,13 @@ struct SC_anim_data {
 static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   struct SC_anim_data *p_SC_anim_data = data; 
   char *silentcast_dir = p_SC_anim_data->silentcast_dir;
-  glob_t *p_pngs_glob = p_SC_anim_data->p_pngs_glob;
   int *p_group = p_SC_anim_data->p_group, group = *p_group;
   int *p_total_group = p_SC_anim_data->p_total_group;
   int *p_fps = p_SC_anim_data->p_fps, fps = *p_fps;
   char convert_com[100], delay[5];
   GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
 
-  delete_pngs (widget, p_pngs_glob, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
+  delete_pngs (widget, silentcast_dir, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
 
   char *glib_encoded_silentcast_dir = NULL;
   if (SC_get_glib_filename (widget, silentcast_dir, glib_encoded_silentcast_dir)) {
@@ -277,7 +282,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   return TRUE;
 }
 
-static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *p_pngs_glob, int *p_fps)
+static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps)
 {
   static int group = 1; //in delete_pngs, keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3
   int *p_group = &group;
@@ -285,7 +290,6 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
   int *p_total_group = &total_group;
   struct SC_anim_data SC_anim_data = {
     .silentcast_dir = silentcast_dir,
-    .p_pngs_glob = p_pngs_glob,
     .p_group = p_group,
     .p_total_group = p_total_group,
     .p_fps = p_fps
@@ -314,7 +318,7 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], gl
   gtk_widget_show_all(edit_pngs_widget);
 }
 
-static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps, gboolean webm)
+static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps, gboolean webm)
 {
   char ff_make_movie_com[100], char_fps[4], message[35];
   char *glib_encoded_silentcast_dir = NULL;
@@ -322,7 +326,7 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
     //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm
     //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
     strcpy (ff_make_movie_com, "ffmpeg -r ");
-    snprintf (char_fps, 4, "%d", *p_fps);
+    snprintf (char_fps, 4, "%d", fps);
     strcat (ff_make_movie_com, char_fps);
     if (webm) {
       strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm");
@@ -362,3 +366,17 @@ static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MA
   }
 }
 
+void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps,
+    gboolean anims_from_temp, gboolean gif, gboolean webm, gboolean mp4)
+{
+  if (gif || !anims_from_temp) generate_pngs (widget, silentcast_dir, *p_fps); //existing pngs are deleted in generate_pngs
+  if (gif) 
+    while (!animgif_exists (widget, silentcast_dir, anims_from_temp)) show_edit_pngs (widget, silentcast_dir, p_fps);
+  if (anims_from_temp) {
+    if (webm) make_movie_from_temp (widget, silentcast_dir, TRUE); //TRUE means make webm
+    if (mp4) make_movie_from_temp (widget, silentcast_dir, FALSE); //FALSE means make mp4
+  } else {
+    if (webm) make_movie_from_pngs (widget, silentcast_dir, *p_fps, TRUE);
+    if (mp4) make_movie_from_pngs (widget, silentcast_dir, *p_fps, FALSE);
+  }
+}

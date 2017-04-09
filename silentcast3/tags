@@ -9,7 +9,7 @@ BGN_SCTN	src/SC_conf_widgets.h	38;"	d
 COL_SPACING	src/SC_conf_widgets.h	36;"	d
 CONFIG_ATTACH	src/SC_conf_widgets.c	425;"	d	file:
 D_ERR	lib/SC_X11_get_active_window.h	35;"	d
-EDPNGS_ATCH	src/SC_temptoanim.c	275;"	d	file:
+EDPNGS_ATCH	src/SC_temptoanim.c	309;"	d	file:
 END_SCTN	src/SC_conf_widgets.h	39;"	d
 F2_ATCH	src/main.c	553;"	d	file:
 FOCUS_ERR1	lib/SC_X11_get_active_window.h	36;"	d
@@ -36,6 +36,7 @@ SC_X11_ERROR2	lib/SC_X11_get_active_window.h	31;"	d
 SC_X11_ERROR3	lib/SC_X11_get_active_window.h	32;"	d
 SC_X11_ERROR4	lib/SC_X11_get_active_window.h	33;"	d
 SC_X11_GET_ACTIVE_WINDOW_H	lib/SC_X11_get_active_window.h	25;"	d
+SC_anim_data	src/SC_temptoanim.c	/^struct SC_anim_data {$/;"	s	file:
 SC_get_active_X11window	lib/SC_X11_get_active_window.c	/^SC_get_active_X11window (Window *w, Window* *w_children, ssize_t *n)$/;"	f
 SC_get_active_gdkwindow	lib/SC_X11_get_active_window.c	/^SC_get_active_gdkwindow (Window aw, Window *aw_children, ssize_t n, GdkWindow* *gdkwindow) {$/;"	f
 SC_get_active_windows_and_geometry	lib/SC_X11_get_active_window.c	/^SC_get_active_windows_and_geometry (Window *aw, Window* *aw_children, ssize_t *n, $/;"	f
@@ -59,7 +60,6 @@ change_w_dir_cb	src/SC_conf_widgets.c	/^static void change_w_dir_cb (GtkWidget *
 clear_surface	src/main.c	/^static void clear_surface (GtkWidget *widget, cairo_surface_t *surface) $/;"	f	file:
 compare_doubles	src/main.c	/^static int compare_doubles (const void *a, const void *b)$/;"	f	file:
 configure_surface_cb	src/main.c	/^configure_surface_cb (GtkWidget *widget,$/;"	f	file:
-data_struct	src/SC_temptoanim.c	/^struct data_struct {$/;"	s	file:
 delete_pngs	src/SC_temptoanim.c	/^static void delete_pngs (GtkWidget *widget, glob_t *p_pngs_glob, int group)$/;"	f	file:
 drag_resize_to_preset	src/main.c	/^static void drag_resize_to_preset (double right, double lower, double presets[PRESET_N], GdkRectangle *p_area_rect) $/;"	f	file:
 draw_cb	src/main.c	/^static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)$/;"	f	file:
@@ -80,6 +80,8 @@ key_press_event_cb	src/main.c	/^static gboolean key_press_event_cb (GtkWidget *w
 key_release_event_cb	src/main.c	/^static gboolean key_release_event_cb (GtkWidget *widget,$/;"	f	file:
 main	src/main.c	/^main (int    argc,$/;"	f
 make_anim_gif_cb	src/SC_temptoanim.c	/^static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {$/;"	f	file:
+make_movie_from_pngs	src/SC_temptoanim.c	/^static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps, gboolean webm)$/;"	f	file:
+make_movie_from_temp	src/SC_temptoanim.c	/^static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean webm)$/;"	f	file:
 motion_notify_event_cb	src/main.c	/^motion_notify_event_cb (GtkWidget      *widget,$/;"	f	file:
 on_active_win_radiobutt_changed	src/SC_conf_widgets.c	/^static void on_active_win_radiobutt_changed (GtkWidget *radiobutt, gpointer data)$/;"	f	file:
 on_center_radiobutt_changed	src/SC_conf_widgets.c	/^static void on_center_radiobutt_changed (GtkWidget *radiobutt, gpointer data)$/;"	f	file:
@@ -94,9 +96,10 @@ on_value_changed_w	src/main.c	/^static gboolean on_value_changed_w (GtkSpinButto
 on_value_changed_x	src/main.c	/^static gboolean on_value_changed_x (GtkSpinButton *spin, gpointer data)$/;"	f	file:
 on_value_changed_y	src/main.c	/^static gboolean on_value_changed_y (GtkSpinButton *spin, gpointer data)$/;"	f	file:
 on_w_spinbutt_changed	src/SC_conf_widgets.c	/^static void on_w_spinbutt_changed (GtkWidget *spin, gpointer data)$/;"	f	file:
-p_fps	src/SC_temptoanim.c	/^  int *p_fps;$/;"	m	struct:data_struct	file:
-p_group	src/SC_temptoanim.c	/^  int *p_group;$/;"	m	struct:data_struct	file:
-p_pngs_glob	src/SC_temptoanim.c	/^  glob_t *p_pngs_glob;$/;"	m	struct:data_struct	file:
+p_fps	src/SC_temptoanim.c	/^  int *p_fps;$/;"	m	struct:SC_anim_data	file:
+p_group	src/SC_temptoanim.c	/^  int *p_group;$/;"	m	struct:SC_anim_data	file:
+p_pngs_glob	src/SC_temptoanim.c	/^  glob_t *p_pngs_glob;$/;"	m	struct:SC_anim_data	file:
+p_total_group	src/SC_temptoanim.c	/^  int *p_total_group;$/;"	m	struct:SC_anim_data	file:
 position_rect	src/main.c	/^static void position_rect (int x, int y, GdkRectangle *p_area_rect) {$/;"	f	file:
 resize_rect	src/main.c	/^static void resize_rect (int right, int lower, GdkRectangle *p_area_rect) {$/;"	f	file:
 run_ffcom	src/main.c	/^static void run_ffcom (GtkWidget *widget) $/;"	f	file:
@@ -113,8 +116,9 @@ show_f2_widget	src/main.c	/^static void show_f2_widget (GtkApplication *app, Gtk
 show_f3_widget	src/main.c	/^static void show_f3_widget (GtkApplication *app, GtkWidget *widget) $/;"	f	file:
 show_file_err	src/SC_temptoanim.c	/^static void show_file_err (GtkWidget *widget, char filename[PATH_MAX], char *errmessage)$/;"	f	file:
 show_genpngs_dialog	src/SC_temptoanim.c	/^static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int ff_gen_pngs_pid) $/;"	f	file:
+show_make_anim_dialog	src/SC_temptoanim.c	/^static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int pid, char *message) $/;"	f	file:
 show_perror	src/main.c	/^static void show_perror (GtkWidget *widget, char *message) {$/;"	f	file:
-silentcast_dir	src/SC_temptoanim.c	/^  char *silentcast_dir;$/;"	m	struct:data_struct	file:
+silentcast_dir	src/SC_temptoanim.c	/^  char *silentcast_dir;$/;"	m	struct:SC_anim_data	file:
 temp_exists	src/SC_temptoanim.c	/^static gboolean temp_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX])$/;"	f	file:
 toggle_fullscreen_area	src/main.c	/^static void toggle_fullscreen_area (GtkWidget *surface_widget, GdkRectangle *p_area_rect, cairo_surface_t *surface) {$/;"	f	file:
 tran_setup	src/main.c	/^static void tran_setup(GtkWidget *widget)$/;"	f	file:
