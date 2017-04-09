@@ -943,9 +943,9 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
       }
     }
     int *p_fps = P("p_fps");
-    gboolean *p_anims_from_temp = P("p_anims_from_temp"), *p_gif = P("p_gif"), *p_webm = P("p_webm"), *p_mp4 = P("p_mp4");
+    gboolean *p_anims_from_temp = P("p_anims_from_temp"), *p_gif = P("p_gif"), *p_pngs = P("p_pngs"), *p_webm = P("p_webm"), *p_mp4 = P("p_mp4");
     //launch temptoanim
-    SC_generate_outputs (widget, silentcast_dir, p_fps, *p_anims_from_temp, *p_gif, *p_webm, *p_mp4);
+    SC_generate_outputs (widget, silentcast_dir, p_fps, *p_anims_from_temp, *p_gif, *p_pngs, *p_webm, *p_mp4);
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;
 

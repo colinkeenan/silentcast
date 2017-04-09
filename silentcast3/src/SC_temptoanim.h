@@ -38,6 +38,6 @@ char* SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX]);
 void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid);
 void SC_kill_pid (GtkWidget *widget, int pid);
 void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps,
-    gboolean anims_from_temp, gboolean gif, gboolean webm, gboolean mp4);
+    gboolean anims_from_temp, gboolean gif, gboolean pngs, gboolean webm, gboolean mp4);
 
 #endif //SC_TEMPTOANIM_H

@@ -22,23 +22,6 @@
  *
  */
 
-
-/*pointers defined in main.c: P("working_dir") P("area") P("p_fps") P("p_anims_from_temp") P("p_gif") P("p_pngs") P("p_webm") P("p_mp4")
- *
- * Translating variables from old bash version of temptoanim:
- *
- * anims_from: was defined but never actually used in bash temptoanim
- *
- * otype: "png" if *p_pngs && !(*p_gif || *p_webm || *p_mp4), "gif" if *p_gif, "webm" if *p_webm, "mp4" if *p_mp4 
- *        (bash version was run multiple times to get all selected outputs)
- * rm_png: !(*p_pngs)
- * use_pngs: !(*p_anims_from_temp) && (*p_webm || *p_mp4) and was also for using exising pngs without generating them from temp.mkv
- * gen_pngs: *p_pngs || (!(*p_anims_from_temp) && (*p_webm || *p_mp4))
- * fps: *p_fps
- *
- * cut, total_cut, group, count: These were for reducing the number of pngs and adjusting the rate if user chose to do so due to memory limitation
-*/
-
 #include "SC_temptoanim.h"
 
 void SC_show_error (GtkWidget *widget, char *err_message) 
@@ -56,7 +39,7 @@ void SC_show_err_message (GtkWidget *widget, char *message, char *errmessage)
   char err_message[1200];
   strcpy (err_message, message);
   strcat (err_message, errmessage);
-  fprintf (stderr, "%s", err_message);
+  fprintf (stderr, "\n%s", err_message);
   SC_show_error (widget, err_message);
 }
 
@@ -148,7 +131,7 @@ static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int g
   }
 }
 
-static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean anims_from_temp)
+static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean anims_from_temp, gboolean pngs)
 {
   char filename[PATH_MAX];
   strcpy (filename, silentcast_dir);
@@ -156,11 +139,7 @@ static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX]
   char warning[] = 
     "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.";
 
-  if (is_file (widget, filename, warning) ) {
-    //if anim.gif was made and pngs aren't needed to make a movie, delete pngs
-    if (anims_from_temp) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
-    return TRUE;
-  } else return FALSE;
+  return is_file (widget, filename, warning);
 }
 
 void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid)
@@ -206,7 +185,7 @@ static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX
 
 static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps)
 {
-  delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
+//  delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
   if (temp_exists (widget, silentcast_dir)) {
     char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
     if (glib_encoded_silentcast_dir) {
@@ -260,7 +239,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   int *p_group = p_SC_anim_data->p_group, group = *p_group;
   int *p_total_group = p_SC_anim_data->p_total_group;
   int *p_fps = p_SC_anim_data->p_fps, fps = *p_fps;
-  char convert_com[100], delay[5];
+  char convert_com[128], delay[5];
   GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
 
   delete_pngs (widget, silentcast_dir, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
@@ -269,7 +248,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   if (glib_encoded_silentcast_dir) {
     //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
     *p_total_group = *p_total_group + group;
-    strcpy (convert_com, "convert -adjoin -delay ");
+    strcpy (convert_com, "/usr/bin/convert -adjoin -delay ");
     snprintf (delay, 5, "%d", *p_total_group * fps);
     strcat (convert_com, delay);
     strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
@@ -320,19 +299,19 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
 
 static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps, gboolean webm)
 {
-  char ff_make_movie_com[100], char_fps[4], message[35];
+  char ff_make_movie_com[128], char_fps[4], message[35];
   char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
   if (glib_encoded_silentcast_dir) {
-    //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm
-    //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
-    strcpy (ff_make_movie_com, "ffmpeg -r ");
+    //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
+    //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
+    strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -r ");
     snprintf (char_fps, 4, "%d", fps);
     strcat (ff_make_movie_com, char_fps);
     if (webm) {
-      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm");
+      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
       strcpy (message, "Creating anim.webm from ew-???.png");
     } else {
-      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" anim.mp4");
+      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
       strcpy (message, "Creating anim.mp4 from ew-???.png");
     }
     //spawn it
@@ -345,12 +324,12 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
 
 static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean webm)
 {
-  char ff_make_movie_com[100], message[35];
+  char ff_make_movie_com[128], message[35];
   char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
   if (glib_encoded_silentcast_dir) {
     //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
     //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
-    strcpy (ff_make_movie_com, "ffmpeg -i temp.mkv ");
+    strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -i temp.mkv ");
     if (webm) {
       strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm");
       strcpy (message, "Creating anim.webm from temp.mkv");
@@ -367,11 +346,11 @@ static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MA
 }
 
 void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps,
-    gboolean anims_from_temp, gboolean gif, gboolean webm, gboolean mp4)
+    gboolean anims_from_temp, gboolean gif, gboolean pngs, gboolean webm, gboolean mp4)
 {
-  if (gif || !anims_from_temp) generate_pngs (widget, silentcast_dir, *p_fps); //existing pngs are deleted in generate_pngs
+  if (pngs || gif || !anims_from_temp) generate_pngs (widget, silentcast_dir, *p_fps); //previous pngs (if any) are deleted in generate_pngs
   if (gif) 
-    while (!animgif_exists (widget, silentcast_dir, anims_from_temp)) show_edit_pngs (widget, silentcast_dir, p_fps);
+    while (!animgif_exists (widget, silentcast_dir, anims_from_temp, pngs)) show_edit_pngs (widget, silentcast_dir, p_fps);
   if (anims_from_temp) {
     if (webm) make_movie_from_temp (widget, silentcast_dir, TRUE); //TRUE means make webm
     if (mp4) make_movie_from_temp (widget, silentcast_dir, FALSE); //FALSE means make mp4
@@ -379,4 +358,5 @@ void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int 
     if (webm) make_movie_from_pngs (widget, silentcast_dir, *p_fps, TRUE);
     if (mp4) make_movie_from_pngs (widget, silentcast_dir, *p_fps, FALSE);
   }
+  if (!pngs) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
 }
