@@ -118,7 +118,7 @@ static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX
       char path_and_file[PATH_MAX];
       int i = 0;
       char **png = malloc (1000 * sizeof (char*)); //there are at most 999 pngs and I'm leaving room for NULL to indicate end of list
-      while ( (filename = g_dir_read_name (directory)) ) {
+      while ( (filename = g_dir_read_name (directory)) ) { //filename should not be modified or freed
         strcpy (path_and_file, silentcast_dir);
         if (g_pattern_match (png_pattern, strlen(filename), filename, NULL)) {
           strcat (path_and_file, "/");
@@ -132,6 +132,7 @@ static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX
           }
         }
       }
+      g_pattern_spec_free (png_pattern);
       g_dir_close (directory);
       sort_pngs (png, i);
       png[i] = NULL;
@@ -165,13 +166,13 @@ static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX]
   char filename[PATH_MAX];
   strcpy (filename, silentcast_dir);
   strcat (filename, "/anim.gif");
-  char warning[] = 
+  char warning_if_no_file[] = 
     "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.";
 
-  return is_file (widget, filename, warning);
+  return is_file (widget, filename, warning_if_no_file);
 }
 
-void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid)
+void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, pid_t *p_pid)
 {
   int argc = 0;
   char **argv = NULL;
@@ -186,20 +187,7 @@ void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commands
   }
 }
 
-void SC_kill_pid (GtkWidget *widget, int pid) 
-{
-  GError *err = NULL;
-  char kill_com[13], char_pid[8]; //pid will be at most 7 digits long and /0 to terminate the string makes 8
-  snprintf (char_pid, 8, "%d", pid);
-  strcpy (kill_com, "kill ");
-  strcat (kill_com, char_pid);
-  if (!g_spawn_command_line_sync (kill_com, NULL, NULL, NULL, &err)) {
-    SC_show_err_message (widget, "Error trying to kill command: ", err->message);
-    g_error_free (err);
-  }
-}
-
-static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int ff_gen_pngs_pid) 
+static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], pid_t ff_gen_pngs_pid) 
 {
   int ret = 0;
   GtkWidget *dialog = 
@@ -208,7 +196,8 @@ static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX
         GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "Generating pngs from temp.mkv");
   gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
   ret = gtk_dialog_run (GTK_DIALOG (dialog));
-  if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, ff_gen_pngs_pid);
+  if (ret == GTK_RESPONSE_CANCEL) 
+    if (kill (ff_gen_pngs_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
   gtk_widget_destroy (dialog);
 }
 
@@ -225,7 +214,7 @@ static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int
       strcat (ff_gen_pngs, char_fps);
       strcat (ff_gen_pngs, " ew-%03d.png");
       //spawn it
-      int ff_gen_pngs_pid = 0;
+      pid_t ff_gen_pngs_pid = 0;
       SC_spawn (widget, glib_encoded_silentcast_dir, ff_gen_pngs, &ff_gen_pngs_pid); 
       show_genpngs_dialog (widget, silentcast_dir, ff_gen_pngs_pid);
       g_free (glib_encoded_silentcast_dir);
@@ -240,7 +229,7 @@ static gboolean on_value_changed_group (GtkSpinButton *group_spnbutt, gpointer d
   return TRUE;
 }
 
-static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], int pid, char *message) 
+static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], pid_t pid, char *message) 
 {
   int ret = 0;
   GtkWidget *dialog = 
@@ -251,7 +240,8 @@ static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_M
   gtk_window_set_modal (GTK_WINDOW(dialog), TRUE);
   ret = gtk_dialog_run (GTK_DIALOG (dialog));
   //if cancel was clicked, send a kill signal to the command
-  if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, pid);
+  if (ret == GTK_RESPONSE_CANCEL) 
+    if (kill (pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
   gtk_widget_destroy (dialog);
 }
 
@@ -283,7 +273,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
     strcat (convert_com, delay);
     strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
     //spawn it
-    int convert_com_pid = 0;
+    pid_t convert_com_pid = 0;
     SC_spawn (widget, glib_encoded_silentcast_dir, convert_com, &convert_com_pid); 
     show_make_anim_dialog (widget, silentcast_dir, convert_com_pid, "making anim.gif from pngs");
     g_free (glib_encoded_silentcast_dir);
@@ -345,7 +335,7 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
       strcpy (message, "Creating anim.mp4 from ew-???.png");
     }
     //spawn it
-    int ff_make_movie_com_pid = 0;
+    pid_t ff_make_movie_com_pid = 0;
     SC_spawn (widget, glib_encoded_silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid); 
     show_make_anim_dialog (widget, silentcast_dir, ff_make_movie_com_pid, message);
     g_free (glib_encoded_silentcast_dir);
@@ -368,7 +358,7 @@ static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MA
       strcpy (message, "Creating anim.mp4 from temp.mkv");
     }
     //spawn it
-    int ff_make_movie_com_pid = 0;
+    pid_t ff_make_movie_com_pid = 0;
     SC_spawn (widget, glib_encoded_silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid); 
     show_make_anim_dialog (widget, silentcast_dir, ff_make_movie_com_pid, message);
     g_free (glib_encoded_silentcast_dir);

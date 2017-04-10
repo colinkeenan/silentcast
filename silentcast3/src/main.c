@@ -846,7 +846,7 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     static char ffcom_string[200]; P_SET(ffcom_string);
 
     /*variable for the ffcom pid*/
-    static int ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);
+    static pid_t ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);
 
     /*need to track when surface becomes iconified and not iconified to kill ffmpeg*/
     static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
@@ -926,8 +926,8 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
   else if (*p_surface_became_iconified) { //changed to not iconified so stop ffmpeg and launch temptoanim, showing the default filemanager
     *p_surface_became_iconified = FALSE;
     //stop ffcom
-    int *p_ffcom_pid = P("p_ffcom_pid");
-    SC_kill_pid (widget, *p_ffcom_pid);
+    pid_t *p_ffcom_pid = P("p_ffcom_pid");
+    if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
     //try to open silentcast_dir in the default file manager
     char silentcast_dir[PATH_MAX];
     strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
