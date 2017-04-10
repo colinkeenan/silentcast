@@ -87,47 +87,38 @@ static gboolean temp_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX])
   return is_file (widget, filename, "temp.mkv not found, so can't generate anything from it");
 }
 
-/* globerr for glob() which requires an error handling function be passed to it
- * and glob() is used in check_for_filepattern
- */
-static int globerr(const char *path, int eerrno)
-{
-  //can't use show_err_message because can't get widget into this function
-	fprintf (stderr, "Glob Error, %s: %s", path, strerror(eerrno)); 
-	return 0;	/* let glob() keep going */
-}
-
-static gboolean get_pngs_glob (GtkWidget *widget, char silentcast_dir[PATH_MAX], glob_t *glob_pngs, gboolean show_errors) 
-//should use globfree (glob_pngs) when done with it
-{
-  char pattern[PATH_MAX];
-  strcat (pattern, silentcast_dir);
-  strcat (pattern, "ew-???.png"); 
-  //glob returns 0 if successful so tests as true when there's an error
-  if (glob (pattern, 0, globerr, glob_pngs))  { //not using any flags, that's what the 0 is
-    if (show_errors) SC_show_error (widget, "Error trying to expand ew-???.png");
-    return FALSE;
-  }
-  return TRUE;
-}
-
 static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int group)
 {
   if (group != 1) { //don't need to do anything if group is 1 because that means keep everything
-    glob_t *glob_pngs = NULL;
-    get_pngs_glob (widget, silentcast_dir, glob_pngs, FALSE); //FALSE means don't show errors
-    for (int i=0; i<glob_pngs->gl_pathc; i++) { //nothing will happen if there's no pngs since gl_pathc will be 0
-      char *glib_encoded_filename = SC_get_glib_filename (widget, glob_pngs->gl_pathv[i]);
-      if (glib_encoded_filename) {
-        //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
-        //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
-        //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
-        //keep when i == 1 or when i % group == 1. Delete when i != 1 && i%group != 1)
-        if (group == 0 || (i % group != 1 && i != 1)) g_remove (glib_encoded_filename); 
-        g_free (glib_encoded_filename);
-      } 
-    }
-    globfree (glob_pngs);
+    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+    if (glib_encoded_silentcast_dir) {
+      int i = 0;
+      GDir *directory = g_dir_open (glib_encoded_silentcast_dir, 0, NULL);
+      if (directory) {
+        GPatternSpec *png_pattern = g_pattern_spec_new ("ew-???.png");
+        const char *filename = NULL;
+        char path_and_file[PATH_MAX];
+        strcpy (path_and_file, silentcast_dir);
+        while ( (filename = g_dir_read_name (directory)) ) {
+          if (g_pattern_match (png_pattern, strlen(filename), filename, NULL)) {
+            //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
+            //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
+            //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
+            //keep when i == 1 or when i % group == 1. Delete when i != 1 && i%group != 1)
+            if (group == 0 || (i % group != 1 && i != 1)) {
+              strcat (path_and_file, filename);
+              char *glib_encoded_filename = SC_get_glib_filename (widget, path_and_file);
+              if (glib_encoded_filename) {
+                g_remove (glib_encoded_filename); 
+                g_free (glib_encoded_filename);
+              }
+            }
+            i++;
+          }
+        }
+        g_dir_close (directory);
+      }
+    } 
   }
 }
 
@@ -185,7 +176,7 @@ static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX
 
 static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps)
 {
-//  delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
+  delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
   if (temp_exists (widget, silentcast_dir)) {
     char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
     if (glib_encoded_silentcast_dir) {
@@ -219,6 +210,7 @@ static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_M
         GTK_DIALOG_DESTROY_WITH_PARENT, 
         GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "%s", message);
   gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
+  gtk_window_set_modal (GTK_WINDOW(dialog), TRUE);
   ret = gtk_dialog_run (GTK_DIALOG (dialog));
   //if cancel was clicked, send a kill signal to the command
   if (ret == GTK_RESPONSE_CANCEL) SC_kill_pid (widget, pid);
@@ -331,10 +323,10 @@ static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MA
     //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
     strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -i temp.mkv ");
     if (webm) {
-      strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm");
+      strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
       strcpy (message, "Creating anim.webm from temp.mkv");
     } else {
-      strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" anim.mp4");
+      strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
       strcpy (message, "Creating anim.mp4 from temp.mkv");
     }
     //spawn it
