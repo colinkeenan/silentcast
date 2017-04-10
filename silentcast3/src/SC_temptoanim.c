@@ -87,39 +87,59 @@ static gboolean temp_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX])
   return is_file (widget, filename, "temp.mkv not found, so can't generate anything from it");
 }
 
-static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int group)
-{
-  if (group != 1) { //don't need to do anything if group is 1 because that means keep everything
-    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-    if (glib_encoded_silentcast_dir) {
+//for qsort array of strings, copied from http://stackoverflow.com/questions/14014094/using-qsort-to-sort-alphabetically-strings-of-a-2d-array
+int compare (const void * a, const void * b ) {
+  return strcmp(*(char **)a, *(char **)b);
+}
+
+static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX]) {
+  char **png = malloc (1000 * sizeof (char*)); //there are at most 999 pngs and I'm leaving room for NULL to indicate end of list
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
+    GDir *directory = g_dir_open (glib_encoded_silentcast_dir, 0, NULL);
+    if (directory) {
+      GPatternSpec *png_pattern = g_pattern_spec_new ("ew-???.png");
+      const char *filename = NULL;
+      char path_and_file[PATH_MAX];
       int i = 0;
-      GDir *directory = g_dir_open (glib_encoded_silentcast_dir, 0, NULL);
-      if (directory) {
-        GPatternSpec *png_pattern = g_pattern_spec_new ("ew-???.png");
-        const char *filename = NULL;
-        char path_and_file[PATH_MAX];
-        while ( (filename = g_dir_read_name (directory)) ) {
-          strcpy (path_and_file, silentcast_dir);
-          if (g_pattern_match (png_pattern, strlen(filename), filename, NULL)) {
-            //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
-            //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
-            //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
-            //keep when i == 1 or when i % group == 1. Delete when i != 1 && i%group != 1)
-            if (group == 0 || (i % group != 1 && i != 1)) {
-              strcat (path_and_file, "/");
-              strcat (path_and_file, filename);
-              char *glib_encoded_filename = SC_get_glib_filename (widget, path_and_file);
-              if (glib_encoded_filename) {
-                if (g_remove (glib_encoded_filename) == -1) fprintf (stderr, "\ncouldn't remove %s", glib_encoded_filename); 
-                g_free (glib_encoded_filename);
-              }
-            }
+      while ( (filename = g_dir_read_name (directory)) ) {
+        strcpy (path_and_file, silentcast_dir);
+        if (g_pattern_match (png_pattern, strlen(filename), filename, NULL)) {
+          strcat (path_and_file, "/");
+          strcat (path_and_file, filename);
+          char *glib_encoded_filename = SC_get_glib_filename (widget, path_and_file);
+          if (glib_encoded_filename) {
+            png[i] = malloc (strlen (glib_encoded_filename));
+            strcpy (png[i], glib_encoded_filename);
+            g_free (glib_encoded_filename);
             i++;
           }
         }
-        g_dir_close (directory);
       }
-    } 
+      g_dir_close (directory);
+      qsort (png, i-1, sizeof (char*), compare);
+      png[i] = NULL;
+    }
+    return png;
+  } else return NULL;
+}
+
+static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int group)
+{
+  if (group != 1) { //don't need to do anything if group is 1 because that means keep everything
+    char **png_arr = get_array_of_pngs (widget, silentcast_dir); //returns sorted array of pngs in silentcast_dir, ending with NULL
+    int i = 0;
+    while (png_arr[i]) {
+      //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
+      //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
+      //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
+      //keep when i == 1 or when i % group == 1. Delete when i != 1 && i%group != 1)
+      if (group == 0 || (i % group != 1 && i != 1)) 
+          if (g_remove (png_arr[i]) == -1) fprintf (stderr, "\ncouldn't remove %s", png_arr[i]); 
+      g_free (png_arr[i]);
+      i++;
+    }
+    g_free (png_arr);
   }
 }
 

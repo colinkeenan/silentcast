@@ -31,6 +31,7 @@
 #include <glob.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <stdlib.h>
 
 void SC_show_error (GtkWidget *widget, char *err_message);
 void SC_show_err_message (GtkWidget *widget, char *message, char *errmessage);
