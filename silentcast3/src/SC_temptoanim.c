@@ -87,13 +87,28 @@ static gboolean temp_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX])
   return is_file (widget, filename, "temp.mkv not found, so can't generate anything from it");
 }
 
-//for qsort array of strings, copied from http://stackoverflow.com/questions/14014094/using-qsort-to-sort-alphabetically-strings-of-a-2d-array
-int compare (const void * a, const void * b ) {
-  return strcmp(*(char **)a, *(char **)b);
+//kept getting segfault in trying to use qsort, so found this bubblesort here: 
+//http://stackoverflow.com/questions/6631355/sorting-alphabetically-in-c-using-strcmp
+static void sort_pngs (char **png, int pngc) {
+  int limit = pngc - 1;
+  gboolean did_swap = TRUE;
+  char *temp;
+
+  while (did_swap) {
+    did_swap = FALSE;
+    for (int i = 0; i < limit; i++) {
+      if (strcmp (png[i], png[i+1]) > 0) {
+        temp = png[i];
+        png[i] = png[i+1];
+        png[i+1] = temp;
+        did_swap = TRUE;
+      }
+    }
+    limit--;
+  }
 }
 
 static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX]) {
-  char **png = malloc (1000 * sizeof (char*)); //there are at most 999 pngs and I'm leaving room for NULL to indicate end of list
   char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
   if (glib_encoded_silentcast_dir) {
     GDir *directory = g_dir_open (glib_encoded_silentcast_dir, 0, NULL);
@@ -102,6 +117,7 @@ static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX
       const char *filename = NULL;
       char path_and_file[PATH_MAX];
       int i = 0;
+      char **png = malloc (1000 * sizeof (char*)); //there are at most 999 pngs and I'm leaving room for NULL to indicate end of list
       while ( (filename = g_dir_read_name (directory)) ) {
         strcpy (path_and_file, silentcast_dir);
         if (g_pattern_match (png_pattern, strlen(filename), filename, NULL)) {
@@ -117,11 +133,12 @@ static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX
         }
       }
       g_dir_close (directory);
-      qsort (png, i-1, sizeof (char*), compare);
+      sort_pngs (png, i);
       png[i] = NULL;
+      return png;
     }
-    return png;
-  } else return NULL;
+  } 
+  return NULL;
 }
 
 static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int group)
