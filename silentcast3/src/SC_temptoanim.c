@@ -98,18 +98,19 @@ static void delete_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int g
         GPatternSpec *png_pattern = g_pattern_spec_new ("ew-???.png");
         const char *filename = NULL;
         char path_and_file[PATH_MAX];
-        strcpy (path_and_file, silentcast_dir);
         while ( (filename = g_dir_read_name (directory)) ) {
+          strcpy (path_and_file, silentcast_dir);
           if (g_pattern_match (png_pattern, strlen(filename), filename, NULL)) {
             //Keep 1 out of group, so 1 = keep all, 2 = keep every other, 3 = keep 1 out of 3 etc.
             //Also, 0 = don't keep any. If group isn't 0, always keep the 2nd one (i = 1) and
             //every +group after that (keep i = 1, i = 1+group, i = 1+2*group etc. In other words,
             //keep when i == 1 or when i % group == 1. Delete when i != 1 && i%group != 1)
             if (group == 0 || (i % group != 1 && i != 1)) {
+              strcat (path_and_file, "/");
               strcat (path_and_file, filename);
               char *glib_encoded_filename = SC_get_glib_filename (widget, path_and_file);
               if (glib_encoded_filename) {
-                g_remove (glib_encoded_filename); 
+                if (g_remove (glib_encoded_filename) == -1) fprintf (stderr, "\ncouldn't remove %s", glib_encoded_filename); 
                 g_free (glib_encoded_filename);
               }
             }
