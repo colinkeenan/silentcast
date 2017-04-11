@@ -614,7 +614,7 @@ static void run_ffcom (GtkWidget *widget)
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700); //can't enter a directory unless it has execute privilage, so 700 instead of 600
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
-    SC_spawn (widget, glib_encoded_silentcast_dir, P("ffcom_string"), P("p_ffcom_pid"));
+    SC_spawn (widget, glib_encoded_silentcast_dir, P("ffcom_string"), P("p_ffcom_pid"), ""); //no message means don't show a dialog
     g_free (glib_encoded_silentcast_dir);
   }
 }
@@ -846,7 +846,7 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     static char ffcom_string[200]; P_SET(ffcom_string);
 
     /*variable for the ffcom pid*/
-    static pid_t ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);
+    static GPid ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);
 
     /*need to track when surface becomes iconified and not iconified to kill ffmpeg*/
     static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
@@ -925,9 +925,12 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
 
   else if (*p_surface_became_iconified) { //changed to not iconified so stop ffmpeg and launch temptoanim, showing the default filemanager
     *p_surface_became_iconified = FALSE;
+    //don't really want to see the surface anymore, so hide it
+    gtk_widget_hide (widget);
     //stop ffcom
-    pid_t *p_ffcom_pid = P("p_ffcom_pid");
+    GPid *p_ffcom_pid = P("p_ffcom_pid");
     if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
+    else g_spawn_close_pid (*p_ffcom_pid); //doesn't do anything on linux but supposed to use it anyway
     //try to open silentcast_dir in the default file manager
     char silentcast_dir[PATH_MAX];
     strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));

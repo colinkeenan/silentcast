@@ -138,6 +138,7 @@ static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX
       png[i] = NULL;
       return png;
     }
+    g_free (glib_encoded_silentcast_dir);
   } 
   return NULL;
 }
@@ -172,53 +173,60 @@ static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX]
   return is_file (widget, filename, warning_if_no_file);
 }
 
-void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, pid_t *p_pid)
+static void show_spawn_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], GPid pid, char *message) 
+{
+  //need to rewrite this without using gtk_dialog so I can do the waitpid loop at the same time
+  //and update what's shown in the "dialog" with each loop
+  //and when done, gtk_dialog_response (dialog, GTK_RESPONSE_CLOSE)
+  if (strcmp (message, "")) { //only show a dialog if there's a message to show (strcmp will be 0 when they match)
+    int ret = 0;
+    GtkWidget *dialog = 
+      gtk_message_dialog_new (GTK_WINDOW(widget), 
+          GTK_DIALOG_DESTROY_WITH_PARENT, 
+          GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "%s", message);
+    gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
+    ret = gtk_dialog_run (GTK_DIALOG (dialog));
+    //if cancel was clicked, send a kill signal to the command
+    if (ret == GTK_RESPONSE_CANCEL) {
+      if (kill (pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
+      else g_spawn_close_pid (pid); //doesn't do anything on linux but supposed to use it anyway
+    }
+    gtk_widget_destroy (dialog);
+  }
+}
+
+void SC_spawn (GtkWidget *widget, char *working_dir, char *commandstring, GPid *p_pid, char *message)
 {
   int argc = 0;
   char **argv = NULL;
   GError *err = NULL;
 
-  if (!g_shell_parse_argv (commandstring, &argc, &argv, &err)) {
-    SC_show_err_message (widget, "Error trying to parse the command: ", err->message);
-    g_error_free (err);
-  } else if (!g_spawn_async (glib_encoded_working_dir, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, p_pid, &err)) {
-    SC_show_err_message (widget, "Error trying to spawn the command: ", err->message);
-    g_error_free (err);
+  char *glib_encoded_working_dir = SC_get_glib_filename (widget, working_dir);
+  if (glib_encoded_working_dir) {
+    if (!g_shell_parse_argv (commandstring, &argc, &argv, &err)) {
+      SC_show_err_message (widget, "Error trying to parse the command: ", err->message);
+      g_error_free (err);
+    } else if (!g_spawn_async (glib_encoded_working_dir, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, p_pid, &err)) {
+      SC_show_err_message (widget, "Error trying to spawn the command: ", err->message);
+      g_error_free (err);
+    } else show_spawn_dialog (widget, working_dir, *p_pid, message);
+    g_free (glib_encoded_working_dir);
   }
-}
-
-static void show_genpngs_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], pid_t ff_gen_pngs_pid) 
-{
-  int ret = 0;
-  GtkWidget *dialog = 
-    gtk_message_dialog_new (GTK_WINDOW(widget), 
-        GTK_DIALOG_DESTROY_WITH_PARENT, 
-        GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "Generating pngs from temp.mkv");
-  gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
-  ret = gtk_dialog_run (GTK_DIALOG (dialog));
-  if (ret == GTK_RESPONSE_CANCEL) 
-    if (kill (ff_gen_pngs_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
-  gtk_widget_destroy (dialog);
 }
 
 static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps)
 {
   delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
   if (temp_exists (widget, silentcast_dir)) {
-    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-    if (glib_encoded_silentcast_dir) {
-      char ff_gen_pngs[200];
-      char char_fps[5]; snprintf (char_fps, 5, "%d", fps);
-      //construct the command to generate pngs: ffmpeg -i -temp.mkv -r fps ew-%03d.png
-      strcpy (ff_gen_pngs, "/usr/bin/ffmpeg -i temp.mkv -r ");
-      strcat (ff_gen_pngs, char_fps);
-      strcat (ff_gen_pngs, " ew-%03d.png");
-      //spawn it
-      pid_t ff_gen_pngs_pid = 0;
-      SC_spawn (widget, glib_encoded_silentcast_dir, ff_gen_pngs, &ff_gen_pngs_pid); 
-      show_genpngs_dialog (widget, silentcast_dir, ff_gen_pngs_pid);
-      g_free (glib_encoded_silentcast_dir);
-    }
+    char ff_gen_pngs[200];
+    char char_fps[5]; snprintf (char_fps, 5, "%d", fps);
+    //construct the command to generate pngs: ffmpeg -i -temp.mkv -r fps ew-%03d.png
+    strcpy (ff_gen_pngs, "/usr/bin/ffmpeg -i temp.mkv -r ");
+    strcat (ff_gen_pngs, char_fps);
+    strcat (ff_gen_pngs, " ew-%03d.png");
+    //spawn it
+    GPid ff_gen_pngs_pid = 0;
+    SC_spawn (widget, silentcast_dir, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp."); 
   }
 }
 
@@ -227,22 +235,6 @@ static gboolean on_value_changed_group (GtkSpinButton *group_spnbutt, gpointer d
   int *p_group = data;
   *p_group  = gtk_spin_button_get_value_as_int (group_spnbutt);
   return TRUE;
-}
-
-static void show_make_anim_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], pid_t pid, char *message) 
-{
-  int ret = 0;
-  GtkWidget *dialog = 
-    gtk_message_dialog_new (GTK_WINDOW(widget), 
-        GTK_DIALOG_DESTROY_WITH_PARENT, 
-        GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "%s", message);
-  gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
-  gtk_window_set_modal (GTK_WINDOW(dialog), TRUE);
-  ret = gtk_dialog_run (GTK_DIALOG (dialog));
-  //if cancel was clicked, send a kill signal to the command
-  if (ret == GTK_RESPONSE_CANCEL) 
-    if (kill (pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
-  gtk_widget_destroy (dialog);
 }
 
 struct SC_anim_data {
@@ -264,20 +256,15 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
 
   delete_pngs (widget, silentcast_dir, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
 
-  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-  if (glib_encoded_silentcast_dir) {
-    //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
-    *p_total_group = *p_total_group + group;
-    strcpy (convert_com, "/usr/bin/convert -adjoin -delay ");
-    snprintf (delay, 5, "%d", *p_total_group * fps);
-    strcat (convert_com, delay);
-    strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
-    //spawn it
-    pid_t convert_com_pid = 0;
-    SC_spawn (widget, glib_encoded_silentcast_dir, convert_com, &convert_com_pid); 
-    show_make_anim_dialog (widget, silentcast_dir, convert_com_pid, "making anim.gif from pngs");
-    g_free (glib_encoded_silentcast_dir);
-  }
+  //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
+  *p_total_group = *p_total_group + group;
+  strcpy (convert_com, "/usr/bin/convert -adjoin -delay ");
+  snprintf (delay, 5, "%d", *p_total_group * fps);
+  strcat (convert_com, delay);
+  strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
+  //spawn it
+  GPid convert_com_pid = 0;
+  SC_spawn (widget, silentcast_dir, convert_com, &convert_com_pid, "Making anim.gif from pngs."); 
   return TRUE;
 }
 
@@ -320,49 +307,39 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
 static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps, gboolean webm)
 {
   char ff_make_movie_com[128], char_fps[4], message[35];
-  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-  if (glib_encoded_silentcast_dir) {
-    //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
-    //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
-    strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -r ");
-    snprintf (char_fps, 4, "%d", fps);
-    strcat (ff_make_movie_com, char_fps);
-    if (webm) {
-      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
-      strcpy (message, "Creating anim.webm from ew-???.png");
-    } else {
-      strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
-      strcpy (message, "Creating anim.mp4 from ew-???.png");
-    }
-    //spawn it
-    pid_t ff_make_movie_com_pid = 0;
-    SC_spawn (widget, glib_encoded_silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid); 
-    show_make_anim_dialog (widget, silentcast_dir, ff_make_movie_com_pid, message);
-    g_free (glib_encoded_silentcast_dir);
+  //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
+  //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
+  strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -r ");
+  snprintf (char_fps, 4, "%d", fps);
+  strcat (ff_make_movie_com, char_fps);
+  if (webm) {
+    strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
+    strcpy (message, "Creating anim.webm from ew-???.png");
+  } else {
+    strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
+    strcpy (message, "Creating anim.mp4 from ew-???.png");
   }
+  //spawn it
+  GPid ff_make_movie_com_pid = 0;
+  SC_spawn (widget, silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid, message); 
 }
 
 static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean webm)
 {
   char ff_make_movie_com[128], message[35];
-  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-  if (glib_encoded_silentcast_dir) {
-    //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
-    //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
-    strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -i temp.mkv ");
-    if (webm) {
-      strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
-      strcpy (message, "Creating anim.webm from temp.mkv");
-    } else {
-      strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
-      strcpy (message, "Creating anim.mp4 from temp.mkv");
-    }
-    //spawn it
-    pid_t ff_make_movie_com_pid = 0;
-    SC_spawn (widget, glib_encoded_silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid); 
-    show_make_anim_dialog (widget, silentcast_dir, ff_make_movie_com_pid, message);
-    g_free (glib_encoded_silentcast_dir);
+  //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
+  //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
+  strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -i temp.mkv ");
+  if (webm) {
+    strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
+    strcpy (message, "Creating anim.webm from temp.mkv");
+  } else {
+    strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
+    strcpy (message, "Creating anim.mp4 from temp.mkv");
   }
+  //spawn it
+  GPid ff_make_movie_com_pid = 0;
+  SC_spawn (widget, silentcast_dir, ff_make_movie_com, &ff_make_movie_com_pid, message); 
 }
 
 void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps,
@@ -379,4 +356,5 @@ void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int 
     if (mp4) make_movie_from_pngs (widget, silentcast_dir, *p_fps, FALSE);
   }
   if (!pngs) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
+  gtk_widget_show (widget);
 }
