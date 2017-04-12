@@ -327,10 +327,10 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
   snprintf (char_fps, 4, "%d", fps);
   strcat (ff_make_movie_com, char_fps);
   if (webm) {
-    strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
+    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
     strcpy (message, "Creating anim.webm from ew-???.png");
   } else {
-    strcat (ff_make_movie_com, "ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
+    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
     strcpy (message, "Creating anim.mp4 from ew-???.png");
   }
   //spawn it
