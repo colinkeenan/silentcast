@@ -923,7 +923,7 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
   if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) 
     *p_surface_became_iconified = TRUE;
 
-  else if (*p_surface_became_iconified) { //changed to not iconified so stop ffmpeg and launch temptoanim, showing the default filemanager
+  else if (*p_surface_became_iconified) { //changed to not iconified so stop ffmpeg and launch temptoanim
     *p_surface_became_iconified = FALSE;
     //don't really want to see the surface anymore, so hide it
     gtk_widget_hide (widget);
@@ -931,24 +931,14 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
     GPid *p_ffcom_pid = P("p_ffcom_pid");
     if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
     else g_spawn_close_pid (*p_ffcom_pid); //doesn't do anything on linux but supposed to use it anyway
-    //try to open silentcast_dir in the default file manager
+    //generate outputs (temptoanim) defining needed parameters first
     char silentcast_dir[PATH_MAX];
     strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
     strcat (silentcast_dir, "/silentcast");
-    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-    if (glib_encoded_silentcast_dir) {
-      //trying to open the default filemanager and don't care about errors
-      char *silentcast_dir_uri = g_filename_to_uri (glib_encoded_silentcast_dir, NULL, NULL);
-      g_free (glib_encoded_silentcast_dir);
-      if (silentcast_dir_uri) {
-        g_app_info_launch_default_for_uri (silentcast_dir_uri, NULL, NULL);
-        g_free (silentcast_dir_uri);
-      }
-    }
     int *p_fps = P("p_fps");
     gboolean *p_anims_from_temp = P("p_anims_from_temp"), *p_gif = P("p_gif"), *p_pngs = P("p_pngs"), *p_webm = P("p_webm"), *p_mp4 = P("p_mp4");
-    //launch temptoanim
     SC_generate_outputs (widget, silentcast_dir, p_fps, *p_anims_from_temp, *p_gif, *p_pngs, *p_webm, *p_mp4);
+
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;
 

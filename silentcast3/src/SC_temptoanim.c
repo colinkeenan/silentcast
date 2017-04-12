@@ -242,6 +242,7 @@ struct SC_anim_data {
   int *p_group;
   int *p_total_group;
   int *p_fps;
+  GMainLoop *loop;
 };
 
 //executed when done button is clicked from edit_pngs
@@ -251,6 +252,9 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   int *p_group = p_SC_anim_data->p_group, group = *p_group;
   int *p_total_group = p_SC_anim_data->p_total_group;
   int *p_fps = p_SC_anim_data->p_fps, fps = *p_fps;
+  GMainLoop *loop = p_SC_anim_data->loop;
+  if (g_main_loop_is_running (loop)) g_main_loop_quit (loop); 
+
   char convert_com[128], delay[5];
   GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
 
@@ -278,7 +282,8 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
     .silentcast_dir = silentcast_dir,
     .p_group = p_group,
     .p_total_group = p_total_group,
-    .p_fps = p_fps
+    .p_fps = p_fps,
+    .loop = g_main_loop_new (NULL, FALSE)
   };
   struct SC_anim_data *p_SC_anim_data = &SC_anim_data;
   GtkWidget *group_spnbutt = NULL;
@@ -294,6 +299,7 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
   GtkWidget *edit_pngs_widget = gtk_application_window_new (gtk_window_get_application (GTK_WINDOW(widget)));
   gtk_window_set_transient_for (GTK_WINDOW(edit_pngs_widget), GTK_WINDOW(widget));
   gtk_window_set_title (GTK_WINDOW(edit_pngs_widget), "Silentcast Edit Pngs");
+  gtk_window_set_modal (GTK_WINDOW(edit_pngs_widget), TRUE);
   GtkWidget *edit_pngs = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER(edit_pngs_widget), edit_pngs);
 #define EDPNGS_ATCH(A,C,R,W) gtk_grid_attach (GTK_GRID(edit_pngs), A, C, R, W, 1) 
@@ -302,6 +308,14 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
   EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 2, 4);
                                                                                                       EDPNGS_ATCH(done, 4, 3, 1);
   gtk_widget_show_all(edit_pngs_widget);
+
+  //trying to block the application until the user clicks done. Got this method from source code for gtk_dialog_run, but it's deprecated
+  gdk_threads_leave ();
+  g_main_loop_run (SC_anim_data.loop);
+  gdk_threads_enter ();
+  g_main_loop_unref (SC_anim_data.loop);
+  SC_anim_data.loop = NULL;
+  gtk_widget_destroy (edit_pngs_widget);
 }
 
 static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps, gboolean webm)
@@ -346,8 +360,10 @@ void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int 
     gboolean anims_from_temp, gboolean gif, gboolean pngs, gboolean webm, gboolean mp4)
 {
   if (pngs || gif || !anims_from_temp) generate_pngs (widget, silentcast_dir, *p_fps); //previous pngs (if any) are deleted in generate_pngs
-  if (gif) 
-    while (!animgif_exists (widget, silentcast_dir, anims_from_temp, pngs)) show_edit_pngs (widget, silentcast_dir, p_fps);
+  if (gif) {
+    do show_edit_pngs (widget, silentcast_dir, p_fps); 
+    while (!animgif_exists (widget, silentcast_dir, anims_from_temp, pngs));
+  }
   if (anims_from_temp) {
     if (webm) make_movie_from_temp (widget, silentcast_dir, TRUE); //TRUE means make webm
     if (mp4) make_movie_from_temp (widget, silentcast_dir, FALSE); //FALSE means make mp4
@@ -356,5 +372,17 @@ void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int 
     if (mp4) make_movie_from_pngs (widget, silentcast_dir, *p_fps, FALSE);
   }
   if (!pngs) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
-  gtk_widget_show (widget);
+  gtk_widget_show (widget); //the surface widget was hidden just before calling SC_generate_outputs
+
+  //try to open silentcast_dir in the default file manager to show the final outputs
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
+    //trying to open the default filemanager and don't care about errors
+    char *silentcast_dir_uri = g_filename_to_uri (glib_encoded_silentcast_dir, NULL, NULL);
+    g_free (glib_encoded_silentcast_dir);
+    if (silentcast_dir_uri) {
+      g_app_info_launch_default_for_uri (silentcast_dir_uri, NULL, NULL);
+      g_free (silentcast_dir_uri);
+    }
+  }
 }
