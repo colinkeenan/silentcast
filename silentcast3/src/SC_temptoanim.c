@@ -173,25 +173,52 @@ static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX]
   return is_file (widget, filename, warning_if_no_file);
 }
 
+static void child_watch_cb (GPid pid, int status, gpointer data)
+{
+  int *p_timeout_id = data, timeout_id = *p_timeout_id;
+  g_source_remove (timeout_id);
+  g_spawn_close_pid (pid); //supposed to use this even though pid is just an int on linux
+}
+
+static gboolean timeout_cb (gpointer data)
+{
+  GtkWidget *progress = data; //actually need pid from data too, so will have to define a struct
+  gtk_progress_bar_pulse (GTK_PROGRESS_BAR(progress));
+  //want to see if spawned process is still running  and return false if not
+  return TRUE;
+}
+
+static void cancel_cb (GtkWidget *cancel_button, gpointer data)
+{
+  GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(cancel_button))));
+  GPid *p_pid = data, pid = *p_pid;
+  if (kill (pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
+}
+
 static void show_spawn_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], GPid pid, char *message) 
 {
-  //need to rewrite this without using gtk_dialog so I can do the waitpid loop at the same time
-  //and update what's shown in the "dialog" with each loop
-  //and when done, gtk_dialog_response (dialog, GTK_RESPONSE_CLOSE)
-  if (strcmp (message, "")) { //only show a dialog if there's a message to show (strcmp will be 0 when they match)
-    int ret = 0;
-    GtkWidget *dialog = 
-      gtk_message_dialog_new (GTK_WINDOW(widget), 
-          GTK_DIALOG_DESTROY_WITH_PARENT, 
-          GTK_MESSAGE_INFO, GTK_BUTTONS_CANCEL, "%s", message);
-    gtk_window_set_title (GTK_WINDOW(dialog), silentcast_dir);
-    ret = gtk_dialog_run (GTK_DIALOG (dialog));
-    //if cancel was clicked, send a kill signal to the command
-    if (ret == GTK_RESPONSE_CANCEL) {
-      if (kill (pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
-      else g_spawn_close_pid (pid); //doesn't do anything on linux but supposed to use it anyway
-    }
-    gtk_widget_destroy (dialog);
+  if (strcmp (message, "")) { //don't show dialog if there's no message to show (strcmp will be 0 when they match)
+    GtkWidget *progress = gtk_progress_bar_new(); 
+    int timeout_id = gdk_threads_add_timeout (100, (GSourceFunc) timeout_cb, progress);
+    g_child_watch_add (pid, (GChildWatchFunc) child_watch_cb, &timeout_id);
+
+    GtkWidget *message_label = gtk_label_new (message);
+    GtkWidget *cancel_button = gtk_button_new_with_label ("Cancel");
+    g_signal_connect (cancel_button, "clicked", 
+        G_CALLBACK(cancel_cb), &pid);
+
+    GtkWidget *dialog_widget = gtk_application_window_new (gtk_window_get_application (GTK_WINDOW(widget)));
+    gtk_window_set_transient_for (GTK_WINDOW(dialog_widget), GTK_WINDOW(widget));
+    gtk_window_set_title (GTK_WINDOW(dialog_widget), silentcast_dir);
+    gtk_window_set_modal (GTK_WINDOW(dialog_widget), TRUE);
+    GtkWidget *dialog = gtk_grid_new ();
+    gtk_container_add (GTK_CONTAINER(dialog_widget), dialog);
+#define DIALOG_ATCH(A,C,R,W) gtk_grid_attach (GTK_GRID(dialog), A, C, R, W, 1) 
+    DIALOG_ATCH(message_label, 0, 0, 4);
+    DIALOG_ATCH(progress, 0, 1, 4);
+                                        DIALOG_ATCH(cancel_button, 4, 2, 1);
+
+    gtk_widget_show_all (dialog_widget);
   }
 }
 
@@ -206,7 +233,7 @@ void SC_spawn (GtkWidget *widget, char *working_dir, char *commandstring, GPid *
     if (!g_shell_parse_argv (commandstring, &argc, &argv, &err)) {
       SC_show_err_message (widget, "Error trying to parse the command: ", err->message);
       g_error_free (err);
-    } else if (!g_spawn_async (glib_encoded_working_dir, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, p_pid, &err)) {
+    } else if (!g_spawn_async (glib_encoded_working_dir, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, p_pid, &err)) {
       SC_show_err_message (widget, "Error trying to spawn the command: ", err->message);
       g_error_free (err);
     } else show_spawn_dialog (widget, working_dir, *p_pid, message);
