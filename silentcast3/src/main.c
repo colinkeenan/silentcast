@@ -564,7 +564,7 @@ static void show_f2_widget (GtkApplication *app, GtkWidget *widget)
 static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int mon_x, int mon_y, int *fps) 
 {
   char char_x[5], char_y[5], char_w[5], char_h[5], char_fps[5];
-  strcpy (ffcom_string, "/usr/bin/ffmpeg -f x11grab -s ");
+  strcpy (ffcom_string, "/bin/sh -c '/usr/bin/ffmpeg -f x11grab -s ");
   //there can be multiple monitors on the same screen
   snprintf (char_x, 5, "%d", rect->x + mon_x); //rect->x is relative to the monitor, so have to add mon_x which is relative to screen
   snprintf (char_y, 5, "%d", rect->y + mon_y); //rect->y is relative to the monitor, so have to add mon_y which is relative to screen
@@ -575,7 +575,7 @@ static GtkEntryBuffer* get_ffcom (char *ffcom_string, GdkRectangle *rect, int mo
   strcat (ffcom_string, " -r "); strcat (ffcom_string, char_fps);
   strcat (ffcom_string, " -i "); strcat (ffcom_string, gdk_display_get_name(gdk_display_get_default ()));
   strcat (ffcom_string, "+"); strcat (ffcom_string, char_x); strcat (ffcom_string, ","); strcat (ffcom_string, char_y);
-  strcat (ffcom_string, " -c:v ffvhuff -an -y temp.mkv"); //decided to specify working directory on spawn instead of putting it here
+  strcat (ffcom_string, " -c:v ffvhuff -an -y temp.mkv'"); //decided to specify working directory on spawn instead of putting it here
   return gtk_entry_buffer_new (ffcom_string, -1);
 }
 

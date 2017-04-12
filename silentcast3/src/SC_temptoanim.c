@@ -221,9 +221,9 @@ static void generate_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int
     char ff_gen_pngs[200];
     char char_fps[5]; snprintf (char_fps, 5, "%d", fps);
     //construct the command to generate pngs: ffmpeg -i -temp.mkv -r fps ew-%03d.png
-    strcpy (ff_gen_pngs, "/usr/bin/ffmpeg -i temp.mkv -r ");
+    strcpy (ff_gen_pngs, "/bin/sh -c '/usr/bin/ffmpeg -i temp.mkv -r ");
     strcat (ff_gen_pngs, char_fps);
-    strcat (ff_gen_pngs, " ew-%03d.png");
+    strcat (ff_gen_pngs, " ew-%03d.png'");
     //spawn it
     GPid ff_gen_pngs_pid = 0;
     SC_spawn (widget, silentcast_dir, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp."); 
@@ -262,10 +262,10 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
 
   //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
   *p_total_group = *p_total_group + group;
-  strcpy (convert_com, "/usr/bin/convert -adjoin -delay ");
+  strcpy (convert_com, "/bin/sh -c '/usr/bin/convert -adjoin -delay ");
   snprintf (delay, 5, "%d", *p_total_group * fps);
   strcat (convert_com, delay);
-  strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif");
+  strcat (convert_com, " -layers optimize ew-[0-9][0-9][0-9].png anim.gif'");
   //spawn it
   GPid convert_com_pid = 0;
   SC_spawn (widget, silentcast_dir, convert_com, &convert_com_pid, "Making anim.gif from pngs."); 
@@ -323,14 +323,14 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
   char ff_make_movie_com[128], char_fps[4], message[35];
   //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
   //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
-  strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -r ");
+  strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -r ");
   snprintf (char_fps, 4, "%d", fps);
   strcat (ff_make_movie_com, char_fps);
   if (webm) {
-    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
+    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm'");
     strcpy (message, "Creating anim.webm from ew-???.png");
   } else {
-    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
+    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4'");
     strcpy (message, "Creating anim.mp4 from ew-???.png");
   }
   //spawn it
@@ -343,13 +343,13 @@ static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MA
   char ff_make_movie_com[128], message[35];
   //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
   //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
-  strcpy (ff_make_movie_com, "/usr/bin/ffmpeg -i temp.mkv ");
+  strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -i temp.mkv ");
   if (webm) {
-    strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm");
+    strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm'");
     strcpy (message, "Creating anim.webm from temp.mkv");
   } else {
-    strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4");
-    strcpy (message, "Creating anim.mp4 from temp.mkv");
+    strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4'");
+    strcpy (message, "Creating anim.mp4 from temp.mkv'");
   }
   //spawn it
   GPid ff_make_movie_com_pid = 0;
