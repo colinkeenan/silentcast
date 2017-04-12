@@ -372,7 +372,6 @@ void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int 
     if (mp4) make_movie_from_pngs (widget, silentcast_dir, *p_fps, FALSE);
   }
   if (!pngs) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
-  gtk_widget_show (widget); //the surface widget was hidden just before calling SC_generate_outputs
 
   //try to open silentcast_dir in the default file manager to show the final outputs
   char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
@@ -385,4 +384,8 @@ void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int 
       g_free (silentcast_dir_uri);
     }
   }
+  //the surface widget was hidden just before calling SC_generate_outputs
+  //should probably destroy the widget now, but that will close the filebrowser just openned
+  //so, showing it again
+  gtk_widget_show_all (widget); 
 }
