@@ -255,7 +255,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   GMainLoop *loop = p_SC_anim_data->loop;
   if (g_main_loop_is_running (loop)) g_main_loop_quit (loop); 
 
-  char convert_com[128], delay[5];
+  char convert_com[200], delay[5];
   GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
 
   delete_pngs (widget, silentcast_dir, group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
@@ -320,7 +320,7 @@ static void show_edit_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], in
 
 static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int fps, gboolean webm)
 {
-  char ff_make_movie_com[128], char_fps[4], message[35];
+  char ff_make_movie_com[200], char_fps[4], message[35];
   //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
   //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
   strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -r ");
@@ -340,7 +340,7 @@ static void make_movie_from_pngs (GtkWidget *widget, char silentcast_dir[PATH_MA
 
 static void make_movie_from_temp (GtkWidget *widget, char silentcast_dir[PATH_MAX], gboolean webm)
 {
-  char ff_make_movie_com[128], message[35];
+  char ff_make_movie_com[200], message[35];
   //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
   //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
   strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -i temp.mkv ");
