@@ -275,7 +275,7 @@ static void make_mp4_from_temp (GtkWidget *widget)
 static void make_webm_from_pngs (GtkWidget *widget)
 {
   gboolean *p_webm = P("p_webm");
-  if (p_webm) {
+  if (*p_webm) {
     char ff_make_movie_com[200], char_fps[4], message[35];
     //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
     //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
@@ -317,8 +317,8 @@ static void call_nextfunc (GtkWidget *widget)
   char *nextfunc = P("nextfunc");
   char silentcast_dir[PATH_MAX];
   get_silentcast_dir (widget, silentcast_dir);
-  if (!strcmp (nextfunc, "show_edit_pngs")) { 
-    if (!animgif_exists (widget, silentcast_dir)) show_edit_pngs (widget);
+  if (!strcmp (nextfunc, "show_edit_pngs")) { //makes anim.gif
+    if (!animgif_exists (widget, silentcast_dir)) show_edit_pngs (widget); //keep showing it until anim.gif exists
     else make_webm_from_temp (widget);
   } else if (!strcmp (nextfunc, "make_webm_from_temp")) make_webm_from_temp (widget);
   else if (!strcmp (nextfunc, "make_mp4_from_temp")) make_mp4_from_temp (widget);
@@ -362,6 +362,7 @@ static void cancel_cb (GtkWidget *cancel_button, gpointer data)
   GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(cancel_button))));
   GPid *p_pid = data;
   if (kill (*p_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
+  //shouldn't have to close the dialog here because child_watch_cb will run next since spawned command ended
 }
 
 static void show_spawn_dialog (GtkWidget *widget, char silentcast_dir[PATH_MAX], GPid pid, char *message) 
@@ -445,5 +446,5 @@ void SC_generate_outputs (GtkWidget *widget)
       //spawn command to generate the pngs then call show_edit_pngs
       SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", "show_edit_pngs"); 
     }
-  } else SC_spawn (widget, NULL, NULL, "", "show_edit_pngs");
+  } else SC_spawn (widget, NULL, NULL, "", "make_webm_from_temp"); //don't spawn anything and move on past pngs
 }
