@@ -959,7 +959,6 @@ static gboolean event_after_cb (GtkWidget *widget, GdkEventWindowState *event, g
   return FALSE;
 }
 
-//map-event callback (the widget is visible)
 static void activate (GtkApplication *app,
                       gpointer        data)
 {
