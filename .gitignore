@@ -11,3 +11,6 @@ pkg/
 PKGBUILD
 silentcast.install
 *.swx
+*.py
+*.o
+silentcast
