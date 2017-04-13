@@ -614,8 +614,7 @@ static void run_ffcom (GtkWidget *widget)
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700); //can't enter a directory unless it has execute privilage, so 700 instead of 600
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
-    struct SC_out_data data = { .silentcast_dir = silentcast_dir };
-    SC_spawn (widget, P("ffcom_string"), P("p_ffcom_pid"), "", "", &data); 
+    SC_spawn (widget, P("ffcom_string"), P("p_ffcom_pid"), "", ""); 
     g_free (glib_encoded_silentcast_dir);
   }
 }
@@ -855,6 +854,10 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     /*current directory*/ 
     char *cur_dir = g_get_current_dir (); P_SET(cur_dir);
 
+    /*additional variables used in temptoanim functions*/
+    static int group = 1, *p_group = &group; P_SET(p_group);
+    static int total_group = 0, *p_total_group = &total_group; P_SET(p_total_group);
+    static char nextfunc[20]; P_SET(nextfunc);
   }
 }
 
@@ -936,16 +939,7 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
     char silentcast_dir[PATH_MAX];
     strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
     strcat (silentcast_dir, "/silentcast");
-    struct SC_out_data data = {
-      .silentcast_dir = silentcast_dir,
-      .p_fps = P("p_fps"),
-      .p_anims_from_temp = P("p_anims_from_temp"),
-      .p_gif = P("p_gif"),
-      .p_pngs = P("p_pngs"), 
-      .p_webm = P("p_webm"),
-      .p_mp4 = P("p_mp4")
-    };
-    SC_generate_outputs (widget, &data);
+    SC_generate_outputs (widget);
 
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;
