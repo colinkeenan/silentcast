@@ -189,8 +189,12 @@ static void get_silentcast_dir (GtkWidget *widget, char silentcast_dir[PATH_MAX]
 //executed when done button is clicked from show_edit_pngs
 static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   char convert_com[200], delay[5];
-  GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(gtk_widget_get_toplevel(done))));
+  GtkWidget *edit_pngs_widget = gtk_widget_get_toplevel (done);
+  GtkWidget *widget = GTK_WIDGET(gtk_window_get_transient_for (GTK_WINDOW(edit_pngs_widget)));
   int *p_group = P("p_group"), *p_total_group = P("p_total_group"), *p_fps = P("p_fps");
+
+  //close the widget that had the done button on it
+  gtk_widget_destroy (edit_pngs_widget);
 
   char silentcast_dir[PATH_MAX];
   get_silentcast_dir (widget, silentcast_dir);
@@ -318,7 +322,6 @@ static void child_watch_cb (GPid pid, int status, gpointer data) //called when s
   char silentcast_dir[PATH_MAX];
   get_silentcast_dir (widget, silentcast_dir);
   char *nextfunc = P("nextfunc");
- SC_show_error (widget, nextfunc); 
 
   if (!strcmp (nextfunc, "show_edit_pngs")) { 
     if (!animgif_exists (widget, silentcast_dir)) show_edit_pngs (widget);
