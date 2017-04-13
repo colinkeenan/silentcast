@@ -614,7 +614,8 @@ static void run_ffcom (GtkWidget *widget)
     g_mkdir_with_parents (glib_encoded_silentcast_dir, 0700); //can't enter a directory unless it has execute privilage, so 700 instead of 600
     GdkRectangle *mon_rect = P("p_surface_rect");
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
-    SC_spawn (widget, glib_encoded_silentcast_dir, P("ffcom_string"), P("p_ffcom_pid"), ""); //no message means don't show a dialog
+    struct SC_out_data data = { .silentcast_dir = silentcast_dir };
+    SC_spawn (widget, P("ffcom_string"), P("p_ffcom_pid"), "", "", &data); 
     g_free (glib_encoded_silentcast_dir);
   }
 }
@@ -935,9 +936,16 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
     char silentcast_dir[PATH_MAX];
     strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
     strcat (silentcast_dir, "/silentcast");
-    int *p_fps = P("p_fps");
-    gboolean *p_anims_from_temp = P("p_anims_from_temp"), *p_gif = P("p_gif"), *p_pngs = P("p_pngs"), *p_webm = P("p_webm"), *p_mp4 = P("p_mp4");
-    SC_generate_outputs (widget, silentcast_dir, p_fps, *p_anims_from_temp, *p_gif, *p_pngs, *p_webm, *p_mp4);
+    struct SC_out_data data = {
+      .silentcast_dir = silentcast_dir,
+      .p_fps = P("p_fps"),
+      .p_anims_from_temp = P("p_anims_from_temp"),
+      .p_gif = P("p_gif"),
+      .p_pngs = P("p_pngs"), 
+      .p_webm = P("p_webm"),
+      .p_mp4 = P("p_mp4")
+    };
+    SC_generate_outputs (widget, &data);
 
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;

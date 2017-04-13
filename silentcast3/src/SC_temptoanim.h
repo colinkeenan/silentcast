@@ -32,12 +32,25 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+
+struct SC_out_data {
+  char *silentcast_dir;
+  int *p_group;
+  int *p_total_group;
+  int *p_fps;
+  gboolean *p_anims_from_temp;
+  gboolean *p_gif;
+  gboolean *p_pngs;
+  gboolean *p_webm;
+  gboolean *p_mp4;
+  char nextfunc[21];
+};
 
 void SC_show_error (GtkWidget *widget, char *err_message);
 void SC_show_err_message (GtkWidget *widget, char *message, char *errmessage);
 char* SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX]);
-void SC_spawn (GtkWidget *widget, char *glib_encoded_working_dir, char *commandstring, int *p_pid, char* message);
-void SC_generate_outputs (GtkWidget *widget, char silentcast_dir[PATH_MAX], int *p_fps,
-    gboolean anims_from_temp, gboolean gif, gboolean pngs, gboolean webm, gboolean mp4);
+void SC_spawn (GtkWidget *widget, char *commandstring, int *p_pid, char* message, char *nextfunc, struct SC_out_data *data);
+void SC_generate_outputs (GtkWidget *widget, struct SC_out_data *data);
 
 #endif //SC_TEMPTOANIM_H
