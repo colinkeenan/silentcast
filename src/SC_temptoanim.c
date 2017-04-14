@@ -453,7 +453,11 @@ void SC_generate_outputs (GtkWidget *widget)
 
       //spawn command to generate the pngs then call show_edit_pngs if gif is a final output otherwise move on to webm
       char funcname[20];
-      if (*p_gif) strcpy (funcname, "show_edit_pngs");
+      if (*p_gif) {
+        strcpy (funcname, "show_edit_pngs");
+        //have to run it once directly because everytime it's run in the what_child_cb it checks for anim.gif first and gives an error if not there
+        show_edit_pngs (widget); 
+      }
       else strcpy (funcname, "make_webm_from_temp");
       SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", funcname); 
     }
