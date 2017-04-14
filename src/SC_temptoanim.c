@@ -329,6 +329,10 @@ static void call_nextfunc (GtkWidget *widget)
   else if (!strcmp (nextfunc, "make_webm_from_pngs")) make_webm_from_pngs (widget);
   else if (!strcmp (nextfunc, "make_mp4_from_pngs")) make_mp4_from_pngs (widget);
   else if (!strcmp (nextfunc, "finish")) {
+    //reset total_group in case user starts over
+    int *p_total_group = P("p_total_group");
+    *p_total_group = 0;
+    //delete pngs if not needed
     gboolean *p_pngs = P("p_pngs");
     if (!*p_pngs) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
     //try to open silentcast_dir in the default file manager to show the final outputs
