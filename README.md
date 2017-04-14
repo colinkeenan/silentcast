@@ -19,30 +19,30 @@ Markdown Preview
 Then, just open this file with Chrome. You'll probably want to make Google Chrome the default for .md files. You can also just drag and drop this file to an empty tab in Chrome.
 -->
 
-##Demos
+## Demos
 
 Notice there's a stop icon ![stop1](https://cdn.rawgit.com/colinkeenan/silentcast/48a850f1/stop1.svg) in the Notification Area before I even start Silentcast, then a 2nd stop icon ![stop2](https://cdn.rawgit.com/colinkeenan/silentcast/48a850f1/stop2.svg) appears when recording begins. That's because I already had Silentcast running to make these animated gifs of how to use Silentcast. Silentcast 1 keeps going after I stop Silentcast 2.
 
 
-###Fullscreen: How to use Silentcast to record Gimp
+### Fullscreen: How to use Silentcast to record Gimp
 
 ![fullscreen.gif](fullscreen.gif)
 
-###Transparent: How to use Silentcast to record 2 windows
+### Transparent: How to use Silentcast to record 2 windows
 
 ![transparent.gif](transparent.gif)
 
-###Interior: How to use Silentcast to only record the drawing
+### Interior: How to use Silentcast to only record the drawing
 
 ![interior.gif](interior.gif)
 
-###Entirety: How to use Silentcast to record 1 window
+### Entirety: How to use Silentcast to record 1 window
 
 ![entirety.gif](entirety.gif)
 
-##Guides
+## Guides
 
-###Getting Silentcast
+### Getting Silentcast
 
 <table>
   <thead>
@@ -219,7 +219,7 @@ Run `sudo apt-get remove silentcast`. You can then remove the PPAs with `sudo ad
 $ sudo add-apt-repository -r ppa:sethj/silentcast && sudo apt-get update
 ```
 
-###Launch Methods
+### Launch Methods
 
 - Menu Hierarchy
     - Graphics -> Silentcast
@@ -347,6 +347,6 @@ However, if you don't have a large enough swap (or no swap as with my own system
 
 After clicking OK, you'll be back at the Prepare Images dialog so that you can delete unneeded images or make other changes that will allow *convert* to complete anim.gif.
 
-##List of Tips
+## List of Tips
 
 In a future release, after I've used Silentcast for a while, I'll have a list of tips here. I'm thinking of command line stuff to for example insert an animated gif of you drawing on one of the images in the animated gif you're working on so that you can circle or highlight something in the animation. However, I haven't tried it yet and want to release this version 1.0 now.
