@@ -71,7 +71,7 @@ static gboolean is_file (GtkWidget *widget, char filename[PATH_MAX], char *errme
   char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
   if (!glib_encoded_filename) return FALSE;
   else if (!g_file_test (glib_encoded_filename, G_FILE_TEST_IS_REGULAR)) {
-    show_file_err (widget, filename, errmessage);
+    if (errmessage) show_file_err (widget, filename, errmessage);
     g_free (glib_encoded_filename);
     return FALSE;
   }
@@ -167,10 +167,10 @@ static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX]
   char filename[PATH_MAX];
   strcpy (filename, silentcast_dir);
   strcat (filename, "/anim.gif");
-  char warning_if_no_file[] = 
-    "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.";
+//  char warning_if_no_file[] = 
+ //   "Too many images for the available memory. Try closing other applications, creating a swap file, or removing unecessary images.";
 
-  return is_file (widget, filename, warning_if_no_file);
+  return is_file (widget, filename, NULL);
 }
 
 static gboolean on_value_changed_group (GtkSpinButton *group_spnbutt, gpointer data)
@@ -200,6 +200,14 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   get_silentcast_dir (widget, silentcast_dir);
   delete_pngs (widget, silentcast_dir, *p_group); //delete all but 1 out of every group number of pngs (group set in edit_pngs)
 
+  //remove pre-existing anim.gif before making a new one
+  char animgif_filepath[PATH_MAX];
+  strcpy (animgif_filepath, silentcast_dir);
+  strcat (animgif_filepath, "/anim.gif");
+  char *glib_encoded_animgif = SC_get_glib_filename (widget, animgif_filepath);
+  g_remove (glib_encoded_animgif);
+  g_free (glib_encoded_animgif);
+
   //construct convert_com: convert -adjoin -delay (total_group * fps) -layers optimize ew-[0-9][0-9][0-9].png anim.gif
   *p_total_group = *p_total_group + *p_group;
   strcpy (convert_com, "/bin/sh -c '/usr/bin/convert -adjoin -delay ");
@@ -212,7 +220,7 @@ static gboolean make_anim_gif_cb (GtkWidget *done, gpointer data) {
   return TRUE;
 }
 
-static void show_edit_pngs (GtkWidget *widget)
+static void show_edit_pngs (GtkWidget *widget, char *errormessage)
 {
   GtkWidget *group_spnbutt = NULL;
   group_spnbutt = gtk_spin_button_new_with_range (1, 8, 1); 
@@ -231,11 +239,12 @@ static void show_edit_pngs (GtkWidget *widget)
   GtkWidget *edit_pngs = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER(edit_pngs_widget), edit_pngs);
 #define EDPNGS_ATCH(A,C,R,W) gtk_grid_attach (GTK_GRID(edit_pngs), A, C, R, W, 1) 
-  EDPNGS_ATCH(gtk_label_new ("This is your oportunity to edit the pngs before creating animations from them."), 0, 0, 4);
-  EDPNGS_ATCH(group_spinbutt_label, 0, 1, 1); EDPNGS_ATCH(group_spnbutt, 1, 1, 1);
-  EDPNGS_ATCH(gtk_label_new ("Or, manipulate the images manually in a file browser or other application."), 0, 2, 4);
-  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 3, 4);
-                                                                                                      EDPNGS_ATCH(done, 4, 4, 1);
+  EDPNGS_ATCH(gtk_label_new (errormessage), 0, 0, 4);
+  EDPNGS_ATCH(gtk_label_new ("This is your oportunity to edit the pngs before creating animations from them."), 0, 1, 4);
+  EDPNGS_ATCH(group_spinbutt_label, 0, 2, 1); EDPNGS_ATCH(group_spnbutt, 1, 2, 1);
+  EDPNGS_ATCH(gtk_label_new ("Or, manipulate the images manually in a file browser or other application."), 0, 3, 4);
+  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 4, 4);
+                                                                                                      EDPNGS_ATCH(done, 4, 5, 1);
   gtk_widget_show_all(edit_pngs_widget);
 }
 
@@ -337,9 +346,10 @@ static void call_nextfunc (GtkWidget *widget)
   char *nextfunc = P("nextfunc");
   char silentcast_dir[PATH_MAX];
   get_silentcast_dir (widget, silentcast_dir);
-  if (!strcmp (nextfunc, "show_edit_pngs1")) show_edit_pngs (widget); //1st time show_edit_pngs is called, don't check for anim.gif
+  if (!strcmp (nextfunc, "show_edit_pngs1")) show_edit_pngs (widget, " "); //1st time show_edit_pngs is called, don't check for anim.gif
   else if (!strcmp (nextfunc, "show_edit_pngs")) {
-    if (!animgif_exists (widget, silentcast_dir)) show_edit_pngs (widget); //keep showing it until anim.gif exists
+    if (!animgif_exists (widget, silentcast_dir)) //repeatedly show_edit_pngs until anim.gif exists (nextfunc in show_edit_pngs is itself)
+      show_edit_pngs (widget, "Imagemagick's convert didn't make anim.gif. Reduce the number or file sizes of the png images."); 
     else make_webm_from_temp (widget);
   } 
   else if (!strcmp (nextfunc, "make_webm_from_temp")) make_webm_from_temp (widget);
