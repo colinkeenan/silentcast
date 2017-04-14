@@ -453,11 +453,11 @@ void SC_generate_outputs (GtkWidget *widget)
 {
   char silentcast_dir[PATH_MAX];
   get_silentcast_dir (widget, silentcast_dir);
-  gboolean *p_pngs = P("p_pngs"), *p_gif = P("p_gif"), *p_anims_from_temp = P("p_anims_from_temp");
   
-  if (*p_pngs || *p_gif || !*p_anims_from_temp) {
-    delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
-    if (temp_exists (widget, silentcast_dir)) {
+  if (temp_exists (widget, silentcast_dir)) {
+    gboolean *p_pngs = P("p_pngs"), *p_gif = P("p_gif"), *p_anims_from_temp = P("p_anims_from_temp");
+    if (*p_pngs || *p_gif || !*p_anims_from_temp) {
+      delete_pngs (widget, silentcast_dir, 0); //before generating new pngs, delete any existing ones (0 means keep none)
       char ff_gen_pngs[200];
       int *p_fps = P("p_fps");
       char char_fps[5]; snprintf (char_fps, 5, "%d", *p_fps);
@@ -473,6 +473,6 @@ void SC_generate_outputs (GtkWidget *widget)
       if (*p_gif) strcpy (funcname, "show_edit_pngs1"); //the 1 means don't check for anim.gif before running show_edit_pngs
       else strcpy (funcname, "make_webm_from_temp");
       SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", funcname); 
-    } else SC_spawn (widget, NULL, NULL, "", "stop"); //stop trying to make anim if there's no temp.mkv
-  } else SC_spawn (widget, NULL, NULL, "", "make_webm_from_temp"); //don't spawn anything and move on 
+    } else SC_spawn (widget, NULL, NULL, "", "make_webm_from_temp"); //don't spawn anything and move on 
+  } else SC_spawn (widget, NULL, NULL, "", "stop"); //stop trying to make anim if there's no temp.mkv
 }
