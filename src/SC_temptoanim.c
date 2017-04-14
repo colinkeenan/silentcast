@@ -443,8 +443,11 @@ void SC_generate_outputs (GtkWidget *widget)
       //spawn it
       GPid ff_gen_pngs_pid = 0;
 
-      //spawn command to generate the pngs then call show_edit_pngs
-      SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", "show_edit_pngs"); 
+      //spawn command to generate the pngs then call show_edit_pngs if gif is a final output otherwise move on to webm
+      char funcname[20];
+      if (*p_gif) strcpy (funcname, "show_edit_pngs");
+      else strcpy (funcname, "make_webm_from_temp");
+      SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", funcname); 
     }
-  } else SC_spawn (widget, NULL, NULL, "", "make_webm_from_temp"); //don't spawn anything and move on past pngs
+  } else SC_spawn (widget, NULL, NULL, "", "make_webm_from_temp"); //don't spawn anything and move on 
 }
