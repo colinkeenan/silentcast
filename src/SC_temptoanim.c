@@ -84,7 +84,7 @@ static gboolean temp_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX])
   char filename[PATH_MAX];
   strcpy (filename, silentcast_dir);
   strcat (filename, "/temp.mkv");
-  return is_file (widget, filename, "temp.mkv not found, so can't generate anything from it");
+  return is_file (widget, filename, " not found, so can't generate anything from it. There is probably something wrong with your ffmpeg installation. Try running ffmpeg from a terminal.");
 }
 
 //kept getting segfault in trying to use qsort, so found this bubblesort here: 
@@ -317,6 +317,21 @@ static void make_mp4_from_pngs (GtkWidget *widget)
     SC_spawn (widget, NULL, NULL, "", "finish"); 
 }
 
+static void open_filemanager (GtkWidget *widget, char silentcast_dir[PATH_MAX])
+{
+  //try to open silentcast_dir in the default file manager to show the final outputs
+  char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
+  if (glib_encoded_silentcast_dir) {
+    //trying to open the default filemanager and don't care about errors
+    char *silentcast_dir_uri = g_filename_to_uri (glib_encoded_silentcast_dir, NULL, NULL);
+    g_free (glib_encoded_silentcast_dir);
+    if (silentcast_dir_uri) {
+      g_app_info_launch_default_for_uri (silentcast_dir_uri, NULL, NULL);
+      g_free (silentcast_dir_uri);
+    }
+  }
+}
+
 static void call_nextfunc (GtkWidget *widget)
 {
   char *nextfunc = P("nextfunc");
@@ -326,7 +341,8 @@ static void call_nextfunc (GtkWidget *widget)
   else if (!strcmp (nextfunc, "show_edit_pngs")) {
     if (!animgif_exists (widget, silentcast_dir)) show_edit_pngs (widget); //keep showing it until anim.gif exists
     else make_webm_from_temp (widget);
-  } else if (!strcmp (nextfunc, "make_webm_from_temp")) make_webm_from_temp (widget);
+  } 
+  else if (!strcmp (nextfunc, "make_webm_from_temp")) make_webm_from_temp (widget);
   else if (!strcmp (nextfunc, "make_mp4_from_temp")) make_mp4_from_temp (widget);
   else if (!strcmp (nextfunc, "make_webm_from_pngs")) make_webm_from_pngs (widget);
   else if (!strcmp (nextfunc, "make_mp4_from_pngs")) make_mp4_from_pngs (widget);
@@ -338,19 +354,18 @@ static void call_nextfunc (GtkWidget *widget)
     gboolean *p_pngs = P("p_pngs");
     if (!*p_pngs) delete_pngs (widget, silentcast_dir, 0); //0 means delete them all
     //try to open silentcast_dir in the default file manager to show the final outputs
-    char *glib_encoded_silentcast_dir = SC_get_glib_filename (widget, silentcast_dir);
-    if (glib_encoded_silentcast_dir) {
-      //trying to open the default filemanager and don't care about errors
-      char *silentcast_dir_uri = g_filename_to_uri (glib_encoded_silentcast_dir, NULL, NULL);
-      g_free (glib_encoded_silentcast_dir);
-      if (silentcast_dir_uri) {
-        g_app_info_launch_default_for_uri (silentcast_dir_uri, NULL, NULL);
-        g_free (silentcast_dir_uri);
-      }
-    } else SC_show_err_message (widget, "Silentcast Internal Error. Function not found: ", nextfunc);
+    open_filemanager (widget, silentcast_dir); 
     //the surface widget was hidden just before calling SC_generate_outputs
     //should probably destroy the widget now, but that will close the filebrowser just opened
     //so, showing it again
+    gtk_widget_show_all (widget); 
+  } 
+  else if (!strcmp (nextfunc, "stop")) { 
+    open_filemanager (widget, silentcast_dir);
+    gtk_widget_show_all (widget); 
+  } 
+  else {
+    SC_show_err_message (widget, "Silentcast Internal Error. Function not found: ", nextfunc);
     gtk_widget_show_all (widget); 
   }
 }
@@ -458,6 +473,6 @@ void SC_generate_outputs (GtkWidget *widget)
       if (*p_gif) strcpy (funcname, "show_edit_pngs1"); //the 1 means don't check for anim.gif before running show_edit_pngs
       else strcpy (funcname, "make_webm_from_temp");
       SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", funcname); 
-    }
+    } else SC_spawn (widget, NULL, NULL, "", "stop"); //stop trying to make anim if there's no temp.mkv
   } else SC_spawn (widget, NULL, NULL, "", "make_webm_from_temp"); //don't spawn anything and move on 
 }
