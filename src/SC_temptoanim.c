@@ -321,7 +321,8 @@ static void call_nextfunc (GtkWidget *widget)
   char *nextfunc = P("nextfunc");
   char silentcast_dir[PATH_MAX];
   get_silentcast_dir (widget, silentcast_dir);
-  if (!strcmp (nextfunc, "show_edit_pngs")) { //makes anim.gif
+  if (!strcmp (nextfunc, "show_edit_pngs1")) show_edit_pngs (widget); //1st time show_edit_pngs is called, don't check for anim.gif
+  else if (!strcmp (nextfunc, "show_edit_pngs")) {
     if (!animgif_exists (widget, silentcast_dir)) show_edit_pngs (widget); //keep showing it until anim.gif exists
     else make_webm_from_temp (widget);
   } else if (!strcmp (nextfunc, "make_webm_from_temp")) make_webm_from_temp (widget);
@@ -453,11 +454,7 @@ void SC_generate_outputs (GtkWidget *widget)
 
       //spawn command to generate the pngs then call show_edit_pngs if gif is a final output otherwise move on to webm
       char funcname[20];
-      if (*p_gif) {
-        strcpy (funcname, "show_edit_pngs");
-        //have to run it once directly because everytime it's run in the what_child_cb it checks for anim.gif first and gives an error if not there
-        show_edit_pngs (widget); 
-      }
+      if (*p_gif) strcpy (funcname, "show_edit_pngs1"); //the 1 means don't check for anim.gif before running show_edit_pngs
       else strcpy (funcname, "make_webm_from_temp");
       SC_spawn (widget, ff_gen_pngs, &ff_gen_pngs_pid, "Generating pngs from anim.temp.", funcname); 
     }
