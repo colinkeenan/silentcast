@@ -218,7 +218,7 @@ static void show_edit_pngs (GtkWidget *widget)
   group_spnbutt = gtk_spin_button_new_with_range (1, 8, 1); 
   g_signal_connect (group_spnbutt, "value-changed", 
      G_CALLBACK(on_value_changed_group), P("p_group"));
-  GtkWidget *group_spinbutt_label = gtk_label_new ("Prune pngs, keeping 1 out of every"); 
+  GtkWidget *group_spinbutt_label = gtk_label_new ("You may prune pngs, keeping 1 out of every"); 
   gtk_widget_set_halign (group_spinbutt_label, GTK_ALIGN_END);
   GtkWidget *done= gtk_button_new_with_label ("Done");
   g_signal_connect (done, "clicked", 
@@ -231,10 +231,11 @@ static void show_edit_pngs (GtkWidget *widget)
   GtkWidget *edit_pngs = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER(edit_pngs_widget), edit_pngs);
 #define EDPNGS_ATCH(A,C,R,W) gtk_grid_attach (GTK_GRID(edit_pngs), A, C, R, W, 1) 
-  EDPNGS_ATCH(group_spinbutt_label, 0, 0, 1); EDPNGS_ATCH(group_spnbutt, 1, 0, 1);
-  EDPNGS_ATCH(gtk_label_new ("You can also manipulate the images manually in the file browser or other application."), 0, 1, 4);
-  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 2, 4);
-                                                                                                      EDPNGS_ATCH(done, 4, 3, 1);
+  EDPNGS_ATCH(gtk_label_new ("This is your oportunity to edit the pngs before creating animations from them."), 0, 0, 4);
+  EDPNGS_ATCH(group_spinbutt_label, 0, 1, 1); EDPNGS_ATCH(group_spnbutt, 1, 1, 1);
+  EDPNGS_ATCH(gtk_label_new ("Or, manipulate the images manually in a file browser or other application."), 0, 2, 4);
+  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 3, 4);
+                                                                                                      EDPNGS_ATCH(done, 4, 4, 1);
   gtk_widget_show_all(edit_pngs_widget);
 }
 
