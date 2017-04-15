@@ -84,8 +84,9 @@ static void get_presets (GtkWidget *widget, double presets[PRESET_N], double pre
   }
 
   if (!presets_file) {
-    //try to find presets file in /etc
-    strcpy (filename, "/etc/silentcast_presets");
+    //try to find presets file in $HOME/.config
+    strcpy (filename, g_get_home_dir());
+    strcat (filename, "/.config/silentcast_presets");
     char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
     if (glib_encoded_filename) {
       presets_file = g_fopen (glib_encoded_filename, "r");
@@ -93,9 +94,8 @@ static void get_presets (GtkWidget *widget, double presets[PRESET_N], double pre
     }
   }
   if (!presets_file) {
-    //try to find presets file in $HOME/.config
-    strcpy (filename, g_get_home_dir());
-    strcat (filename, "/.config/silentcast_presets");
+    //try to find presets file in /etc
+    strcpy (filename, "/etc/silentcast_presets");
     char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
     if (glib_encoded_filename) {
       presets_file = g_fopen (glib_encoded_filename, "r");
@@ -150,8 +150,9 @@ static void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area
   }
 
   if (!conf_file) {
-    //try to find conf file in /etc
-    strcpy (filename, "/etc/silentcast.conf");
+    //try to find conf file in $HOME/.config
+    strcpy (filename, g_get_home_dir());
+    strcat (filename, "/.config/silentcast.conf");
     char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
     if (glib_encoded_filename) {
       conf_file = g_fopen (glib_encoded_filename, "r");
@@ -159,9 +160,8 @@ static void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area
     }
   }
   if (!conf_file) {
-    //try to find conf file in $HOME/.config
-    strcpy (filename, g_get_home_dir());
-    strcat (filename, "/.config/silentcast.conf");
+    //try to find conf file in /etc
+    strcpy (filename, "/etc/silentcast.conf");
     char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
     if (glib_encoded_filename) {
       conf_file = g_fopen (glib_encoded_filename, "r");
