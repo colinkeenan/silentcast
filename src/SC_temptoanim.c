@@ -255,7 +255,6 @@ static void make_webm_from_temp (GtkWidget *widget)
   if (*p_anims_from_temp && *p_webm) {
     char ff_make_movie_com[200], message[35];
     //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
-    //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
     strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -i temp.mkv ");
     strcat (ff_make_movie_com, "-c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm'");
     strcpy (message, "Creating anim.webm from temp.mkv");
@@ -272,8 +271,7 @@ static void make_mp4_from_temp (GtkWidget *widget)
   gboolean *p_anims_from_temp = P("p_anims_from_temp");
   if (*p_anims_from_temp && *p_mp4) {
     char ff_make_movie_com[200], message[35];
-    //construct ff_make_movie_com: ffmpeg -i temp.mkv -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k anim.webm 
-    //or:                          ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
+    //construct ff_make_movie_com: ffmpeg -i temp.mkv -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" anim.mp4 
     strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -i temp.mkv ");
     strcat (ff_make_movie_com, "-pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4'");
     strcpy (message, "Creating anim.mp4 from temp.mkv'");
@@ -290,8 +288,7 @@ static void make_webm_from_pngs (GtkWidget *widget)
   gboolean *p_anims_from_temp = P("p_anims_from_temp");
   if (!*p_anims_from_temp && *p_webm) {
     char ff_make_movie_com[200], char_fps[4], message[35];
-    //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
-    //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
+    //construct ff_make_movie_com: ffmpeg -r fps -i ew-%3d.png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
     strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -r ");
     int *p_fps = P("p_fps");
     snprintf (char_fps, 4, "%d", *p_fps);
@@ -311,8 +308,7 @@ static void make_mp4_from_pngs (GtkWidget *widget)
   gboolean *p_anims_from_temp = P("p_anims_from_temp");
   if (!*p_anims_from_temp && *p_mp4) {
     char ff_make_movie_com[200], char_fps[4], message[35];
-    //construct ff_make_movie_com: ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm
-    //or:                          ffmpeg -r fps -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
+    //construct ff_make_movie_com: ffmpeg -r fps -i ew-%3d.png -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -y anim.mp4 
     strcpy (ff_make_movie_com, "/bin/sh -c '/usr/bin/ffmpeg -r ");
     int *p_fps = P("p_fps");
     snprintf (char_fps, 4, "%d", *p_fps);
