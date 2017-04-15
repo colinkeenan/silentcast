@@ -296,7 +296,7 @@ static void make_webm_from_pngs (GtkWidget *widget)
     int *p_fps = P("p_fps");
     snprintf (char_fps, 4, "%d", *p_fps);
     strcat (ff_make_movie_com, char_fps);
-    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm'");
+    strcat (ff_make_movie_com, " -i ew-\%3d.png -c:v libvpx -qmin 0 -qmax 50 -crf 5 -b:v 749k -y anim.webm'");
     strcpy (message, "Creating anim.webm from ew-???.png");
     //spawn it
     GPid ff_make_movie_com_pid = 0;
@@ -317,7 +317,7 @@ static void make_mp4_from_pngs (GtkWidget *widget)
     int *p_fps = P("p_fps");
     snprintf (char_fps, 4, "%d", *p_fps);
     strcat (ff_make_movie_com, char_fps);
-    strcat (ff_make_movie_com, " -i ew-[0-9][0-9][0-9].png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4'");
+    strcat (ff_make_movie_com, " -i ew-\%3d.png -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -y anim.mp4'");
     strcpy (message, "Creating anim.mp4 from ew-???.png");
     //spawn it
     GPid ff_make_movie_com_pid = 0;
