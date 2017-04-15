@@ -7,10 +7,9 @@
 *.sig
 pkg/
 *~
-*.svg
 PKGBUILD
 silentcast.install
-silentcast
+silentcast/usr/bin/silentcast
 .directory
 *.swx
 *.py

@@ -66,14 +66,44 @@ static int compare_doubles (const void *a, const void *b)
 static void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]) 
 {
   double read_preset;
-  FILE *presets_file;
+  FILE *presets_file = NULL;
   unsigned int i=0;
-  char *filename = "silentcast_presets";
+  char filename[PATH_MAX];
   double preset_defaults[PRESET_N] = {8.00008, 16.00016, 32.00032, 48.00048, 64.00064, 96.00096, 128.00128, 
     256.00144, 427.00240, 569.00320, 640.00360, 853.00480, 1280.00720, 1360.00765, 1920.01080, 2880.01620};
 
-  presets_file = fopen (filename, "r");
-  if (presets_file == NULL) {
+  //try to find presets file in current directory
+  char *cur_dir = g_get_current_dir ();
+  strcpy (filename, cur_dir);
+  g_free (cur_dir);
+  strcat (filename, "/silentcast_presets");
+  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (glib_encoded_filename) {
+    presets_file = g_fopen (glib_encoded_filename, "r");
+    g_free (glib_encoded_filename);
+  }
+
+  if (!presets_file) {
+    //try to find presets file in /etc
+    strcpy (filename, "/etc/silentcast_presets");
+    char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+    if (glib_encoded_filename) {
+      presets_file = g_fopen (glib_encoded_filename, "r");
+      g_free (glib_encoded_filename);
+    }
+  }
+  if (!presets_file) {
+    //try to find presets file in $HOME/.config
+    strcpy (filename, g_get_home_dir());
+    strcat (filename, "/.config/silentcast_presets");
+    char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+    if (glib_encoded_filename) {
+      presets_file = g_fopen (glib_encoded_filename, "r");
+      g_free (glib_encoded_filename);
+    }
+  }
+  if (!presets_file) {
+    //can't open presets file so show error and use defaults
     char message[PATH_MAX + 100] = { 0 };
     strcpy (message, "<");
     strcat (message, filename);
@@ -82,11 +112,12 @@ static void get_presets (GtkWidget *widget, double presets[PRESET_N], double pre
     for (i = 0; i < PRESET_N; i++) presets[i] = preset_defaults[i]; 
     previous[0] = 0; previous[1] = 0;  
   } else { 
-    for (i = 0; i < PRESET_N + 2; i++) {
+    //succesfully opened presets file so read it
+    for (i = 0; i < PRESET_N + 2; i++) { //preset file also has previous rectangle geometry
       int ret = fscanf (presets_file, "%lf", &read_preset);
       if (ret == 1){
-        if (i < PRESET_N) presets[i] = read_preset;
-        else previous [i - PRESET_N] = read_preset;
+        if (i < PRESET_N) presets[i] = read_preset; //reading preset
+        else previous [i - PRESET_N] = read_preset; //reading previous rectangle geometry
       } else if (errno != 0) {
         show_perror (widget, "fscanf");
         break;
@@ -102,19 +133,50 @@ static void get_presets (GtkWidget *widget, double presets[PRESET_N], double pre
 static void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
     gboolean *p_gif, gboolean *p_pngs, gboolean *p_webm, gboolean *p_mp4) 
 {
-  FILE *conf_file;
+  FILE *conf_file = NULL;
   char *line = NULL, *var_name = NULL, *var_val = NULL;
   long unsigned int len = 0;
-  char *filename = "silentcast.conf";
+  char filename[PATH_MAX];
 
-  conf_file = fopen (filename, "r");
-  if (conf_file == NULL) {
-    char message[PATH_MAX + 100] = { 0 };
+  //try to find conf file in current directory
+  char *cur_dir = g_get_current_dir ();
+  strcpy (filename, cur_dir);
+  g_free (cur_dir);
+  strcat (filename, "/silentcast.conf");
+  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (glib_encoded_filename) {
+    conf_file = g_fopen (glib_encoded_filename, "r");
+    g_free (glib_encoded_filename);
+  }
+
+  if (!conf_file) {
+    //try to find conf file in /etc
+    strcpy (filename, "/etc/silentcast.conf");
+    char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+    if (glib_encoded_filename) {
+      conf_file = g_fopen (glib_encoded_filename, "r");
+      g_free (glib_encoded_filename);
+    }
+  }
+  if (!conf_file) {
+    //try to find conf file in $HOME/.config
+    strcpy (filename, g_get_home_dir());
+    strcat (filename, "/.config/silentcast.conf");
+    char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+    if (glib_encoded_filename) {
+      conf_file = g_fopen (glib_encoded_filename, "r");
+      g_free (glib_encoded_filename);
+    }
+  }
+  if (!conf_file) {
+    //can't open conf file so show error and use defaults
+    char message[PATH_MAX + 100];
     strcpy (message, "<");
     strcat (message, filename);
     strcat (message, "> Using default configuration");
     show_perror (widget, message);
   } else {
+    //successfully opened conf file so read it
 #define GBOOLEAN(A) !strcmp (A, "TRUE") ? TRUE : FALSE
     while ((getline(&line, &len, conf_file)) != -1) {
       char *substr = NULL;
@@ -161,9 +223,9 @@ static void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area
     //set working dir to home dir if not valid
     DIR* dir = opendir (gtk_entry_buffer_get_text (entry_buffer));
     if (!dir) {
-      char homedir[PATH_MAX] = { 0 };
+      char homedir[PATH_MAX] = "";
       strcpy (homedir, g_get_home_dir());
-      if (strlen(homedir) > 2) gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
+      if (strlen(homedir) > 1) gtk_entry_buffer_set_text (entry_buffer, homedir, -1);
       else gtk_entry_buffer_set_text (entry_buffer, "/tmp", -1);
     }
     //close and free everything
@@ -885,14 +947,17 @@ configure_surface_cb (GtkWidget *widget,
   return TRUE;
 }
 
+//write previous rectangle geometry to $home/.config/silentcast_presets
 static void write_previous (GtkWidget *widget, GdkRectangle previous)
 {
   double presets[PRESET_N], prepre[2], pre[PRESET_N + 2];
+  char filename[PATH_MAX], contents[(PRESET_N + 2) * 12], char_preset[11];
+
   get_presets (widget, presets, prepre);
   for (int i=0; i<PRESET_N; i++) pre[i] = presets[i]; 
   pre[PRESET_N] = (double) previous.x + (double) previous.y / 100000; 
   pre[PRESET_N + 1] = (double) previous.width + (double) previous.height / 100000;
-  char *filename = "silentcast_presets", contents[(PRESET_N + 2) * 12], char_preset[11];
+
   snprintf (char_preset, 11, "%f", pre[0]);
   strcpy (contents, char_preset);
   for (int i=1; i<PRESET_N + 2; i++) {
@@ -900,7 +965,14 @@ static void write_previous (GtkWidget *widget, GdkRectangle previous)
     snprintf (char_preset, 11, "%f", pre[i]);
     strcat (contents, char_preset);
   }
-  g_file_set_contents (filename, contents, -1, NULL);
+  
+  strcpy (filename, g_get_home_dir());
+  strcat (filename, "/.config/silentcast_presets");
+  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (glib_encoded_filename) {
+    g_file_set_contents (glib_encoded_filename, contents, -1, NULL);
+    g_free (glib_encoded_filename);
+  }
 }
 
 // called when surface widget is closed

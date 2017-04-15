@@ -28,10 +28,11 @@
  *
  */
 #include "SC_conf_widgets.h"
+char* SC_get_glib_filename (GtkWidget *widget, char filename[PATH_MAX]);
 
-static void write_presets (double presets[PATH_MAX])
+static void write_presets (GtkWidget *widget, double presets[PATH_MAX])
 {
-  char *filename = "silentcast_presets", contents[PRESET_N * 12], char_preset[11];
+  char filename[PATH_MAX], contents[PRESET_N * 12], char_preset[11];
   snprintf (char_preset, 11, "%f", presets[0]);
   strcpy (contents, char_preset);
   for (int i=1; i<PRESET_N; i++) {
@@ -39,10 +40,16 @@ static void write_presets (double presets[PATH_MAX])
     snprintf (char_preset, 11, "%f", presets[i]);
     strcat (contents, char_preset);
   }
-  g_file_set_contents (filename, contents, -1, NULL);
+  strcpy (filename, g_get_home_dir());
+  strcat (filename, "/.config/silentcast_presets");
+  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (glib_encoded_filename) {
+    g_file_set_contents (filename, contents, -1, NULL);
+    g_free (glib_encoded_filename);
+  }
 }
 
-static void write_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int fps, gboolean anims_from_temp, 
+static void write_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int fps, gboolean anims_from_temp, 
     gboolean gif, gboolean pngs, gboolean webm, gboolean mp4)
 {
   char conf[256+PATH_MAX] = "# Do not put spaces on either side of the =, and do not comment the working_dir line\nworking_dir="; char *l1comment = "\n";
@@ -54,7 +61,6 @@ static void write_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int
   char *l6 = "pngs=", *l6comment = " \n";
   char *l7 = "webm=", *l7comment = " \n";
   char *l8 = "mp4=";
-  char *filename = "silentcast.conf";
   char directory[PATH_MAX];
   strncpy (directory, gtk_entry_buffer_get_text (entry_buffer), PATH_MAX);
 
@@ -81,7 +87,14 @@ static void write_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int
   strcat (conf, l8);
   strcat (conf, mp4 ? "TRUE" : "FALSE");
 
-  g_file_set_contents (filename, conf, -1, NULL);
+  char filename[PATH_MAX];
+  strcpy (filename, g_get_home_dir());
+  strcat (filename, "/.config/silentcast.conf");
+  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (glib_encoded_filename) {
+    g_file_set_contents (filename, conf, -1, NULL);
+    g_free (glib_encoded_filename);
+  }
 }
 
 static void show_about_cb (GtkWidget *widget, gpointer  data)
@@ -148,8 +161,8 @@ static void save (GtkWidget *save, gpointer data)
   else if (T(PF1("previous_radiobutt"))) strcpy (P("area"), "p");
   else strcpy (P("area"), "e");
 
-  write_conf (P("working_dir"), P("area"), *p_fps, *p_anims_from_temp, *p_gif, *p_pngs, *p_webm, *p_mp4);
-  write_presets (P("presets"));
+  write_conf (widget, P("working_dir"), P("area"), *p_fps, *p_anims_from_temp, *p_gif, *p_pngs, *p_webm, *p_mp4);
+  write_presets (widget, P("presets"));
 }
 
 static void on_extents_checkbox_changed (GtkWidget *checkbox, gpointer data)

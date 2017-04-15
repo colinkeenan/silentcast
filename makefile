@@ -1,5 +1,6 @@
 TARGET=silentcast
 OBJS=    main.o SC_X11_get_active_window.o SC_conf_widgets.o SC_temptoanim.o
+BINDIR=silentcast/usr/bin
  
 CC=gcc
 DEBUG=-g
@@ -20,10 +21,10 @@ LD=gcc
 LDFLAGS=$(PTHREAD) $(GTKX11LIB) -export-dynamic -lm
  
 all: $(OBJS)
-	$(LD) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	$(LD) -o $(BINDIR)/$(TARGET) $(OBJS) $(LDFLAGS)
     
 %.o: %.c
 	$(CC) -c $(CCFLAGS) $< $(GTKX11LIB) -o $@ $(SCLIB)
     
 clean:
-	rm -f *.o $(TARGET)
+	rm -f *.o $(BINDIR)/$(TARGET)
