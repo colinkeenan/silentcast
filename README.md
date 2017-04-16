@@ -3,7 +3,7 @@ Silentcast
 
 This is not a full README (yet) for v3.0 which has a completely different GUI than previous versions. 
 It's more intuitive than previous versions and explains itself well enough.
-<span style="color:red">.It does not support running multiple copies of itself</span>, however, and so cannot record itself the way that 
+*It does not support running multiple copies of itself*, however, and so cannot record itself the way that 
 the previous version did: bad things will happen if you try to run Silentcast v3.0 while it is already running.
 If you make the mistake of trying to run Silentcast v3.0 while it is already running, make sure you run
 
