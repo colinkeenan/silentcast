@@ -1,7 +1,23 @@
 Silentcast
 ==========
 
-Still need to write a full README for version 3 which has a completely different GUI than previous versions.
+This is not a full README (yet) for v3.0 which has a completely different GUI than previous versions. 
+It's more intuitive than previous versions and explains itself well enough.
+<span style="color:red">.It does not support running multiple copies of itself</span>, however, and so cannot record itself the way that 
+the previous version did: bad things will happen if you try to run Silentcast v3.0 while it is already running.
+If you make the mistake of trying to run Silentcast v3.0 while it is already running, make sure you run
+
+    pkill -f ffmpeg
+
+when it closes (crashes) so that `silentcast/temp.mkv.` doesn't take over your hard drive. 
+This problem will be fixed in future releases, but other bugs will probably be fixed first because not many 
+people need to record Silentcast in action.
+
+When ran, you will instantly get a green rectangle surrounding the active window. If that's what you wanted to
+record, just press Return to start and then click the minimized Silentcast icon to stop. Here is a screenshot
+showing the F1 dialog and green rectangle. This one picture explains most of what you need to know to use Silentcast v3.0:
+
+[Silencast_v3.0_Screenshot.png](Silencast_v3.0_Screenshot.png)
 
 #### Dependencies
 - gtk3
