@@ -6,8 +6,11 @@
 *.log.*
 *.sig
 pkg/
-src/
 *~
-*.svg
 PKGBUILD
 silentcast.install
+scpkg/silentcast
+.directory
+*.swx
+*.py
+*.o

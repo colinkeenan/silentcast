@@ -1,19 +1,17 @@
-#!/bin/bash
-echo Copying files...
-install -D -m755 silentcast /usr/bin/silentcast
-install -m755 genffcom /usr/bin
-install -m755 temptoanim /usr/bin
-install -D -m755 silentcast.conf /etc/silentcast.conf
-install -D -m755 transparent_window.py /usr/share/silentcast/transparent_window.py
-install -m755 unity_indicator.py /usr/share/silentcast
-install -m755 stop?.svg /usr/share/silentcast
-install -D -m755 silentcast.svg /usr/share/pixmaps/silentcast.svg
-install -D -m755 silentcast.desktop /usr/share/applications/silentcast.desktop
-install -D -m755 README.md /usr/share/doc/silentcast/README.md
-install -m755 *svg /usr/share/doc/silentcast
-install -m755 *gif /usr/share/doc/silentcast
-install -D -m755 manpages/silentcast.1 /usr/share/man/man1/silentcast.1
-install -m755 manpages/genffcom.1 /usr/share/man/man1/
-install -m755 manpages/temptoanim.1 /usr/share/man/man1/
-echo Install complete
-echo "NOTE==>The command is 'silentcast'. See /usr/share/docs/silentcast/README.md or https://github.com/colinkeenan/silentcast/#silentcast for full instructions and tips."
+#!/bin/sh
+if [ $# -eq 0 ]
+then DESTDIR="" 
+elif [ $(echo -n "$1" | tail -c -1) = "/" ] 
+then DESTDIR=$(echo -n "$1" | head -c -1) 
+else DESTDIR="$1" 
+fi
+install -d $DESTDIR/{etc,usr/{bin,share/{applications,doc/silentcast,licenses}}}
+install -d $DESTDIR/usr/share/icons/hicolor/{24x24,32x32,48x48,64x64,128x128,256x256}/apps
+install -m644 scpkg/silentcast{.conf,_presets} $DESTDIR/etc
+install -m755 scpkg/silentcast $DESTDIR/usr/bin 
+install -m644 scpkg/silentcast.desktop $DESTDIR/usr/share/applications 
+install -m644 README.md $DESTDIR/usr/share/doc/silentcast
+install -m644 COPYING $DESTDIR/usr/share/licenses
+for i in 24x24 32x32 48x48 64x64 128x128 256x256 
+do install -m644 scpkg/${i/x$i}/silentcast.png "$DESTDIR"/usr/share/icons/hicolor/$i/apps
+done
