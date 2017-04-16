@@ -1,0 +1,17 @@
+#!/bin/sh
+if [ $# -eq 0 ]
+then DESTDIR="" 
+elif [ $(echo -n "$1" | tail -c -1) = "/" ] 
+then DESTDIR=$(echo -n "$1" | head -c -1) 
+else DESTDIR="$1" 
+fi
+install -d $DESTDIR/{etc,usr/{bin,share/{applications,doc/silentcast,licenses}}}
+install -d $DESTDIR/usr/share/icons/hicolor/{24x24,32x32,48x48,64x64,128x128,256x256}/apps
+install -m644 scpkg/silentcast{.conf,_presets} $DESTDIR/etc
+install -m755 scpkg/silentcast $DESTDIR/usr/bin 
+install -m644 scpkg/silentcast.desktop $DESTDIR/usr/share/applications 
+install -m644 README.md $DESTDIR/usr/share/doc/silentcast
+install -m644 COPYING $DESTDIR/usr/share/licenses
+for i in 24x24 32x32 48x48 64x64 128x128 256x256 
+do install -m644 scpkg/${i/x$i}/silentcast.png "$DESTDIR"/usr/share/icons/hicolor/$i/apps
+done

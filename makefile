@@ -1,6 +1,6 @@
 TARGET=silentcast
 OBJS=    main.o SC_X11_get_active_window.o SC_conf_widgets.o SC_temptoanim.o
-BINDIR=silentcast/usr/bin
+BINDIR=scpkg
  
 CC=gcc
 DEBUG=-g

@@ -1,0 +1,23 @@
+#!/bin/sh
+if [ $# -eq 0 ]
+then DESTDIR="" 
+elif [ $(echo -n "$1" | tail -c -1) = "/" ] 
+then DESTDIR=$(echo -n "$1" | head -c -1) 
+else DESTDIR="$1" 
+fi
+echo removing silentcast.conf and silentcast_presets from $DESTDIR/etc
+rm $DESTDIR/etc/silentcast{.conf,_presets}
+echo removing silentcast from $DESTDIR/user/bin
+rm $DESTDIR/usr/bin/silentcast 
+echo removing silentcast.desktop from $DESTDIR/user/share/applications
+rm $DESTDIR/usr/share/applications/silentcast.desktop 
+echo removing README.md from $DESTDIR/user/share/doc/silentcast
+rm $DESTDIR/usr/share/doc/silentcast/README.md
+echo removing $DESTDIR/usr/share/doc/silentcast
+rmdir $DESTDIR/usr/share/doc/silentcast
+echo removing COPYING license from /usr/share/licenses
+rm $DESTDIR/usr/share/licenses/COPYING 
+echo removing silentcast.png icons from /usr/share/icons/hicolor
+for i in 24x24 32x32 48x48 64x64 128x128 256x256 
+do rm "$DESTDIR"/usr/share/icons/hicolor/${i/x$i}/apps/silentcast.png
+done

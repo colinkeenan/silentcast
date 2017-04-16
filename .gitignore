@@ -9,7 +9,7 @@ pkg/
 *~
 PKGBUILD
 silentcast.install
-silentcast/usr/bin/silentcast
+scpkg/silentcast
 .directory
 *.swx
 *.py

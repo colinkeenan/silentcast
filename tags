@@ -4,25 +4,25 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-ABOUT_ATTACH	src/SC_conf_widgets.c	410;"	d	file:
+ABOUT_ATTACH	src/SC_conf_widgets.c	423;"	d	file:
 BGN_SCTN	src/SC_conf_widgets.h	38;"	d
 COL_SPACING	src/SC_conf_widgets.h	36;"	d
-CONFIG_ATTACH	src/SC_conf_widgets.c	425;"	d	file:
-DIALOG_ATCH	src/SC_temptoanim.c	379;"	d	file:
+CONFIG_ATTACH	src/SC_conf_widgets.c	438;"	d	file:
+DIALOG_ATCH	src/SC_temptoanim.c	415;"	d	file:
 D_ERR	lib/SC_X11_get_active_window.h	35;"	d
-EDPNGS_ATCH	src/SC_temptoanim.c	233;"	d	file:
+EDPNGS_ATCH	src/SC_temptoanim.c	241;"	d	file:
 END_SCTN	src/SC_conf_widgets.h	39;"	d
-F2_ATCH	src/main.c	553;"	d	file:
+F2_ATCH	src/main.c	615;"	d	file:
 FOCUS_ERR1	lib/SC_X11_get_active_window.h	36;"	d
 FOCUS_ERR2	lib/SC_X11_get_active_window.h	37;"	d
-FONT	src/main.c	228;"	d	file:
-GBOOLEAN	src/main.c	118;"	d	file:
+FONT	src/main.c	290;"	d	file:
+GBOOLEAN	src/main.c	180;"	d	file:
 P	src/SC_conf_widgets.h	34;"	d
 P	src/SC_temptoanim.c	25;"	d	file:
 PF1	src/SC_conf_widgets.h	33;"	d
-PF1_SET	src/SC_conf_widgets.c	260;"	d	file:
+PF1_SET	src/SC_conf_widgets.c	273;"	d	file:
 PRESET_N	src/SC_conf_widgets.h	35;"	d
-PRFS_ATCH	src/SC_conf_widgets.c	439;"	d	file:
+PRFS_ATCH	src/SC_conf_widgets.c	452;"	d	file:
 P_SET	src/main.c	38;"	d	file:
 ROW_SPACING	src/SC_conf_widgets.h	37;"	d
 SC_CONF_WIDGETS_H	src/SC_conf_widgets.h	25;"	d
@@ -50,13 +50,14 @@ SC_show_err_message	src/SC_temptoanim.c	/^void SC_show_err_message (GtkWidget *w
 SC_show_error	src/SC_temptoanim.c	/^void SC_show_error (GtkWidget *widget, char *err_message) $/;"	f
 SC_show_f1_widget	src/SC_conf_widgets.c	/^void SC_show_f1_widget (GtkApplication *app, GtkWidget *widget)$/;"	f
 SC_spawn	src/SC_temptoanim.c	/^void SC_spawn (GtkWidget *widget, char *commandstring, GPid *p_pid, char *message, char *nextfunc)$/;"	f
-SET	src/SC_conf_widgets.c	229;"	d	file:
-T	src/SC_conf_widgets.c	119;"	d	file:
+SET	src/SC_conf_widgets.c	242;"	d	file:
+T	src/SC_conf_widgets.c	132;"	d	file:
 TOP_ERR	lib/SC_X11_get_active_window.h	38;"	d
 UKN_ERR	lib/SC_X11_get_active_window.h	39;"	d
 activate	src/main.c	/^static void activate (GtkApplication *app,$/;"	f	file:
 animgif_exists	src/SC_temptoanim.c	/^static gboolean animgif_exists (GtkWidget *widget, char silentcast_dir[PATH_MAX])$/;"	f	file:
 button_press_event_cb	src/main.c	/^button_press_event_cb (GtkWidget      *widget,$/;"	f	file:
+call_nextfunc	src/SC_temptoanim.c	/^static void call_nextfunc (GtkWidget *widget)$/;"	f	file:
 cancel_cb	src/SC_temptoanim.c	/^static void cancel_cb (GtkWidget *cancel_button, gpointer data)$/;"	f	file:
 change_w_dir_cb	src/SC_conf_widgets.c	/^static void change_w_dir_cb (GtkWidget *change_w_dir, gpointer data) $/;"	f	file:
 child_watch_cb	src/SC_temptoanim.c	/^static void child_watch_cb (GPid pid, int status, gpointer data) \/\/called when spawned process ends$/;"	f	file:
@@ -100,6 +101,7 @@ on_value_changed_w	src/main.c	/^static gboolean on_value_changed_w (GtkSpinButto
 on_value_changed_x	src/main.c	/^static gboolean on_value_changed_x (GtkSpinButton *spin, gpointer data)$/;"	f	file:
 on_value_changed_y	src/main.c	/^static gboolean on_value_changed_y (GtkSpinButton *spin, gpointer data)$/;"	f	file:
 on_w_spinbutt_changed	src/SC_conf_widgets.c	/^static void on_w_spinbutt_changed (GtkWidget *spin, gpointer data)$/;"	f	file:
+open_filemanager	src/SC_temptoanim.c	/^static void open_filemanager (GtkWidget *widget, char silentcast_dir[PATH_MAX])$/;"	f	file:
 position_rect	src/main.c	/^static void position_rect (int x, int y, GdkRectangle *p_area_rect) {$/;"	f	file:
 resize_rect	src/main.c	/^static void resize_rect (int right, int lower, GdkRectangle *p_area_rect) {$/;"	f	file:
 run_ffcom	src/main.c	/^static void run_ffcom (GtkWidget *widget) $/;"	f	file:
@@ -111,7 +113,7 @@ set_rect_around_center_fourth	src/main.c	/^static void set_rect_around_center_fo
 set_rect_to_previous	src/main.c	/^static void set_rect_to_previous (GdkRectangle *rect, double previous[2])$/;"	f	file:
 setup_widget_data_pointers	src/main.c	/^static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app) $/;"	f	file:
 show_about_cb	src/SC_conf_widgets.c	/^static void show_about_cb (GtkWidget *widget, gpointer  data)$/;"	f	file:
-show_edit_pngs	src/SC_temptoanim.c	/^static void show_edit_pngs (GtkWidget *widget)$/;"	f	file:
+show_edit_pngs	src/SC_temptoanim.c	/^static void show_edit_pngs (GtkWidget *widget, char *errormessage)$/;"	f	file:
 show_f2_widget	src/main.c	/^static void show_f2_widget (GtkApplication *app, GtkWidget *widget) $/;"	f	file:
 show_f3_widget	src/main.c	/^static void show_f3_widget (GtkApplication *app, GtkWidget *widget) $/;"	f	file:
 show_file_err	src/SC_temptoanim.c	/^static void show_file_err (GtkWidget *widget, char filename[PATH_MAX], char *errmessage)$/;"	f	file:
@@ -123,7 +125,7 @@ toggle_fullscreen_area	src/main.c	/^static void toggle_fullscreen_area (GtkWidge
 tran_setup	src/main.c	/^static void tran_setup(GtkWidget *widget)$/;"	f	file:
 update_area_prefs	src/SC_conf_widgets.c	/^static void update_area_prefs (GtkWidget *widget, GtkWidget *f1_widget)$/;"	f	file:
 window_state_cb	src/main.c	/^static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, gpointer data)$/;"	f	file:
-write_conf	src/SC_conf_widgets.c	/^static void write_conf (GtkEntryBuffer *entry_buffer, char area[2], unsigned int fps, gboolean anims_from_temp, $/;"	f	file:
-write_presets	src/SC_conf_widgets.c	/^static void write_presets (double presets[PATH_MAX])$/;"	f	file:
+write_conf	src/SC_conf_widgets.c	/^static void write_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int fps, gboolean anims_from_temp, $/;"	f	file:
+write_presets	src/SC_conf_widgets.c	/^static void write_presets (GtkWidget *widget, double presets[PATH_MAX])$/;"	f	file:
 write_previous	src/main.c	/^static void write_previous (GtkWidget *widget, GdkRectangle previous)$/;"	f	file:
 xerror	lib/SC_X11_get_active_window.c	/^Bool xerror = False;$/;"	v
