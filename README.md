@@ -3,6 +3,11 @@ Silentcast
 
 Still need to write a full README for version 3 which has a completely different GUI than previous versions.
 
+#### Dependencies
+- gtk3
+- ffmpeg
+- imagemagick
+
 #### Manual Installation
 - Install the dependencies, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract. If extracted in your Downloads directory, this is how you would complete the installation:
 
