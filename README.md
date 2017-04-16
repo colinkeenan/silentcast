@@ -17,7 +17,7 @@ When ran, you will instantly get a green rectangle surrounding the active window
 record, just press Return to start and then click the minimized Silentcast icon to stop. Here is a screenshot
 showing the F1 dialog and green rectangle. This one picture explains most of what you need to know to use Silentcast v3.0:
 
-[Silencast_v3.0_Screenshot.png](Silencast_v3.0_Screenshot.png)
+![Silencast_v3.0_Screenshot.png](Silencast_v3.0_Screenshot.png)
 
 #### Dependencies
 - gtk3
