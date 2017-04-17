@@ -350,19 +350,25 @@ static void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surfa
   cairo_rectangle (cr, rleft - 2, rupper - 2, rwidth + 4, rheight + 4);
   cairo_stroke (cr); // draw the lines (of default width, 2)
 
-  /* define text to be drawn under the rectangle */
+  /* define text to be drawn onscreen */
   snprintf (char_rleft, 5, "%d", (int) rleft);
   snprintf (char_rupper, 5, "%d", (int) rupper);
   snprintf (char_rwidth, 5, "%d", (int) rwidth);
   snprintf (char_rheight, 5, "%d", (int) rheight);
-  strcpy (text, char_rleft); strcat (text, ","); strcat (text, char_rupper); strcat (text, " "); 
+  strcpy (text, "  "); strcat (text, char_rleft); strcat (text, ","); strcat (text, char_rupper); strcat (text, " "); 
   strcat (text, char_rwidth); strcat (text, "x"); strcat (text, char_rheight); strcat (text, "\n\
-   F1 About Mouse Controls|Configuration|Preferences\n\
-   F2 Set recording area with number keys & resize active window checkbox\n\
-   F3 View the ffmpeg command that will record the rectangle area\n\
-  ESC Quit, q Quit, F11 Toggle Fullscreen, RETURN Begin Recording");
+  Right-click or Scroll to resize\n\
+  F1 Help and configuration\n\
+  F2 Numerically set area\n\
+  F3 View the ffmpeg command\n\
+  RETURN Begin Recording\n\
+  Click icon to stop Recording\n\
+  ESC/q Quit, F11 Fullscreen");
 
-  draw_text (cr, rleft, rupper + rheight + 10, widget, text);
+  if (rupper + rheight < mon_height - 200) draw_text (cr, rleft, rupper + rheight + 10, widget, text);
+  else if (rupper > 200) draw_text (cr, rleft, rupper - 200, widget, text);
+  else if (rleft > 350) draw_text (cr, rleft - 400, rupper + rheight / 2 - 100, widget, text);
+  else if (rleft + rwidth < mon_width - 100) draw_text (cr, rleft + rwidth, rupper + rheight / 2 - 100, widget, text);
 
   cairo_destroy (cr);
   gtk_widget_queue_draw_area (widget, rleft - 2, rupper - 2, rwidth + 4, rheight + 4);

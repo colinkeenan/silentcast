@@ -10,17 +10,17 @@ If you make the mistake of trying to run Silentcast v3.0 while it is already run
     pkill -f ffmpeg
 
 when it closes (crashes) so that `silentcast/temp.mkv.` doesn't take over your hard drive. Due to a bug that
-shows on some systems where silencast is unable to kill the ffmpeg process it spawned directly, v3.01 is currently
+shows on some systems where silencast is unable to kill the ffmpeg process it spawned directly, v3.02 is currently
 also killing all instances of ffmpeg so that it's not possible to get a full recording of silentcast in action 
 using ffmpeg either.
-This problem will be fixed in future releases, but other bugs will probably be fixed first because not many 
+This problem will be fixed in a future release, but other bugs will probably be fixed first because not many 
 people need to record Silentcast in action.
 
 When ran, you will instantly get a green rectangle surrounding the active window. If that's what you wanted to
 record, just press Return to start and then click the minimized Silentcast icon to stop. Here is a screenshot
-showing the F1 dialog and green rectangle. This one picture explains most of what you need to know to use Silentcast v3.0:
+showing the F1->Rectangle Preferences dialog and green rectangle. 
 
-![Silencast_v3.0_Screenshot.png](Silencast_v3.0_Screenshot.png)
+![Silencast_v3.02_Screenshot.png](Silencast_v3.02_Screenshot.png)
 
 #### Dependencies
 - gtk3

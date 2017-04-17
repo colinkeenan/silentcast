@@ -231,6 +231,8 @@ static void show_edit_pngs (GtkWidget *widget, char *errormessage)
   GtkWidget *done= gtk_button_new_with_label ("Done");
   g_signal_connect (done, "clicked", 
      G_CALLBACK(make_anim_gif_cb), NULL);
+  char silentcast_dir[PATH_MAX];
+  get_silentcast_dir (widget, silentcast_dir);
 
   GtkWidget *edit_pngs_widget = gtk_application_window_new (gtk_window_get_application (GTK_WINDOW(widget)));
   gtk_window_set_transient_for (GTK_WINDOW(edit_pngs_widget), GTK_WINDOW(widget));
@@ -242,10 +244,11 @@ static void show_edit_pngs (GtkWidget *widget, char *errormessage)
   EDPNGS_ATCH(gtk_label_new (errormessage), 0, 0, 4);
   EDPNGS_ATCH(gtk_label_new ("This is your oportunity to edit the pngs before creating animations from them."), 0, 1, 4);
   EDPNGS_ATCH(group_spinbutt_label, 0, 2, 1); EDPNGS_ATCH(group_spnbutt, 1, 2, 1);
-  EDPNGS_ATCH(gtk_label_new ("Or, manipulate the images manually in a file browser or other application."), 0, 3, 4);
-  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 4, 4);
-                                                                                                      EDPNGS_ATCH(done, 4, 5, 1);
-  gtk_widget_show_all(edit_pngs_widget);
+  EDPNGS_ATCH(gtk_label_new ("Or, manipulate the images manually in a file browser or other application from this location:"), 0, 3, 4);
+  EDPNGS_ATCH(gtk_label_new (silentcast_dir), 0, 4, 4);
+  EDPNGS_ATCH(gtk_label_new ("Clicking done will prune the pngs (if indicated) and try to make anim.gif from what remains."), 0, 5, 4);
+                                                                                                      EDPNGS_ATCH(done, 4, 6, 1);
+  gtk_widget_show_all (edit_pngs_widget);
 }
 
 static void make_webm_from_temp (GtkWidget *widget)
