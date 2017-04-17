@@ -1004,14 +1004,16 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
     //don't really want to see the surface anymore, so hide it
     gtk_widget_hide (widget);
     //stop ffcom
-    GPid *p_ffcom_pid = P("p_ffcom_pid");
-    if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
-    else g_spawn_close_pid (*p_ffcom_pid); //doesn't do anything on linux but supposed to use it anyway
+    //GPid *p_ffcom_pid = P("p_ffcom_pid");
+    //if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
+    //else g_spawn_close_pid (*p_ffcom_pid); //doesn't do anything on linux but supposed to use it anyway
     //due to a bug where ffmpeg continues to record the screen somehow in some cases, I need to use brute force
     //to kill all instances of ffmpeg
-    GError *err; //don't really care about an error here but it's required
-    g_spawn_command_line_sync ("/bin/sh -c 'pkill -f ffmpeg'", NULL, NULL, NULL, &err);
-    g_error_free (err); 
+    GError *err = NULL;
+    if (!g_spawn_command_line_sync ("/bin/sh -c 'pkill -f ffmpeg'", NULL, NULL, NULL, &err)) {
+      fprintf (stderr, "Error: %s\n", err->message);
+      g_error_free (err);
+    }
     //generate outputs (temptoanim) defining needed parameters first
     char silentcast_dir[PATH_MAX];
     strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
