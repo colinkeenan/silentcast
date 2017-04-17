@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 if [ $# -eq 0 ]
 then DESTDIR="" 
 elif [ $(echo -n "$1" | tail -c -1) = "/" ] 
