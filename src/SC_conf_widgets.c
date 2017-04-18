@@ -104,7 +104,7 @@ static void show_about_cb (GtkWidget *widget, gpointer  data)
                        "program-name", "Silentcast",
                         "authors", authors, "license-type", GTK_LICENSE_GPL_3_0,
                         "logo-icon-name", "silentcast",
-                        "version", "v3.03",
+                        "version", "v3.04",
                         "website", "https://github.com/colinkeenan/silentcast", "website-label", "Silentcast README.md on Github",
                         "copyright", "© 2017 Colin N Keenan <colinnkeenan@gmail.com>",
                         "wrap-license", TRUE, 
