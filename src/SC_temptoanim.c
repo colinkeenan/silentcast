@@ -125,7 +125,7 @@ static char** get_array_of_pngs (GtkWidget *widget, char silentcast_dir[PATH_MAX
           strcat (path_and_file, filename);
           char *glib_encoded_filename = SC_get_glib_filename (widget, path_and_file);
           if (glib_encoded_filename) {
-            png[i] = malloc (strlen (glib_encoded_filename));
+            png[i] = malloc (strlen (glib_encoded_filename) + 1); //strlen does not include the terminating nul character
             strcpy (png[i], glib_encoded_filename);
             g_free (glib_encoded_filename);
             i++;
