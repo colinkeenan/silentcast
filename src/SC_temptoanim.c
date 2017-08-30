@@ -368,8 +368,9 @@ static void call_nextfunc (GtkWidget *widget)
     open_filemanager (widget, silentcast_dir); 
     //the surface widget was hidden just before calling SC_generate_outputs
     //should probably destroy the widget now, but that will close the filebrowser just opened
-    //so, showing it again
+    //so, showing it again then destroying it and file browser stays open - who knows why
     gtk_widget_show_all (widget); 
+    gtk_widget_destroy (widget); 
   } 
   else if (!strcmp (nextfunc, "stop")) { 
     open_filemanager (widget, silentcast_dir);
