@@ -27,6 +27,53 @@ showing the F1->Rectangle Preferences dialog and green rectangle.
 - ffmpeg
 - imagemagick
 
+### Tiling Window Managers
+
+Starting with v3.05, it is possible to use Silentcast in Tiling Window Managers that can't iconify a window and don't show any windows behind a maximaized window. To make it work, you will have to define 3 new keybindings. The first will make Silentcast a floating window that fills the display. The second will "iconify" Silentcast by putting it on an empty workspace (named Silentcast if possible) and putting it back to fullscreen instead of floating (this will trigger Silentcast to begin recording). The third will "deiconify" Silentcast by putting back on the original workspace as a floating window that fills the display. This has only been tested in i3wm. I will provide keybindings for other tiling window managers if an issue is opened for it. The following keybindings should be added to `~/.config/i3/config`:
+
+
+        # Silentcast Workaround (because i3wm can't iconify)
+        #
+        # After copy and pasting this, make sure to change the display size at the end
+        # of the first definition ($enable_floating_fullscreen) to match your display size
+        #
+        # Use these keybindings as follows:
+        #   1. Start Silentcast
+        #   2. $mod+Shift+s to make Silentcast a floating window filling the display 
+        #      (which allows other windows to be seen below it)
+        #   3. Select the region to be recorded using standard Silentcast controls
+        #   4. $mod+z to "iconify" silentcast to start recording (actually putting it on a
+        #      workspace named Silencast and making it fullscreen again instead of floating)
+        #   5. When done recording, $mod+x to "deiconify" Silentcast which will stop
+        #      recording and move on to the next step as usual.
+        #   6. When final outputs have been created, the Silentcast window will block
+        #      everything again, so exit with Esc. 
+
+        # define what fullscreen means for floating window - have to manually set the display size
+        set $enable_floating_fullscreen  border none,fullscreen disable,floating enable,move absolute position 0 0,resize set 1920 1080
+
+        # more definitions (i3wm doesn't seem to support using $variables in definitions of other $variables)
+        set $work_in_temp move container to workspace Silentcast,workspace Silentcast
+
+        set $return_from_temp move container to workspace back_and_forth,workspace back_and_forth
+
+        set $iconify move container to workspace Silentcast,workspace Silentcast,floating disable,fullscreen enable,workspace back_and_forth
+
+        set $deiconify workspace Silentcast,border none,fullscreen disable,floating enable,move absolute position 0 0,resize set 1920 1080,move container to workspace back_and_forth,workspace back_and_forth
+
+        # change from fullscreen to floating_fullscreen because iw3m won't show other windows under it otherwise
+        bindsym $mod+Shift+s [class="Silentcast"] $work_in_temp,$enable_floating_fullscreen,$return_from_temp
+
+        # "iconify"
+        bindsym $mod+z [class="Silentcast"] $iconify
+
+        # "deiconify" to stop ffmpeg and continue
+        bindsym $mod+x [class="Silentcast"] $deiconify
+
+        #
+        # End of Silentcast Workaround
+        #
+
 #### Manual Installation
 - Install the dependencies, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract. If extracted in your Downloads directory, this is how you would complete the installation:
 

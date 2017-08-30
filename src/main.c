@@ -403,6 +403,7 @@ static void draw_rect (GtkWidget *widget, GdkRectangle *p_area_rect, cairo_surfa
 static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)
 {
   gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
+  gboolean *p_surface_ready = P("p_surface_ready");
   if (*p_surface_became_fullscreen) {
     /* Save geometry of the surface so draw_rect will have it.
      * Since the surface widget is fullscreen, the geometry
@@ -436,6 +437,8 @@ static gboolean draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer   data)
       set_rect_to_previous (P("p_area_rect"), P("previous"));
     //prevent infinite loop since draw_rect will queue more draws
     *p_surface_became_fullscreen = FALSE; //only do this once after becoming fullscreen, not on every draw
+    *p_surface_ready = TRUE; //signals that future fullscreen event should stop ffmpeg and move to next step
+                             //this was added for tiling window managers
     draw_rect (widget, P("p_area_rect"), P("surface"));
   }
 
@@ -666,13 +669,13 @@ static void show_f3_widget (GtkApplication *app, GtkWidget *widget)
   gdk_window_resize (gtk_widget_get_window(ffcom_entry), 8 * gtk_entry_get_text_length (GTK_ENTRY(ffcom_entry)), 32);
 }
 
-/* Pressing RETURN triggers this to make the uncompressed recording to silentcast/temp.mkv 
+/* Pressing RETURN triggers iconify which triggers this to make the uncompressed recording to silentcast/temp.mkv 
+ * This is also triggered when the drawing surface window becomes tiled since tiling window managers can't iconify
  * The ffmpeg command will save a log in ffcom.log because the appropriate environment 
  * variable was set in setup_widget_data_pointers
  */
 static void run_ffcom (GtkWidget *widget) 
 {
-  gtk_window_iconify (GTK_WINDOW(widget)); //get translucent surface out of the way while recording
   //Before running the ffmpeg command, make working directory/silentcast if it doesn't exist
   char silentcast_dir[PATH_MAX];
   strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
@@ -684,6 +687,8 @@ static void run_ffcom (GtkWidget *widget)
     get_ffcom(P("ffcom_string"), P("p_area_rect"), mon_rect->x, mon_rect->y, P("p_fps"));
     SC_spawn (widget, P("ffcom_string"), P("p_ffcom_pid"), "", ""); 
     g_free (glib_encoded_silentcast_dir);
+    gboolean *p_ffcom_is_running = P("p_ffcom_is_running");
+    *p_ffcom_is_running = TRUE;
   }
 }
 
@@ -825,7 +830,8 @@ static gboolean key_release_event_cb (GtkWidget *widget,
     show_f3_widget (GTK_APPLICATION(data), widget);
     return TRUE;
   } else if (*p_key_pressed && event->keyval == GDK_KEY_Return) {
-    run_ffcom (widget);
+    gtk_window_iconify (GTK_WINDOW(widget)); //get translucent surface out of the way while recording
+    //if state of window is successfully changed to iconified then run_ffcom will be triggered
     return TRUE;
   } else if (event->keyval == GDK_KEY_F11) {
     GdkRectangle *p_area_rect = P("p_area_rect");
@@ -891,6 +897,7 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     static GdkRectangle *p_actv_win = &actv_win; P_SET(p_actv_win);
     static GdkRectangle *p_extents = &extents; P_SET(p_extents);
     static gboolean surface_became_fullscreen = FALSE, *p_surface_became_fullscreen = &surface_became_fullscreen; P_SET(p_surface_became_fullscreen);
+    static gboolean surface_ready = FALSE, *p_surface_ready = &surface_ready; P_SET(p_surface_ready);
 
     static gboolean include_extents = TRUE, *p_include_extents = &include_extents;
     P_SET(p_include_extents);
@@ -916,8 +923,9 @@ static void setup_widget_data_pointers (GtkWidget *widget, GtkApplication *app)
     /*variable for the ffcom pid*/
     static GPid ffcom_pid = 0, *p_ffcom_pid = &ffcom_pid; P_SET(p_ffcom_pid);
 
-    /*need to track when surface becomes iconified and not iconified to kill ffmpeg*/
+    /*need to track when surface becomes iconified and not iconified while ffmpeg is running to kill ffmpeg*/
     static gboolean surface_became_iconified = FALSE, *p_surface_became_iconified = &surface_became_iconified; P_SET(p_surface_became_iconified);
+    static gboolean ffcom_is_running = FALSE, *p_ffcom_is_running = &ffcom_is_running; P_SET(p_ffcom_is_running);
 
     /*current directory*/ 
     char *cur_dir = g_get_current_dir (); P_SET(cur_dir);
@@ -1001,31 +1009,45 @@ static gboolean window_state_cb (GtkWidget *widget, GdkEventWindowState *event, 
 {
   gboolean *p_surface_became_fullscreen = P("p_surface_became_fullscreen");
   gboolean *p_surface_became_iconified = P("p_surface_became_iconified");
+  gboolean *p_surface_ready = P("p_surface_ready");
+  gboolean *p_ffcom_is_running = P("p_ffcom_is_running");
 
-  if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) 
-    *p_surface_became_iconified = TRUE;
+  //workaround for tiling window managers involves user creating keybinding that fullscreens the Silencast surface 
+  //and puts it on a temporary workspace since can't iconify (user also had to create another keybinding to 
+  //make the surface floating and thus not fullscreen, but sized to fit the screen - otherwise can't see other
+  //windows behind the surface)
+  if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED || 
+      (*p_surface_ready && event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)) {
+    *p_surface_became_iconified = TRUE; //for tiling window managers that can't iconify, being fullscreen again is treated as if iconified
+    //and it won't be fullscreen when drawing rectangle because can't see other windows behind it when fullscreen on tiling window manager
+    *p_surface_ready = FALSE; //don't want to run ffcom more than once in a given Silentcast session
+    run_ffcom (widget);
+  }
 
-  else if (*p_surface_became_iconified) { //changed to not iconified so stop ffmpeg and launch temptoanim
+  else if (*p_surface_became_iconified) {
     *p_surface_became_iconified = FALSE;
-    //don't really want to see the surface anymore, so hide it
-    gtk_widget_hide (widget);
-    //stop ffcom
-    //GPid *p_ffcom_pid = P("p_ffcom_pid");
-    //if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
-    //else g_spawn_close_pid (*p_ffcom_pid); //doesn't do anything on linux but supposed to use it anyway
-    
-    //Not using the C function "kill" (commented out above) due to a bug where ffmpeg continues to record 
-    //the screen somehow in some cases. I need to kill all instances of ffmpeg by spawning pkill -f
-    GError *err = NULL;
-    if (!g_spawn_command_line_sync ("/bin/sh -c 'pkill -f ffmpeg'", NULL, NULL, NULL, &err)) {
-      fprintf (stderr, "Error: %s\n", err->message);
-      g_error_free (err);
+    if (*p_ffcom_is_running) { //changed to not iconified so stop ffmpeg and launch temptoanim
+      //don't really want to see the surface anymore, so hide it
+      gtk_widget_hide (widget);
+      //stop ffcom
+      //GPid *p_ffcom_pid = P("p_ffcom_pid");
+      //if (kill (*p_ffcom_pid, SIGTERM) == -1) SC_show_error (widget, "Error trying to kill command");
+      //else g_spawn_close_pid (*p_ffcom_pid); //doesn't do anything on linux but supposed to use it anyway
+      
+      //Not using the C function "kill" (commented out above) due to a bug where ffmpeg continues to record 
+      //the screen somehow in some cases. I need to kill all instances of ffmpeg by spawning pkill -f
+      GError *err = NULL;
+      if (!g_spawn_command_line_sync ("/bin/sh -c 'pkill -f ffmpeg'", NULL, NULL, NULL, &err)) {
+        fprintf (stderr, "Error: %s\n", err->message);
+        g_error_free (err);
+      }
+      *p_ffcom_is_running = FALSE;
+      //generate outputs (temptoanim) defining needed parameters first
+      char silentcast_dir[PATH_MAX];
+      strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
+      strcat (silentcast_dir, "/silentcast");
+      SC_generate_outputs (widget);
     }
-    //generate outputs (temptoanim) defining needed parameters first
-    char silentcast_dir[PATH_MAX];
-    strcpy (silentcast_dir, gtk_entry_buffer_get_text (P("working_dir")));
-    strcat (silentcast_dir, "/silentcast");
-    SC_generate_outputs (widget);
 
   } else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN) 
     *p_surface_became_fullscreen = TRUE;
