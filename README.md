@@ -46,8 +46,7 @@ Starting with v3.05, it is possible to use Silentcast in Tiling Window Managers 
         #      workspace named Silencast and making it fullscreen again instead of floating)
         #   5. When done recording, $mod+x to "deiconify" Silentcast which will stop
         #      recording and move on to the next step as usual.
-        #   6. When final outputs have been created, the Silentcast window will block
-        #      everything again, so exit with Esc. 
+        #   
 
         # define what fullscreen means for floating window - have to manually set the display size
         set $enable_floating_fullscreen  border none,fullscreen disable,floating enable,move absolute position 0 0,resize set 1920 1080
