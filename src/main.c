@@ -1101,6 +1101,7 @@ static void activate (GtkApplication *app,
       G_CALLBACK (on_surface_widget_destroy), app);
   
   gtk_widget_show_all (widget);
+  gtk_window_maximize (GTK_WINDOW (widget));
   gtk_window_fullscreen (GTK_WINDOW (widget)); 
 }
 
