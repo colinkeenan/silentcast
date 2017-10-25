@@ -65,69 +65,56 @@ static int compare_doubles (const void *a, const void *b)
 
 static void get_presets (GtkWidget *widget, double presets[PRESET_N], double previous[2]) 
 {
-  double read_preset;
-  FILE *presets_file = NULL;
   unsigned int i=0;
   char filename[PATH_MAX];
   double preset_defaults[PRESET_N] = {8.00008, 16.00016, 32.00032, 48.00048, 64.00064, 96.00096, 128.00128, 
     256.00144, 427.00240, 569.00320, 640.00360, 853.00480, 1280.00720, 1360.00765, 1920.01080, 2880.01620};
+  char *contents, *glib_encoded_filename;
 
-  //try to find presets file in current directory
+  //Try to find presets file
+  // 1st try current directory
   char *cur_dir = g_get_current_dir ();
   strcpy (filename, cur_dir);
   g_free (cur_dir);
   strcat (filename, "/silentcast_presets");
-  char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
-  if (glib_encoded_filename) {
-    presets_file = g_fopen (glib_encoded_filename, "r");
+  glib_encoded_filename = SC_get_glib_filename (widget, filename);
+  if (!g_file_test (glib_encoded_filename, G_FILE_TEST_EXISTS)) {
     g_free (glib_encoded_filename);
-  }
-
-  if (!presets_file) {
-    //try to find presets file in $HOME/.config
+    // 2nd try $HOME/.config
     strcpy (filename, g_get_home_dir());
     strcat (filename, "/.config/silentcast_presets");
-    char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
-    if (glib_encoded_filename) {
-      presets_file = g_fopen (glib_encoded_filename, "r");
+    glib_encoded_filename = SC_get_glib_filename (widget, filename);
+    if (!g_file_test (glib_encoded_filename, G_FILE_TEST_EXISTS)) {
       g_free (glib_encoded_filename);
+      // 3rd default to /etc
+      strcpy (filename, "/etc/silentcast_presets");
+      glib_encoded_filename = SC_get_glib_filename (widget, filename);
     }
   }
-  if (!presets_file) {
-    //try to find presets file in /etc
-    strcpy (filename, "/etc/silentcast_presets");
-    char *glib_encoded_filename = SC_get_glib_filename (widget, filename);
-    if (glib_encoded_filename) {
-      presets_file = g_fopen (glib_encoded_filename, "r");
-      g_free (glib_encoded_filename);
+
+  //try to read presets file (even though it may not exist)
+  GError *err = NULL;
+  if (g_file_get_contents (glib_encoded_filename, &contents, NULL, &err)) {
+    g_free (glib_encoded_filename);
+    char **char_presets = g_strsplit (contents, "\n", -1); //split file contents on newlines, but still need to convert to float
+    for (i = 0; char_presets[i] && i < PRESET_N + 2; i++) { 
+      if (i < PRESET_N) presets[i] = strtof(char_presets[i], NULL); //storing preset (converting string to float)
+      else previous[i - PRESET_N] = strtof(char_presets[i], NULL); //storing previous rectangle geometry
     }
-  }
-  if (!presets_file) {
-    //can't open presets file so show error and use defaults
+    qsort (presets, PRESET_N, sizeof (double), compare_doubles);
+    g_free (contents);
+    g_strfreev (char_presets);
+  } else {
+    //can't read presets file so show error and use defaults
     char message[PATH_MAX + 100] = { 0 };
     strcpy (message, "<");
     strcat (message, filename);
-    strcat (message, "> Using default list of sizes for middle-click drag");
-    show_perror (widget, message);
+    strcat (message, "> Using default list of sizes for middle-click drag. ");
+    SC_show_err_message (widget, message, err->message);
     for (i = 0; i < PRESET_N; i++) presets[i] = preset_defaults[i]; 
     previous[0] = 0; previous[1] = 0;  
-  } else { 
-    //succesfully opened presets file so read it
-    for (i = 0; i < PRESET_N + 2; i++) { //preset file also has previous rectangle geometry
-      int ret = fscanf (presets_file, "%lf", &read_preset);
-      if (ret == 1){
-        if (i < PRESET_N) presets[i] = read_preset; //reading preset
-        else previous [i - PRESET_N] = read_preset; //reading previous rectangle geometry
-      } else if (errno != 0) {
-        show_perror (widget, "fscanf");
-        break;
-      } else if (ret == EOF) {
-        break;
-      }
-    }
-    fclose (presets_file); 
+    g_error_free (err);
   }
-  qsort (presets, PRESET_N, sizeof (double), compare_doubles);
 }
 
 static void get_conf (GtkWidget *widget, GtkEntryBuffer *entry_buffer, char area[2], unsigned int *p_fps, gboolean *p_anims_from_temp, 
@@ -496,6 +483,7 @@ static void scroll_resize_to_preset (GdkScrollDirection direction, GdkRectangle 
       //find the preset that's bigger than the current rectangle
       i = 0;
       while (i < PRESET_N - 1 && !(presets[i] > widthheight)) i++;
+      if (i < PRESET_N - 2) i++;
     }
 
     p_area_rect->width = (int) SC_get_w (presets[i]);
