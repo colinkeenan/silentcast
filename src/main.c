@@ -477,12 +477,12 @@ static void scroll_resize_to_preset (GdkScrollDirection direction, GdkRectangle 
 
     //find the preset that's smaller than the current rectangle 
     while (i > 0 && !(presets[i] < widthheight)) i--;
-
     //i is now what's needed if direction is up
-    //so, change it if direction is down (down increases size of rectangle)
+    //change i if direction is down (down increases size of rectangle)
     if (direction == GDK_SCROLL_DOWN && i <= PRESET_N - 2){
       i++;
-      if (presets[i] == widthheight && i<= PRESET_N - 2) i++;
+      //doesn't work to check of presets[i] == widthheight due to low precision for some reason
+      if (presets[i] - widthheight < 0.00001 && i<= PRESET_N - 2) i++;
     }
 
     p_area_rect->width = (int) SC_get_w (presets[i]);
