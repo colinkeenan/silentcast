@@ -27,6 +27,29 @@ showing the F1->Rectangle Preferences dialog and green rectangle.
 - ffmpeg
 - imagemagick
 
+#### Manual Installation
+
+##### 1. Install Dependencies
+
+```shell
+sudo apt install libgtk-3-dev ffmpeg imagemagick
+```
+
+##### 2. Download Silentcast
+
+[Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest)
+
+##### 3. Build And Install
+
+Navigate to where you extracted the downloaded archive and run the following commands:
+
+```shell
+make
+sudo ./install
+```
+
+You should then find silentcast in your launcher. You can uninstall it with `sudo ./uninstall` in the same directory.
+
 #### Tiling Window Managers
 
 Starting with v3.05, it is possible to use Silentcast in Tiling Window Managers that can't iconify a window and don't show any windows behind a maximaized window. To make it work, you will have to define 3 new keybindings. The first will make Silentcast a floating window that fills the display. The second will "iconify" Silentcast by putting it on an empty workspace (named Silentcast if possible) and putting it back to fullscreen instead of floating (this will trigger Silentcast to begin recording). The third will "deiconify" Silentcast by putting back on the original workspace as a floating window that fills the display. This has only been tested in i3wm. I will provide keybindings for other tiling window managers if an issue is opened for it. The following keybindings should be added to `~/.config/i3/config`:
@@ -90,21 +113,13 @@ For example, if `Setup Window Shortcut` is set to `Meta+Space`, and you want to 
 
 Something similar can probably be done on other desktops. I will look into it if an issue is raised.
 
-#### Manual Installation
-- Install the dependencies, [Download Latest Release of Silentcast from github.com](https://github.com/colinkeenan/silentcast/releases/latest), and extract. If extracted in your Downloads directory, this is how you would complete the installation:
+#### Testing Install Scripts
 
-```
-$ cd ~/Downloads/silentcast-3.0
-$ make
-$ sudo ./install
-```
+You can also test the install scripts by passing an arbitrary destination directory (that doesn't need to exist already).
 
-You should then find silentcast in your launcher. You can uninstall it with `sudo ./uninstall` in the same directory.
+As an example, see the following output where we install to `test` with `./install test`, use `tree` to see what it did, and then uninstall from `test`.
 
-You can also test what these scripts do passing a destination directory (that doesn't need to exist already).
-For example, install to `test`, use `tree` to see what it did, and then uninstall from `test`. (You will probably need to install `tree`.)
-
-```
+```shell
 $ ./install test
 $ tree test
 test
@@ -144,7 +159,7 @@ test
             └── COPYING
 
 22 directories, 12 files
-$./uinstall test
+$./uninstall test
 $tree test
 test
 ├── etc
